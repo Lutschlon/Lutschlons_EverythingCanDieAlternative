@@ -17,7 +17,7 @@ namespace EverythingCanDie
     {
         public const string Guid = "nwnt.EverythingCanDieAlternative";
         public const string Name = "EverythingCanDieAlternative";
-        public const string Version = "1.0.0";
+        public const string Version = "1.0.1";
 
         public static Plugin Instance;
         public static Harmony Harmony;
@@ -27,40 +27,74 @@ namespace EverythingCanDie
 
         private void Awake()
         {
-            Harmony = new Harmony(Guid);
             Instance = this;
-            Harmony.PatchAll(typeof(Plugin));
-            Log = Logger;
-            CreateHarmonyPatch(Harmony, typeof(StartOfRound), "Start", null, typeof(Patches), nameof(Patches.StartOfRoundPatch), false);
-            CreateHarmonyPatch(Harmony, typeof(EnemyAI), nameof(EnemyAI.HitEnemy), new[] { typeof(int), typeof(PlayerControllerB), typeof(bool), typeof(int) }, typeof(Patches), nameof(Patches.HitEnemyPatch), false);
-            CreateHarmonyPatch(Harmony, typeof(EnemyAI), nameof(EnemyAI.KillEnemy), new[] { typeof(bool) }, typeof(Patches), nameof(Patches.KillEnemyPatch), false);
-            Logger.LogInfo("Patching complete");
+            Log = base.Logger;
+            Harmony = new Harmony(Guid);
+
+            try
+            {
+                CreateHarmonyPatch(typeof(StartOfRound), "Start", null, typeof(Patches), nameof(Patches.StartOfRoundPatch), false);
+                CreateHarmonyPatch(typeof(EnemyAI), nameof(EnemyAI.HitEnemy),
+                    new[] { typeof(int), typeof(PlayerControllerB), typeof(bool), typeof(int) },
+                    typeof(Patches), nameof(Patches.HitEnemyPatch), false);
+                CreateHarmonyPatch(typeof(EnemyAI), nameof(EnemyAI.KillEnemy),
+                    new[] { typeof(bool) }, typeof(Patches), nameof(Patches.KillEnemyPatch), false);
+
+                Log.LogInfo("Patching complete");
+            }
+            catch (Exception e)
+            {
+                Log.LogError($"Error in Awake: {e}");
+            }
         }
 
-        public static void CreateHarmonyPatch(Harmony harmony, Type typeToPatch, string methodToPatch, Type[] parameters, Type patchType, string patchMethod, bool isPrefix)
+        private void CreateHarmonyPatch(Type typeToPatch, string methodToPatch,
+            Type[] parameters, Type patchType, string patchMethod, bool isPrefix)
         {
-            if (typeToPatch == null || patchType == null)
+            try
             {
-                Log.LogInfo("Type is either incorrect or does not exist!");
-                return;
-            }
-            MethodInfo Method = AccessTools.Method(typeToPatch, methodToPatch, parameters, null);
-            MethodInfo Patch_Method = AccessTools.Method(patchType, patchMethod, null, null);
+                if (typeToPatch == null || patchType == null)
+                {
+                    Log.LogError("Type is either incorrect or does not exist!");
+                    return;
+                }
 
-            if (isPrefix)
-            {
-                harmony.Patch(Method, new HarmonyMethod(Patch_Method), null, null, null, null);
-                Log.LogInfo("Prefix " + Method.Name + " Patched!");
+                MethodInfo Method = AccessTools.Method(typeToPatch, methodToPatch, parameters, null);
+                MethodInfo Patch_Method = AccessTools.Method(patchType, patchMethod, null, null);
+
+                if (Method == null)
+                {
+                    Log.LogError($"Could not find method {methodToPatch} in {typeToPatch.Name}");
+                    return;
+                }
+
+                if (Patch_Method == null)
+                {
+                    Log.LogError($"Could not find patch method {patchMethod} in {patchType.Name}");
+                    return;
+                }
+
+                if (isPrefix)
+                {
+                    Harmony.Patch(Method, new HarmonyMethod(Patch_Method));
+                    Log.LogInfo($"Created prefix patch for {Method.Name}");
+                }
+                else
+                {
+                    Harmony.Patch(Method, null, new HarmonyMethod(Patch_Method));
+                    Log.LogInfo($"Created postfix patch for {Method.Name}");
+                }
             }
-            else
+            catch (Exception e)
             {
-                harmony.Patch(Method, null, new HarmonyMethod(Patch_Method), null, null, null);
-                Log.LogInfo("Postfix " + Method.Name + " Patched!");
+                Log.LogError($"Error creating harmony patch: {e}");
             }
         }
 
         public static string RemoveInvalidCharacters(string source)
         {
+            if (string.IsNullOrEmpty(source)) return string.Empty;
+
             StringBuilder sb = new StringBuilder();
             foreach (char c in source)
             {
@@ -94,8 +128,8 @@ namespace EverythingCanDie
             }
             catch (Exception e)
             {
-                Log.LogInfo($"Error in config check for mob {mobName}: {e.Message}");
-                return true;
+                Log.LogError($"Error in config check for mob {mobName}: {e.Message}");
+                return false;
             }
         }
     }
