@@ -1,3 +1,28 @@
+## Version 1.0.1
+
+### Fixes
+- Changed the hit detection for modded enemies that deviate from using the standard enemyAi system
+  - Now properly works with Shrimp, CountryRoadCreature
+  - Locker should work as well
+  - Could work with a wider range of modded enemies now
+  - The configuration for clients should work better as well now
+
+### Important Note
+- 3D Models of enemies that deviate from the enemyAI system are not despawning properly (Needs further testing)
+  - SellBodiesFixed fixes this issue for some reason
+
+### Technical Improvements
+- Improved hit detection system to catch hits at network synchronization level
+- More robust handling of network ownership and client/server interactions
+- Better integration with the game's hit registration system
+- More logging
+
+### Untested 
+  - The Fiend
+  - Ghost Girl despawn issues
+
+---
+
 ## Version 1.0.0 (Initial Release)
 
 ### Features
@@ -20,9 +45,9 @@
 - Less precise configuration (differentiate between shovel and shotgun) and no explosions on enemy death compared to original EverythingCanDie mod
 
 ### Future Plans For Known Issues
-- Not planning to fix The Fiend or Locker
+- Not planning to fix The Fiend or Locker (changed my mind, did try to fix it in 1.0.1)
 - Ghost Girl despawn issue will remain as is (i leave her at immortal anyway)
-- Investigating config synchronization between host and clients
+- Investigating config synchronization between host and clients (works better as of 1.0.1)
 
 ### Future Features?
 - None, this mods only purpose is to be a robust mod to allow the death of enemeis with being able to configure their hp, i want to use this mod alongside SellBodiesFixed or Enhanced_Monsters or whatever mods reward you for going on the hunt
