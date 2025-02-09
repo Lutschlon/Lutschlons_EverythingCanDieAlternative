@@ -1,6 +1,3 @@
-# Lutschlons_EverythingCanDieAlternative
-This is an alternative version of the EverythingCanDie mod from TheFluff alias nyakowint for LethalCompany
-
 # EverythingCanDieAlternative
 
 A simplified version of the EverythingCanDie mod from TheFluff that makes immortal enemies damageable/killable.
@@ -18,11 +15,7 @@ For each enemy, you can configure:
 - `.Health` - Set the enemy's health value
 
 ## Known Issues
-- The Fiend and Locker enemies do not work with this mod
 - Ghost Girl (and potentially Herobrine/Football) may not despawn properly when killed
-- In some multiplayer cases, clients may not load the config for an enemy they try to hit. 
-<br> But the mod will just fall back to allowing damage thus making every enemy still killable
-Iam working on preventing this, still needs further testing.
 
 ## Credits
 Based on the original EverythingCanDie mod from here: https://thunderstore.io/c/lethal-company/p/TheFluff/EverythingCanDie/ and https://github.com/nyakowint/EverythingCanDie-LC/tree/main
