@@ -1,96 +1,43 @@
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
-using GameNetcodeStuff;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Text;
 using UnityEngine;
 
-namespace EverythingCanDie
+namespace EverythingCanDieAlternative
 {
-    [BepInPlugin(Guid, Name, Version)]
+    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
     {
-        public const string Guid = "nwnt.EverythingCanDieAlternative";
-        public const string Name = "EverythingCanDieAlternative";
-        public const string Version = "1.0.1";
-
-        public static Plugin Instance;
-        public static Harmony Harmony;
-        public static ManualLogSource Log;
-        public static List<EnemyType> enemies;
-        public static List<Item> items;
+        public static Plugin Instance { get; private set; }
+        public static ManualLogSource Log { get; private set; }
+        public static Harmony Harmony { get; private set; }
+        public static List<EnemyType> enemies = new List<EnemyType>();
 
         private void Awake()
         {
             Instance = this;
-            Log = base.Logger;
-            Harmony = new Harmony(Guid);
+            Log = Logger;
+            Harmony = new Harmony(PluginInfo.PLUGIN_GUID);
 
             try
             {
-                CreateHarmonyPatch(typeof(StartOfRound), "Start", null, typeof(Patches), nameof(Patches.StartOfRoundPatch), false);
-                CreateHarmonyPatch(typeof(EnemyAI), nameof(EnemyAI.HitEnemy),
-                    new[] { typeof(int), typeof(PlayerControllerB), typeof(bool), typeof(int) },
-                    typeof(Patches), nameof(Patches.HitEnemyPatch), false);
-                CreateHarmonyPatch(typeof(EnemyAI), nameof(EnemyAI.KillEnemy),
-                    new[] { typeof(bool) }, typeof(Patches), nameof(Patches.KillEnemyPatch), false);
+                // Create our patches
+                HealthManager.Initialize();
+                Patches.Initialize(Harmony);
 
-                Log.LogInfo("Patching complete");
+                Log.LogInfo($"{PluginInfo.PLUGIN_NAME} v{PluginInfo.PLUGIN_VERSION} is loaded!");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Log.LogError($"Error in Awake: {e}");
+                Log.LogError($"Error initializing {PluginInfo.PLUGIN_NAME}: {ex}");
             }
         }
 
-        private void CreateHarmonyPatch(Type typeToPatch, string methodToPatch,
-            Type[] parameters, Type patchType, string patchMethod, bool isPrefix)
-        {
-            try
-            {
-                if (typeToPatch == null || patchType == null)
-                {
-                    Log.LogError("Type is either incorrect or does not exist!");
-                    return;
-                }
-
-                MethodInfo Method = AccessTools.Method(typeToPatch, methodToPatch, parameters, null);
-                MethodInfo Patch_Method = AccessTools.Method(patchType, patchMethod, null, null);
-
-                if (Method == null)
-                {
-                    Log.LogError($"Could not find method {methodToPatch} in {typeToPatch.Name}");
-                    return;
-                }
-
-                if (Patch_Method == null)
-                {
-                    Log.LogError($"Could not find patch method {patchMethod} in {patchType.Name}");
-                    return;
-                }
-
-                if (isPrefix)
-                {
-                    Harmony.Patch(Method, new HarmonyMethod(Patch_Method));
-                    Log.LogInfo($"Created prefix patch for {Method.Name}");
-                }
-                else
-                {
-                    Harmony.Patch(Method, null, new HarmonyMethod(Patch_Method));
-                    Log.LogInfo($"Created postfix patch for {Method.Name}");
-                }
-            }
-            catch (Exception e)
-            {
-                Log.LogError($"Error creating harmony patch: {e}");
-            }
-        }
-
+        // Utility method for sanitizing names - matches the reference implementation
         public static string RemoveInvalidCharacters(string source)
         {
             if (string.IsNullOrEmpty(source)) return string.Empty;
@@ -106,6 +53,7 @@ namespace EverythingCanDie
             return string.Join("", sb.ToString().Split(default(string[]), StringSplitOptions.RemoveEmptyEntries));
         }
 
+        // Check if an enemy is killable based on config
         public static bool CanMob(string identifier, string mobName)
         {
             try
@@ -118,12 +66,14 @@ namespace EverythingCanDie
                     if (RemoveInvalidCharacters(entry.Key.ToUpper()).Equals(RemoveInvalidCharacters(mobConfigKey)))
                     {
                         bool result = Instance.Config[entry].BoxedValue.ToString().ToUpper().Equals("TRUE");
-                        Log.LogInfo($"Mob config: [Mobs] {mobConfigKey} = {result}");
+                        Log.LogDebug($"Mob config: [Mobs] {mobConfigKey} = {result}");
                         return result;
                     }
                 }
 
-                Log.LogInfo($"No config found for [Mobs] {mobConfigKey}, defaulting to true");
+                // If config doesn't exist yet, create it
+                Instance.Config.Bind("Mobs", mob + identifier, true, $"If true, {mobName} will be damageable");
+                Log.LogDebug($"No config found for [Mobs] {mobConfigKey}, defaulting to true");
                 return true;
             }
             catch (Exception e)
@@ -132,5 +82,42 @@ namespace EverythingCanDie
                 return false;
             }
         }
+
+        // Get enemy health from config
+        public static int GetMobHealth(string mobName, int defaultHealth)
+        {
+            try
+            {
+                string mob = RemoveInvalidCharacters(mobName).ToUpper();
+                string healthKey = mob + ".HEALTH";
+
+                foreach (ConfigDefinition entry in Instance.Config.Keys)
+                {
+                    if (RemoveInvalidCharacters(entry.Key.ToUpper()).Equals(healthKey))
+                    {
+                        int health = Convert.ToInt32(Instance.Config[entry].BoxedValue);
+                        Log.LogInfo($"Enemy {mobName} health from config: {health}");
+                        return health;
+                    }
+                }
+
+                // If config doesn't exist yet, create it
+                var configEntry = Instance.Config.Bind("Mobs", mob + ".Health", defaultHealth, $"Health for {mobName}");
+                Log.LogInfo($"Created config for {mobName} health: {configEntry.Value}");
+                return configEntry.Value;
+            }
+            catch (Exception e)
+            {
+                Log.LogError($"Error getting health for {mobName}: {e.Message}");
+                return defaultHealth;
+            }
+        }
+    }
+
+    public static class PluginInfo
+    {
+        public const string PLUGIN_GUID = "nwnt.EverythingCanDieAlternative";
+        public const string PLUGIN_NAME = "EverythingCanDieAlternative";
+        public const string PLUGIN_VERSION = "1.0.1";
     }
 }
