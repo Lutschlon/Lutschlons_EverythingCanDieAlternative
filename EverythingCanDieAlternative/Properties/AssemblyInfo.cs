@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
-using EverythingCanDie;
+using EverythingCanDieAlternative;
 
-[assembly: AssemblyTitle(Plugin.Name)]
-[assembly: AssemblyVersion(Plugin.Version)]
-[assembly: AssemblyFileVersion(Plugin.Version)]
+[assembly: AssemblyTitle(PluginInfo.PLUGIN_NAME)]
+[assembly: AssemblyVersion(PluginInfo.PLUGIN_VERSION)]
+[assembly: AssemblyFileVersion(PluginInfo.PLUGIN_VERSION)]
 [assembly: AssemblyDescription("A mod that makes everything in Lethal Company damageable")]
