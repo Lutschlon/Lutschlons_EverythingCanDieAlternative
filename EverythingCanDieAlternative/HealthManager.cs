@@ -10,6 +10,9 @@ namespace EverythingCanDieAlternative
 {
     public static class NetworkedHealthManager
     {
+        // Add a counter to ensure unique network variable names
+        private static int networkVarCounter = 0;
+
         // Dictionary to map enemy instance IDs to their NetworkVariables
         private static readonly Dictionary<int, LNetworkVariable<int>> enemyHealthVars = new Dictionary<int, LNetworkVariable<int>>();
 
@@ -21,6 +24,9 @@ namespace EverythingCanDieAlternative
 
         // Dictionary to map enemy IDs to their network object ID - for cross-client lookup
         private static readonly Dictionary<int, ulong> enemyNetworkIds = new Dictionary<int, ulong>();
+
+        // Dictionary to track the network variable names for each enemy instance ID
+        private static readonly Dictionary<int, string> enemyNetworkVarNames = new Dictionary<int, string>();
 
         // Animator hash for damage animation trigger
         private static readonly int DamageAnimTrigger = Animator.StringToHash("damage");
@@ -51,6 +57,10 @@ namespace EverythingCanDieAlternative
             enemyMaxHealth.Clear();
             processedEnemies.Clear();
             enemyNetworkIds.Clear();
+            enemyNetworkVarNames.Clear();
+
+            // Reset the counter
+            networkVarCounter = 0;
 
             // Create our hit message IMMEDIATELY at startup - not waiting for network
             CreateNetworkMessage();
@@ -158,9 +168,10 @@ namespace EverythingCanDieAlternative
                     enemyNetworkIds[instanceId] = enemy.NetworkObjectId;
                 }
 
-                // Check if we've already processed this enemy
+                // Check if we've already processed this enemy by instance ID
                 if (processedEnemies.ContainsKey(instanceId) && processedEnemies[instanceId])
                 {
+                    Plugin.Log.LogInfo($"Enemy {enemy.enemyType.enemyName} (ID: {instanceId}) already processed, skipping setup");
                     return;
                 }
 
@@ -174,23 +185,49 @@ namespace EverythingCanDieAlternative
                     int configHealth = Plugin.GetMobHealth(sanitizedName, enemy.enemyHP);
 
                     // Create a unique identifier for this enemy's health
-                    string varName = $"ECD_Health_{enemy.thisEnemyIndex}";
+                    // Add a counter to ensure uniqueness
+                    string varName = $"ECD_Health_{enemy.thisEnemyIndex}_{networkVarCounter++}";
+
+                    // Store the variable name for this instance ID
+                    enemyNetworkVarNames[instanceId] = varName;
+
+                    Plugin.Log.LogInfo($"Creating network variable {varName} for enemy {enemyName} (ID: {instanceId})");
 
                     // Create the health variable
                     LNetworkVariable<int> healthVar;
                     if (!enemyHealthVars.ContainsKey(instanceId))
                     {
-                        // Create a new NetworkVariable
-                        healthVar = LNetworkVariable<int>.Create(varName, configHealth);
+                        try
+                        {
+                            // Create a new NetworkVariable
+                            healthVar = LNetworkVariable<int>.Create(varName, configHealth);
 
-                        // Subscribe to value changes
-                        healthVar.OnValueChanged += (oldHealth, newHealth) => HandleHealthChange(instanceId, newHealth);
+                            // Subscribe to value changes
+                            healthVar.OnValueChanged += (oldHealth, newHealth) => HandleHealthChange(instanceId, newHealth);
 
-                        enemyHealthVars[instanceId] = healthVar;
+                            enemyHealthVars[instanceId] = healthVar;
+                        }
+                        catch (Exception ex)
+                        {
+                            Plugin.Log.LogError($"Failed to create network variable {varName}: {ex.Message}");
+
+                            // Try with a different name if there was a duplicate
+                            varName = $"ECD_Health_{enemy.thisEnemyIndex}_{networkVarCounter++}_Retry";
+                            Plugin.Log.LogInfo($"Retrying with new variable name: {varName}");
+
+                            // Store the new variable name
+                            enemyNetworkVarNames[instanceId] = varName;
+
+                            // Create the variable with the new name
+                            healthVar = LNetworkVariable<int>.Create(varName, configHealth);
+                            healthVar.OnValueChanged += (oldHealth, newHealth) => HandleHealthChange(instanceId, newHealth);
+                            enemyHealthVars[instanceId] = healthVar;
+                        }
                     }
                     else
                     {
                         healthVar = enemyHealthVars[instanceId];
+                        Plugin.Log.LogInfo($"Using existing health variable for enemy {enemyName} (ID: {instanceId})");
                     }
 
                     // Store max health
@@ -200,7 +237,7 @@ namespace EverythingCanDieAlternative
                     enemy.enemyType.canDie = true;
                     enemy.enemyType.canBeDestroyed = true;
 
-                    // Set high HP value
+                    // Set high HP value in the original system so our networked system controls when it dies
                     enemy.enemyHP = 999;
 
                     // Mark as processed
@@ -216,6 +253,7 @@ namespace EverythingCanDieAlternative
             catch (Exception ex)
             {
                 Plugin.Log.LogError($"Error setting up enemy: {ex.Message}");
+                Plugin.Log.LogError($"Stack trace: {ex.StackTrace}");
             }
         }
 
@@ -225,6 +263,8 @@ namespace EverythingCanDieAlternative
             // Get the enemy
             EnemyAI enemy = FindEnemyById(instanceId);
             if (enemy == null) return;
+
+            Plugin.Log.LogInfo($"Health changed for enemy {enemy.enemyType.enemyName} (ID: {instanceId}): new health = {newHealth}");
 
             // If health reached zero, kill the enemy (only on host)
             if (newHealth <= 0 && !enemy.isEnemyDead && StartOfRound.Instance.IsHost)
@@ -320,6 +360,10 @@ namespace EverythingCanDieAlternative
 
                 // Update the NetworkVariable (this will sync to all clients)
                 healthVar.Value = newHealth;
+            }
+            else
+            {
+                Plugin.Log.LogWarning($"No health variable found for enemy {enemy.enemyType.enemyName} (ID: {instanceId})");
             }
         }
 
