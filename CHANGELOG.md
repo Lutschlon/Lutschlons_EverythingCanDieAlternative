@@ -1,14 +1,25 @@
+### Version 1.1.1
+
+- Fixed an error, where the enemies could only be hit on the first moon, but not on any moon afterwards in the same playthrough/session.
+
+<details>
+<summary>Click to see the error message</summary>Error setting up enemy: A variable with the identifier nwnt.EverythingCanDieAlternative.ECD_Health_1 already exists! Please use a different identifier.</details>
+
+
 ### Version 1.1.0
 
 - Fixed an issue that counted one hit two times
 
-##### Technical Notes:
-- The mod now uses the LethalNetworkAPI to bypass the vanilla games hit and health system. May this lead to unforseen problems? Perhaps, i keep an eye on it.
+<details>
+<summary>Click for Technical Notes:</summary>
+- The mod now uses the LethalNetworkAPI to bypass the vanilla games hit and health system. May this lead to unforeseen problems? Perhaps, i keep an eye on it.
 - Vanilla Enemy health gets set to 999 for every enemy to not to worry about. 
-- This mod now uses its own health tracking system based on the network id of the enemy. When a client hits an enemy the hit gets networked to the host. The host is the only source of truth and keeps track of enemy health. This means clients will no longer see how much health an enemy has inside the log as this information gets not transmitted back. When an enenmy reaches 0 hp of our own health tracking the host simply calls the base games methods for killing it. Some modded enemies dont seem to despawn properly, SellBodiesFixed fixes this. 
-- With the 1.0.1 approach i also ran into issues with killing vanilla enemies at 1 hp instead of zero. This is now fixed too. Not sure if it was happening in 1.0.1
+- This mod now uses its own health tracking system based on the network id of the enemy. When a client hits an enemy the hit gets networked to the host. The host is the only source of truth and keeps track of enemy health. This means clients will no longer see how much health an enemy has inside the log as this information gets not transmitted back. When an enemy reaches 0 hp of our own health tracking the host simply calls the base games methods for killing it. Some modded enemies dont seem to despawn properly, SellBodiesFixed fixes this. 
+- With the 1.0.1 approach i also ran into issues with killing vanilla enemies at 1 hp instead of zero. This is now fixed too. Not sure if it was happening in 1.0.1</details>
 
 ---
+<details>
+<summary>Click for Older Versions</summary>
 
 ### Version 1.0.1
 
@@ -49,9 +60,10 @@
 - Investigating config synchronization between host and clients (works better as of 1.0.1)
 
 #### Future Features?
-- None, this mods only purpose is to be a robust mod to allow the death of enemeis with being able to configure their hp, i want to use this mod alongside SellBodiesFixed or Enhanced_Monsters or whatever mods reward you for going on the hunt
+- None, this mods only purpose is to be a robust mod to allow the death of enemies with being able to configure their hp, i want to use this mod alongside SellBodiesFixed or Enhanced_Monsters or whatever mods reward you for going on the hunt
+</details>
 
 ---
 
 - A word from Lutschlon: Hey, big thanks to nyakowint for having the original mod in an public github repository https://github.com/nyakowint/EverythingCanDie-LC/tree/main 
-- As already mentioned in the readme, the creation of this mod was made possible thanks to using ai (sounds like iam putting an ad here lol). I use the pro version of claude.ai - i have no experience using chatgpt and only limited experience using copilot so i dont know if claude is the best or whatnot. So uhm what was i going to say... Iam not exactly a programmer and only have a basic understanding of all of this. So if you are in the same shoes and you want to get into modding why not get assistance from ai. Have a good one fellas.
+- As already mentioned in the readme, the creation of this mod was made possible thanks to using ai (sounds like iam putting an ad here lol). I use the pro version of claude.ai - i have no experience using chatgpt and only limited experience using copilot so i dont know if claude is the best or whatnot. So uhm what was i going to say... Iam not a programmer and only have a basic understanding of all of this. So if you are in the same shoes and you want to get into modding why not get assistance from ai. Have a good one fellas.
