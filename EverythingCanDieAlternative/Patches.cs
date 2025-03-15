@@ -54,6 +54,7 @@ namespace EverythingCanDieAlternative
                     string sanitizedName = Plugin.RemoveInvalidCharacters(enemyType.enemyName).ToUpper();
                     Plugin.CanMob(".Unimmortal", sanitizedName); // This will create config if it doesn't exist
                     Plugin.GetMobHealth(sanitizedName, 3); // Default health value of 3
+                    Plugin.ShouldDespawn(sanitizedName); // Create despawn config entries
                 }
 
                 // Process existing enemies in the scene

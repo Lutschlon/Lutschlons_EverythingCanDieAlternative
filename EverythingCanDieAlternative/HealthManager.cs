@@ -1,6 +1,7 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
@@ -28,8 +29,11 @@ namespace EverythingCanDieAlternative
         // Dictionary to track the network variable names for each enemy instance ID
         private static readonly Dictionary<int, string> enemyNetworkVarNames = new Dictionary<int, string>();
 
-        // Animator hash for damage animation trigger
-        private static readonly int DamageAnimTrigger = Animator.StringToHash("damage");
+        // Dictionary to track which enemies are in despawn process
+        private static readonly Dictionary<int, bool> enemiesInDespawnProcess = new Dictionary<int, bool>();
+
+        // Network message for despawning enemies
+        private static LNetworkMessage<int> despawnMessage;
 
         // IMPORTANT: Static hit message reference available to the whole class
         private static LNetworkMessage<HitData> hitMessage;
@@ -58,17 +62,18 @@ namespace EverythingCanDieAlternative
             processedEnemies.Clear();
             enemyNetworkIds.Clear();
             enemyNetworkVarNames.Clear();
+            enemiesInDespawnProcess.Clear();
 
             // Reset the counter
             networkVarCounter = 0;
 
             // Create our hit message IMMEDIATELY at startup - not waiting for network
-            CreateNetworkMessage();
+            CreateNetworkMessages();
 
             Plugin.Log.LogInfo("Networked Health Manager initialized");
         }
 
-        private static void CreateNetworkMessage()
+        private static void CreateNetworkMessages()
         {
             try
             {
@@ -94,12 +99,42 @@ namespace EverythingCanDieAlternative
                         }
                     });
 
-                Plugin.Log.LogInfo("Network message created successfully");
+                // Create the despawn message (server to clients)
+                despawnMessage = LNetworkMessage<int>.Create("ECD_DespawnMessage",
+                    // This is the client-side receiver
+                    (enemyIndex, clientId) =>
+                    {
+                        if (!StartOfRound.Instance.IsHost)
+                        {
+                            // Find the enemy by index and destroy it on clients
+                            EnemyAI enemy = FindEnemyByIndex(enemyIndex);
+                            if (enemy != null)
+                            {
+                                Plugin.Log.LogInfo($"[CLIENT] Received despawn message for enemy index {enemyIndex}");
+                                GameObject.Destroy(enemy.gameObject);
+                            }
+                        }
+                    });
+
+                Plugin.Log.LogInfo("Network messages created successfully");
             }
             catch (Exception ex)
             {
-                Plugin.Log.LogError($"Error creating network message: {ex}");
+                Plugin.Log.LogError($"Error creating network messages: {ex}");
             }
+        }
+
+        // Helper method to find enemy by index
+        private static EnemyAI FindEnemyByIndex(int index)
+        {
+            foreach (var enemy in UnityEngine.Object.FindObjectsOfType<EnemyAI>())
+            {
+                if (enemy.thisEnemyIndex == index)
+                {
+                    return enemy;
+                }
+            }
+            return null;
         }
 
         // Use multiple methods to find the enemy across network boundaries
@@ -322,7 +357,7 @@ namespace EverythingCanDieAlternative
                     if (hitMessage == null)
                     {
                         Plugin.Log.LogWarning("Hit message is null, recreating it");
-                        CreateNetworkMessage();
+                        CreateNetworkMessages();
                     }
 
                     // Send the message to the server
@@ -390,6 +425,82 @@ namespace EverythingCanDieAlternative
             {
                 Plugin.Log.LogInfo($"Using fallback kill method for {enemy.enemyType.enemyName}");
                 enemy.KillEnemyOnOwnerClient(true);
+            }
+
+            // Check if this enemy should despawn after death
+            if (DespawnConfiguration.Instance.ShouldDespawnEnemy(enemy.enemyType.enemyName))
+            {
+                // Start a coroutine to wait for death animation, then despawn
+                StartDespawnProcess(enemy);
+            }
+        }
+
+        // Start the despawn process for a dead enemy
+        private static void StartDespawnProcess(EnemyAI enemy)
+        {
+            if (enemy == null) return;
+
+            int instanceId = enemy.GetInstanceID();
+
+            // Check if we're already despawning this enemy
+            if (enemiesInDespawnProcess.ContainsKey(instanceId) && enemiesInDespawnProcess[instanceId])
+            {
+                return;
+            }
+
+            // Mark as in despawn process
+            enemiesInDespawnProcess[instanceId] = true;
+
+            Plugin.Log.LogInfo($"Starting despawn process for {enemy.enemyType.enemyName} (Index: {enemy.thisEnemyIndex})");
+
+            // Start a coroutine to check for animation completion and despawn the enemy
+            if (StartOfRound.Instance != null)
+            {
+                StartOfRound.Instance.StartCoroutine(WaitForDeathAnimationAndDespawn(enemy));
+            }
+        }
+
+        // Simplified despawn coroutine that just waits a fixed time
+        private static IEnumerator WaitForDeathAnimationAndDespawn(EnemyAI enemy)
+        {
+            if (enemy == null) yield break;
+
+            int instanceId = enemy.GetInstanceID();
+            int enemyIndex = enemy.thisEnemyIndex;
+            string enemyName = enemy.enemyType.enemyName;
+
+            Plugin.Log.LogInfo($"Starting despawn process for {enemyName} (Index: {enemyIndex})");
+
+            // Simple wait time of 0.5 seconds
+            yield return new WaitForSeconds(0.5f);
+
+            // Final check before despawn
+            if (enemy != null && enemy.isEnemyDead)
+            {
+                Plugin.Log.LogInfo($"Despawning dead enemy {enemyName} (Index: {enemyIndex})");
+
+                // Inform clients to destroy this enemy
+                if (despawnMessage != null)
+                {
+                    despawnMessage.SendClients(enemyIndex);
+                }
+
+                // Destroy the enemy on the server
+                GameObject.Destroy(enemy.gameObject);
+            }
+            else if (enemy != null)
+            {
+                Plugin.Log.LogWarning($"Enemy {enemyName} was not dead at despawn time - aborting despawn");
+            }
+            else
+            {
+                Plugin.Log.LogWarning("Enemy was null at despawn time - aborting despawn");
+            }
+
+            // Clear the despawn process flag
+            if (enemiesInDespawnProcess.ContainsKey(instanceId))
+            {
+                enemiesInDespawnProcess.Remove(instanceId);
             }
         }
 

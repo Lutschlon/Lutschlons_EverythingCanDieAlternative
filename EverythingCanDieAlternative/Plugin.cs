@@ -26,8 +26,8 @@ namespace EverythingCanDieAlternative
 
             try
             {
-                // Initialize our networked health system (it'll do the actual init in StartOfRound.Start)
-                // NetworkedHealthManager.Initialize();  // This will be called from StartOfRound.Start patch
+                // Initialize the separate despawn configuration system
+                _ = DespawnConfiguration.Instance;
 
                 // Apply our patches
                 Patches.Initialize(Harmony);
@@ -115,12 +115,18 @@ namespace EverythingCanDieAlternative
                 return defaultHealth;
             }
         }
+
+        // Moved to DespawnConfiguration class
+        public static bool ShouldDespawn(string mobName)
+        {
+            return DespawnConfiguration.Instance.ShouldDespawnEnemy(mobName);
+        }
     }
 
     public static class PluginInfo
     {
         public const string PLUGIN_GUID = "nwnt.EverythingCanDieAlternative";
         public const string PLUGIN_NAME = "EverythingCanDieAlternative";
-        public const string PLUGIN_VERSION = "1.1.0"; // Updated version number for network support
+        public const string PLUGIN_VERSION = "1.1.2"; // Updated version for animation detection
     }
 }
