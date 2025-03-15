@@ -220,7 +220,7 @@ namespace EverythingCanDieAlternative
                     int configHealth = Plugin.GetMobHealth(sanitizedName, enemy.enemyHP);
 
                     // Create a unique identifier for this enemy's health
-                    // Add a counter to ensure uniqueness
+                    // Add a counter to ensure uniqueness over multiple moons
                     string varName = $"ECD_Health_{enemy.thisEnemyIndex}_{networkVarCounter++}";
 
                     // Store the variable name for this instance ID
@@ -467,41 +467,26 @@ namespace EverythingCanDieAlternative
 
             int instanceId = enemy.GetInstanceID();
             int enemyIndex = enemy.thisEnemyIndex;
-            string enemyName = enemy.enemyType.enemyName;
 
-            Plugin.Log.LogInfo($"Starting despawn process for {enemyName} (Index: {enemyIndex})");
+            // Wait 4.5 seconds if SellBodies is detected (slightly longer than its 4-second timer)
+            // or just 0.5 seconds if not
+            float waitTime = Plugin.Instance.IsSellBodiesModDetected ? 4.5f : 0.5f;
+            yield return new WaitForSeconds(waitTime);
 
-            // Simple wait time of 0.5 seconds
-            yield return new WaitForSeconds(0.5f);
-
-            // Final check before despawn
+            // Only continue if the enemy still exists and is dead
             if (enemy != null && enemy.isEnemyDead)
             {
-                Plugin.Log.LogInfo($"Despawning dead enemy {enemyName} (Index: {enemyIndex})");
-
                 // Inform clients to destroy this enemy
                 if (despawnMessage != null)
-                {
                     despawnMessage.SendClients(enemyIndex);
-                }
 
                 // Destroy the enemy on the server
                 GameObject.Destroy(enemy.gameObject);
             }
-            else if (enemy != null)
-            {
-                Plugin.Log.LogWarning($"Enemy {enemyName} was not dead at despawn time - aborting despawn");
-            }
-            else
-            {
-                Plugin.Log.LogWarning("Enemy was null at despawn time - aborting despawn");
-            }
 
-            // Clear the despawn process flag
+            // Clear tracking flag
             if (enemiesInDespawnProcess.ContainsKey(instanceId))
-            {
                 enemiesInDespawnProcess.Remove(instanceId);
-            }
         }
 
         public static int GetEnemyHealth(EnemyAI enemy)

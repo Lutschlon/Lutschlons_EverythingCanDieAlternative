@@ -100,7 +100,7 @@ namespace EverythingCanDieAlternative
             }
         }
 
-        // This is the ONLY hit interception point we need
+        // This is the only hit interception point we need
         public static bool HitEnemyOnLocalClientPrefix(EnemyAI __instance, int force, Vector3 hitDirection, PlayerControllerB playerWhoHit, bool playHitSFX, int hitID)
         {
             try

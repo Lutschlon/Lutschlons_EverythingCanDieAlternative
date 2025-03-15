@@ -4,19 +4,22 @@ using BepInEx.Logging;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 
 namespace EverythingCanDieAlternative
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-    [BepInDependency("LethalNetworkAPI")] // Make sure Lethal Network API loads first
+    [BepInDependency("LethalNetworkAPI")]
+    [BepInDependency("Entity378.sellbodies", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
         public static Plugin Instance { get; private set; }
         public static ManualLogSource Log { get; private set; }
         public static Harmony Harmony { get; private set; }
         public static List<EnemyType> enemies = new List<EnemyType>();
+        public bool IsSellBodiesModDetected { get; private set; } = false;
 
         private void Awake()
         {
@@ -38,6 +41,13 @@ namespace EverythingCanDieAlternative
             {
                 Log.LogError($"Error initializing {PluginInfo.PLUGIN_NAME}: {ex}");
             }
+            // Check for SellBodies mod
+            IsSellBodiesModDetected = AppDomain.CurrentDomain.GetAssemblies()
+                .Any(a => a.GetName().Name == "SellBodies" ||
+                         a.GetTypes().Any(t => t.Namespace?.Contains("CleaningCompany") == true));
+
+            if (IsSellBodiesModDetected)
+                Log.LogInfo("SellBodies mod detected - enabling compatibility mode");
         }
 
         // Utility method for sanitizing names
@@ -121,12 +131,13 @@ namespace EverythingCanDieAlternative
         {
             return DespawnConfiguration.Instance.ShouldDespawnEnemy(mobName);
         }
+
     }
 
     public static class PluginInfo
     {
         public const string PLUGIN_GUID = "nwnt.EverythingCanDieAlternative";
         public const string PLUGIN_NAME = "EverythingCanDieAlternative";
-        public const string PLUGIN_VERSION = "1.1.2"; // Updated version for animation detection
+        public const string PLUGIN_VERSION = "1.1.2";
     }
 }

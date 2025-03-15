@@ -3,6 +3,7 @@ using BepInEx.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace EverythingCanDieAlternative
@@ -20,7 +21,7 @@ namespace EverythingCanDieAlternative
         // Dictionary to store per-enemy despawn settings
         private readonly Dictionary<string, bool> _enemyDespawnEnabled = new Dictionary<string, bool>();
 
-        // List of enemies that should default to not despawning (have proper death animations)
+        // List of enemies that should default to not despawning (for enemies who have proper death animations)
         private readonly string[] _enemiesWithProperDeathAnimations = new string[]
         {
             "DOGDAY",
@@ -52,13 +53,35 @@ namespace EverythingCanDieAlternative
             string configPath = Path.Combine(Paths.ConfigPath, "nwnt.EverythingCanDieAlternative_Despawn_Rules.cfg");
             _configFile = new ConfigFile(configPath, true);
 
-            // Load global settings - using the ordered section name
+            // Load global settings
             EnableDespawnFeature = _configFile.Bind("General",
                 "EnableDespawnFeature",
                 true,
                 "If true, dead enemies can despawn based on other settings");
 
-            Plugin.Log.LogInfo($"Despawn configuration loaded from {configPath}");
+            // Pre-create entries for all known enemies
+            PreCreateEnemyConfigEntries();
+
+            Plugin.Log.LogInfo($"Despawn configuration loaded");
+        }
+        private void PreCreateEnemyConfigEntries()
+        {
+            // First, get all enemy types from your mod
+            if (Plugin.enemies != null && Plugin.enemies.Count > 0)
+            {
+                foreach (var enemyType in Plugin.enemies)
+                {
+                    string sanitizedName = Plugin.RemoveInvalidCharacters(enemyType.enemyName).ToUpper();
+
+                    // Check if this enemy should default to not despawning
+                    bool defaultValue = !_enemiesWithProperDeathAnimations.Contains(sanitizedName);
+
+                    _configFile.Bind("Enemies",
+                        $"{sanitizedName}.Despawn",
+                        defaultValue,
+                        $"If true, {enemyType.enemyName} will despawn after death");
+                }
+            }
         }
 
         public bool ShouldDespawnEnemy(string enemyName)
