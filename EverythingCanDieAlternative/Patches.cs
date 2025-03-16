@@ -54,6 +54,7 @@ namespace EverythingCanDieAlternative
                     string sanitizedName = Plugin.RemoveInvalidCharacters(enemyType.enemyName).ToUpper();
                     Plugin.CanMob(".Unimmortal", sanitizedName); // This will create config if it doesn't exist
                     Plugin.GetMobHealth(sanitizedName, 3); // Default health value of 3
+                    Plugin.ShouldDespawn(sanitizedName); // Create despawn config entries
                 }
 
                 // Process existing enemies in the scene
@@ -99,7 +100,7 @@ namespace EverythingCanDieAlternative
             }
         }
 
-        // This is the ONLY hit interception point we need
+        // This is the only hit interception point we need
         public static bool HitEnemyOnLocalClientPrefix(EnemyAI __instance, int force, Vector3 hitDirection, PlayerControllerB playerWhoHit, bool playHitSFX, int hitID)
         {
             try

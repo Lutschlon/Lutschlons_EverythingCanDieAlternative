@@ -1,25 +1,18 @@
-### Version 1.1.1
+## Version 1.1.2
 
-- Fixed an error, where the enemies could only be hit on the first moon, but not on any moon afterwards in the same playthrough/session.
+- Fixed dead enemies not despawning by adding a feature, that despawns dead enemies <details><summary>Click for details</summary> <p>You can disable this feature in the new nwnt.EverythingCanDieAlternative_Despawn_Rules.cfg by setting EnableDespawnFeature to false. <p>Why should you not despawn an enemy? Enemies like Baboon Hawks have proper death animation and proper corpses that are fine to leave as is. A Coilhead however will just be froozen if you dont despawn it, looks awful and is bad player feedback.<p>You can configure for every mob if it should be despawned or not. For a couple of enemies it is defaulted to false. <p>This feature is compatible with SellBodiesFixed and EnhancedMonsters. </details>
 
-<details>
-<summary>Click to see the error message</summary>Error setting up enemy: A variable with the identifier nwnt.EverythingCanDieAlternative.ECD_Health_1 already exists! Please use a different identifier.</details>
+## Version 1.1.1
+
+- Fixed an error, where the enemies could only be hit on the first moon, but not on any moon afterwards in the same playthrough/session.<details><summary>Click to see the error message</summary>Error setting up enemy: A variable with the identifier nwnt.EverythingCanDieAlternative.ECD_Health_1 already exists! Please use a different identifier.</details>
 
 
-### Version 1.1.0
+## Version 1.1.0
 
-- Fixed an issue that counted one hit two times
-
-<details>
-<summary>Click for Technical Notes:</summary>
-- The mod now uses the LethalNetworkAPI to bypass the vanilla games hit and health system. May this lead to unforeseen problems? Perhaps, i keep an eye on it.
-- Vanilla Enemy health gets set to 999 for every enemy to not to worry about. 
-- This mod now uses its own health tracking system based on the network id of the enemy. When a client hits an enemy the hit gets networked to the host. The host is the only source of truth and keeps track of enemy health. This means clients will no longer see how much health an enemy has inside the log as this information gets not transmitted back. When an enemy reaches 0 hp of our own health tracking the host simply calls the base games methods for killing it. Some modded enemies dont seem to despawn properly, SellBodiesFixed fixes this. 
-- With the 1.0.1 approach i also ran into issues with killing vanilla enemies at 1 hp instead of zero. This is now fixed too. Not sure if it was happening in 1.0.1</details>
+- Fixed an issue that counted one hit two times<details><summary>Click for Technical Notes:</summary><p>The mod now uses the LethalNetworkAPI to bypass the vanilla games hit and health system. May this lead to unforeseen problems? Perhaps, i keep an eye on it.<p>Vanilla Enemy health gets set to 999 for every enemy to not to worry about. <p>This mod now uses its own health tracking system based on the network id of the enemy. When a client hits an enemy the hit gets networked to the host. The host is the only source of truth and keeps track of enemy health. This means clients will no longer see how much health an enemy has inside the log as this information gets not transmitted back. When an enemy reaches 0 hp of our own health tracking the host simply calls the base games methods for killing it. Some modded enemies dont seem to despawn properly, SellBodiesFixed fixes this. <p>With the 1.0.1 approach i also ran into issues with killing some vanilla enemies at 1 hp instead of zero. This is now fixed too.</details>
 
 ---
-<details>
-<summary>Click for Older Versions</summary>
+<details><summary> Click for Older Versions</summary>
 
 ### Version 1.0.1
 
