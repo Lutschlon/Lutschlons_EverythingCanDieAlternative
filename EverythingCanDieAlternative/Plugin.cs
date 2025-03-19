@@ -20,6 +20,8 @@ namespace EverythingCanDieAlternative
         public static Harmony Harmony { get; private set; }
         public static List<EnemyType> enemies = new List<EnemyType>();
         public bool IsSellBodiesModDetected { get; private set; } = false;
+        public static ConfigEntry<bool> PatchCruiserDamage { get; private set; }
+        public static ConfigEntry<int> CruiserDamageAtHighSpeeds { get; private set; }
 
         private void Awake()
         {
@@ -138,6 +140,6 @@ namespace EverythingCanDieAlternative
     {
         public const string PLUGIN_GUID = "nwnt.EverythingCanDieAlternative";
         public const string PLUGIN_NAME = "EverythingCanDieAlternative";
-        public const string PLUGIN_VERSION = "1.1.2";
+        public const string PLUGIN_VERSION = "1.1.3";
     }
 }

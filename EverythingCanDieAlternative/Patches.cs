@@ -22,7 +22,7 @@ namespace EverythingCanDieAlternative
                 var enemyAIStartPostfix = AccessTools.Method(typeof(Patches), nameof(EnemyAIStartPostfix));
                 harmony.Patch(enemyAIStartMethod, null, new HarmonyMethod(enemyAIStartPostfix));
 
-                // ONLY PATCH HitEnemyOnLocalClient - the entry point for all direct hits
+                // Only patch HitEnemyOnLocalClient
                 var hitLocalMethod = AccessTools.Method(typeof(EnemyAI), "HitEnemyOnLocalClient");
                 var hitLocalPrefix = AccessTools.Method(typeof(Patches), nameof(HitEnemyOnLocalClientPrefix));
                 harmony.Patch(hitLocalMethod, new HarmonyMethod(hitLocalPrefix));
@@ -48,12 +48,37 @@ namespace EverythingCanDieAlternative
                 Plugin.enemies = new List<EnemyType>(Resources.FindObjectsOfTypeAll<EnemyType>());
                 Plugin.Log.LogInfo($"Found {Plugin.enemies.Count} enemy types");
 
+                // Maximum vanilla HP allowed (based on Forest Giant)
+                const int MAX_VANILLA_HP = 38;
+
                 // Load config for all enemy types
                 foreach (var enemyType in Plugin.enemies)
                 {
                     string sanitizedName = Plugin.RemoveInvalidCharacters(enemyType.enemyName).ToUpper();
                     Plugin.CanMob(".Unimmortal", sanitizedName); // This will create config if it doesn't exist
-                    Plugin.GetMobHealth(sanitizedName, 3); // Default health value of 3
+
+                    // Get vanilla HP value from prefab if available
+                    int defaultHealth = 3; // Default fallback value
+                    if (enemyType.enemyPrefab != null)
+                    {
+                        EnemyAI enemyAI = enemyType.enemyPrefab.GetComponentInChildren<EnemyAI>();
+                        if (enemyAI != null)
+                        {
+                            // Cap the HP at MAX_VANILLA_HP
+                            defaultHealth = Math.Min(enemyAI.enemyHP, MAX_VANILLA_HP);
+
+                            if (enemyAI.enemyHP > MAX_VANILLA_HP)
+                            {
+                                Plugin.Log.LogInfo($"Capped HP for {enemyType.enemyName} from {enemyAI.enemyHP} to {defaultHealth}");
+                            }
+                            else
+                            {
+                                Plugin.Log.LogInfo($"Found vanilla HP value for {enemyType.enemyName}: {defaultHealth}");
+                            }
+                        }
+                    }
+
+                    Plugin.GetMobHealth(sanitizedName, defaultHealth); // Use capped prefab HP value or fallback
                     Plugin.ShouldDespawn(sanitizedName); // Create despawn config entries
                 }
 
