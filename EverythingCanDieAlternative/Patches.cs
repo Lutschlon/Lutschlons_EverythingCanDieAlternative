@@ -28,6 +28,11 @@ namespace EverythingCanDieAlternative
                 var hitLocalPrefix = AccessTools.Method(typeof(Patches), nameof(HitEnemyOnLocalClientPrefix));
                 harmony.Patch(hitLocalMethod, new HarmonyMethod(hitLocalPrefix));
 
+                // Patch RoundManager.FinishGeneratingLevel to refresh BrutalCompanyMinus compatibility
+                var finishGeneratingLevelMethod = AccessTools.Method(typeof(RoundManager), "FinishGeneratingLevel");
+                var finishGeneratingLevelPostfix = AccessTools.Method(typeof(Patches), nameof(FinishGeneratingLevelPostfix));
+                harmony.Patch(finishGeneratingLevelMethod, null, new HarmonyMethod(finishGeneratingLevelPostfix));
+
                 Plugin.Log.LogInfo("Harmony patches applied successfully");
             }
             catch (Exception ex)
@@ -65,16 +70,25 @@ namespace EverythingCanDieAlternative
                         EnemyAI enemyAI = enemyType.enemyPrefab.GetComponentInChildren<EnemyAI>();
                         if (enemyAI != null)
                         {
-                            // Cap the HP at MAX_VANILLA_HP
-                            defaultHealth = Math.Min(enemyAI.enemyHP, MAX_VANILLA_HP);
-
-                            if (enemyAI.enemyHP > MAX_VANILLA_HP)
+                            // Ensure minimum HP of 1
+                            if (enemyAI.enemyHP <= 0)
                             {
-                                Plugin.Log.LogInfo($"Capped HP for {enemyType.enemyName} from {enemyAI.enemyHP} to {defaultHealth}");
+                                defaultHealth = 1;
+                                Plugin.Log.LogInfo($"Detected 0 or negative HP for {enemyType.enemyName}, setting default to 1");
                             }
                             else
                             {
-                                Plugin.Log.LogInfo($"Found vanilla HP value for {enemyType.enemyName}: {defaultHealth}");
+                                // Cap the HP at MAX_VANILLA_HP
+                                defaultHealth = Math.Min(enemyAI.enemyHP, MAX_VANILLA_HP);
+
+                                if (enemyAI.enemyHP > MAX_VANILLA_HP)
+                                {
+                                    Plugin.Log.LogInfo($"Capped HP for {enemyType.enemyName} from {enemyAI.enemyHP} to {defaultHealth}");
+                                }
+                                else
+                                {
+                                    Plugin.Log.LogInfo($"Found vanilla HP value for {enemyType.enemyName}: {defaultHealth}");
+                                }
                             }
                         }
                     }
@@ -162,6 +176,25 @@ namespace EverythingCanDieAlternative
             {
                 Plugin.Log.LogError($"Error in HitEnemyOnLocalClientPrefix: {ex}");
                 return true;
+            }
+        }
+
+        [HarmonyPostfix]
+        public static void FinishGeneratingLevelPostfix()
+        {
+            try
+            {
+                // Refresh BrutalCompanyMinus bonus HP cache when a new level is generated
+                var brutalCompanyHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.BrutalCompanyMinusCompatibility>("SoftDiamond.BrutalCompanyMinusExtraReborn");
+                if (brutalCompanyHandler != null && brutalCompanyHandler.IsInstalled)
+                {
+                    Plugin.Log.LogInfo("Refreshing BrutalCompanyMinus compatibility data after level generation");
+                    brutalCompanyHandler.RefreshBonusHp();
+                }
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError($"Error in FinishGeneratingLevelPostfix: {ex}");
             }
         }
     }

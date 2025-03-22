@@ -114,6 +114,13 @@ namespace EverythingCanDieAlternative
         {
             try
             {
+                // Ensure minimum default health of 1
+                if (defaultHealth <= 0)
+                {
+                    defaultHealth = 1;
+                    Log.LogInfo($"Enforcing minimum health of 1 for {mobName}");
+                }
+
                 string mob = RemoveInvalidCharacters(mobName).ToUpper();
                 string healthKey = mob + ".HEALTH";
 
@@ -122,6 +129,17 @@ namespace EverythingCanDieAlternative
                     if (RemoveInvalidCharacters(entry.Key.ToUpper()).Equals(healthKey))
                     {
                         int health = Convert.ToInt32(Instance.Config[entry].BoxedValue);
+
+                        // Ensure configured health is also at least 1
+                        if (health <= 0)
+                        {
+                            health = 1;
+                            Log.LogInfo($"Enforcing minimum configured health of 1 for {mobName}");
+
+                            // Update the config value to 1
+                            Instance.Config[entry].BoxedValue = 1;
+                        }
+
                         Log.LogInfo($"Enemy {mobName} health from config: {health}");
                         return health;
                     }
@@ -135,7 +153,7 @@ namespace EverythingCanDieAlternative
             catch (Exception e)
             {
                 Log.LogError($"Error getting health for {mobName}: {e.Message}");
-                return defaultHealth;
+                return Math.Max(1, defaultHealth); // Ensure at least 1 HP even in error cases
             }
         }
 
@@ -150,6 +168,6 @@ namespace EverythingCanDieAlternative
     {
         public const string PLUGIN_GUID = "nwnt.EverythingCanDieAlternative";
         public const string PLUGIN_NAME = "EverythingCanDieAlternative";
-        public const string PLUGIN_VERSION = "1.1.32";
+        public const string PLUGIN_VERSION = "1.1.33";
     }
 }

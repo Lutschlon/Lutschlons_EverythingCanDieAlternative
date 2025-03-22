@@ -221,6 +221,13 @@ namespace EverythingCanDieAlternative
                     // Get configured health
                     int configHealth = Plugin.GetMobHealth(sanitizedName, enemy.enemyHP);
 
+                    // Apply bonus health from BrutalCompanyMinus if installed
+                    var brutalCompanyHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.BrutalCompanyMinusCompatibility>("SoftDiamond.BrutalCompanyMinusExtraReborn");
+                    if (brutalCompanyHandler != null && brutalCompanyHandler.IsInstalled)
+                    {
+                        configHealth = brutalCompanyHandler.ApplyBonusHp(configHealth);
+                    }
+
                     // Create a unique identifier for this enemy's health
                     // Add a counter to ensure uniqueness over multiple moons
                     string varName = $"ECD_Health_{enemy.thisEnemyIndex}_{networkVarCounter++}";

@@ -53,11 +53,9 @@ namespace EverythingCanDieAlternative.ModCompatibility
         {
             try
             {
-                // Register SellBodies compatibility handler
                 RegisterHandler(new Handlers.SellBodiesCompatibility());
-
-                // Register LethalHands compatibility handler
                 RegisterHandler(new Handlers.LethalHandsCompatibility());
+                RegisterHandler(new Handlers.BrutalCompanyMinusCompatibility());
 
                 // Add other handlers here as you create them
                 // RegisterHandler(new Handlers.OtherModCompatibility());
