@@ -1,9 +1,9 @@
-# EverythingCanDieAlternative 1.1.33
+# EverythingCanDieAlternative 1.1.3
 
 This mod aims to make every enemy in the game killable with configurable hp. It aims to work with any modded weapon and any modded enemy.
 - You can of course also leave enemies immortal in the config to hit the right balance.
 - This mod despawns dead enemies by itself (configurable)
-- This mod is compatible with see [table](#Mod-Compatibilities) below
+- This mod is compatible with SellBodiesFixed and EnhancedMonsters
 
 > <details><summary> Differences from Original Mod</summary>- No separate shotgun/melee weapon settings<br>- No Explosion Effects: Enemies simply despawn or play their death animation if allowed to by the despawn config<br>- An alternative version of the EverythingCanDie mod from TheFluff as it did not work for me with a few modded enemies.</details>
 
@@ -12,8 +12,8 @@ Start the game and host a lobby, then close the game and check out the configura
 <br>For each enemy, you can configure:
 > nwnt.EverythingCanDieAlternative.cfg
 - `.Unimmortal` - Toggle if the enemy can be damaged (true/false) - Default is every enemy is killable
-- `.Health` - Set the enemy's health value, default values are like the original game, or how the modder configured their enemy - e.g. Forest Giant has 38 health!
-  - For reference: the shovel deals 1 damage, the vanilla shotgun either 1/3/5 based on distance, modded weapons work as well with their own stats
+- `.Health` - Set the enemy's health value, default values are like the original game, or how the modder configured their enemy
+  - For reference: the shovel deals 1 damage, the vanilla shotgun either 2/6/10 based on distance, modded weapons work as well with their own stats
 
 > nwnt.EverythingCanDieAlternative_Despawn_Rules.cfg<br>
 - `.Despawn` - Toggle if the model of the enemy should get forced to despawn after its death
@@ -25,7 +25,7 @@ Start the game and host a lobby, then close the game and check out the configura
 ## Known Issues
 - Hitting a Forest Giant or Old Bird with the cruiser does not kill them. I will test this further and work on a fix.
 
-<h3>Found a bug? Is my mod not compatible with your favourite mod? You can find me here:</h3>
+<h3>Found a bug? You can find me on my mod page:</h3>
 
 <table>
   <tr>
@@ -33,16 +33,6 @@ Start the game and host a lobby, then close the game and check out the configura
     <td style="padding: 8px; background-color: #f2f2f2;"><a href="https://discord.com/channels/1168655651455639582/1348071762549805208">My Mod Page</a></td>
   </tr>
 </table>
-
-## Mod Compatibilities
-Iam working on compatibilies for a few requested mods. Let me know if you have any issues with said mods, as testing all of them is not possible for me alone.
-| List of implemented compatibility patches|Mods that seem to work out of the box| Mods with known issues|
-| ------- | ------- | ------- |
-| [SellBodiesFixed](https://thunderstore.io/c/lethal-company/p/Entity378/SellBodiesFixed/)   |[Enhanced Monsters](https://thunderstore.io/c/lethal-company/p/VELD/Enhanced_Monsters/)|[Hitmarker](https://thunderstore.io/c/lethal-company/p/Zehs/Hitmarker/) - death hitmarker doesnt work|
-| [LethalHands](https://thunderstore.io/c/lethal-company/p/SlapItNow/LethalHands/)|[MoreCounterplay](https://thunderstore.io/c/lethal-company/p/BaronDrakula/MoreCounterplay/)||
-| [BrutalCompanyMinusExtraReborn](https://thunderstore.io/c/lethal-company/p/SoftDiamond/BrutalCompanyMinusExtraReborn/)|||
-
-
 
 ## Credits
 Based on the original EverythingCanDie mod from here: [Thunderstore page](https://thunderstore.io/c/lethal-company/p/TheFluff/EverythingCanDie/) and [GitHub](https://github.com/nyakowint/EverythingCanDie-LC/tree/main).
