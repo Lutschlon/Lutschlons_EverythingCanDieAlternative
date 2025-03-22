@@ -1,4 +1,4 @@
-###### Version 1.1.33<br> - Added beta compatibility for BrutalCompanyMinusExtraReborn by SoftDiamond <br> - Changed default health configuration, enemies like Baldi will have 1 hp instead of 0 hp now
+###### Version 1.1.33<br> - Added beta compatibility for BrutalCompanyMinusExtraReborn by SoftDiamond <br> - Changed default health configuration, enemies like Baldi will have 1 hp instead of 0 hp now <br> - Updated ReadMe to better communicate mod compatibilities
 
 ###### Version 1.1.32<br> - Changed the framework for mod compatibilities<br>- Added beta compatibility for LethalHands by SlapItNow<br>- Updated ReadMe with correct shotgun damage<details>Thanks to `ToastIsToasty` for reporting!</details>
 
