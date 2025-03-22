@@ -8,21 +8,69 @@ on:
   workflow_dispatch:
 
 jobs:
-  stale:
+  mark-stale-branches:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v8
+      - name: Checkout code
+        uses: actions/checkout@v3
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          days-before-stale: 21
-          days-before-close: -1  # Don't close branches automatically
-          stale-branch-message: 'This branch has been marked as stale because it has not been updated in 21 days'
-          stale-branch-label: 'stale'
-          only-labels: ''  # Don't restrict to specific labels
-          operations-per-run: 100
-          delete-branch: false
-          include-only-assigned: false
-          ascending: false
-          remove-stale-when-updated: true
-          debug-only: false
-          enable-statistics: true
+          fetch-depth: 0  # Fetch all history and tags
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+      
+      - name: Fetch all branches
+        run: git fetch --all
+
+      - name: Find and label stale branches
+        run: |
+          # Define the stale period (21 days in seconds)
+          STALE_PERIOD=$((21 * 24 * 60 * 60))
+          CURRENT_TIME=$(date +%s)
+          
+          # Get current date for logging
+          CURRENT_DATE=$(date "+%Y-%m-%d")
+          
+          echo "Finding branches not updated in the last 21 days..."
+          
+          # Create a directory for stale branch information
+          mkdir -p .github/stale-branches
+          
+          # Process each remote branch
+          for branch in $(git branch -r | grep -v "HEAD\|master\|main" | sed 's/origin\///'); do
+            # Skip branches already marked as stale
+            if [[ "$branch" == *"-stale-"* ]]; then
+              continue
+            fi
+            
+            # Get the timestamp of the last commit
+            LAST_COMMIT=$(git log -1 --format=%ct origin/$branch)
+            
+            # Calculate age in seconds
+            BRANCH_AGE=$((CURRENT_TIME - LAST_COMMIT))
+            
+            # Format the last commit date for display
+            LAST_COMMIT_DATE=$(date -d @$LAST_COMMIT "+%Y-%m-%d")
+            
+            if [ $BRANCH_AGE -gt $STALE_PERIOD ]; then
+              echo "Branch '$branch' is stale (last updated on $LAST_COMMIT_DATE)"
+              
+              # Create a new branch with stale marker and date
+              NEW_BRANCH="$branch-stale-$CURRENT_DATE"
+              git checkout -b "$NEW_BRANCH" origin/$branch
+              
+              # Create a marker file with stale information
+              echo "Branch '$branch' was marked as stale on $CURRENT_DATE" > .github/stale-branches/$branch.md
+              echo "Last commit was on $LAST_COMMIT_DATE" >> .github/stale-branches/$branch.md
+              echo "To remove the stale marker, please update the branch with new commits." >> .github/stale-branches/$branch.md
+              
+              # Commit and push the marker
+              git add .github/stale-branches/$branch.md
+              git commit -m "Mark branch '$branch' as stale"
+              git push origin "$NEW_BRANCH"
+              
+              echo "Created stale marker branch: $NEW_BRANCH"
+            fi
+          done
