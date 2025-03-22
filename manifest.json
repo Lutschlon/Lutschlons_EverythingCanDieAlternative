@@ -1,6 +1,6 @@
 {
   "name": "EverythingCanDieAlternative",
-  "version_number": "1.1.3",
+  "version_number": "1.1.32",
   "website_url": "https://github.com/Lutschlon/Lutschlons_EverythingCanDieAlternative",
   "description": "Allows every enemy to be damageable / hitable / killable - configurable - They now despawn as well",
   "dependencies": [
