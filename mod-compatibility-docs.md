@@ -1,3 +1,5 @@
+## Yes this file is AI generated. - Lutschlon
+
 # EverythingCanDieAlternative - Mod Compatibility Framework
 
 ## Table of Contents
