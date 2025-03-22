@@ -8,50 +8,21 @@ on:
   workflow_dispatch:
 
 jobs:
-  mark-stale-branches:
+  stale:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/stale@v8
         with:
-          fetch-depth: 0  # Fetch all history and tags
-
-      - name: Set up Git
-        run: |
-          git config --global user.name "GitHub Actions Bot"
-          git config --global user.email "actions@github.com"
-
-      - name: Mark stale branches
-        run: |
-          # Get the current date in seconds since epoch
-          CURRENT_DATE=$(date +%s)
-          
-          # 21 days in seconds
-          STALE_THRESHOLD=$((21 * 24 * 60 * 60))
-          
-          # Get all remote branches except main/master
-          git branch -r | grep -v "main\|master" | sed 's/origin\///' > branches.txt
-          
-          while IFS= read -r branch; do
-            # Get the last commit date of the branch in seconds since epoch
-            LAST_COMMIT_DATE=$(git log -1 --format=%ct "origin/$branch")
-            
-            # Calculate the age of the branch in seconds
-            BRANCH_AGE=$((CURRENT_DATE - LAST_COMMIT_DATE))
-            
-            if [ $BRANCH_AGE -gt $STALE_THRESHOLD ]; then
-              echo "Branch $branch is stale (last commit was $(date -d @$LAST_COMMIT_DATE))"
-              
-              # Check if branch already has stale label
-              if [[ "$branch" != *"[stale]"* ]]; then
-                # Create a new branch name with [stale] label
-                NEW_BRANCH_NAME="${branch}[stale]"
-                
-                # Create the new branch and push it
-                git checkout "origin/$branch" -b "$NEW_BRANCH_NAME"
-                git push origin "$NEW_BRANCH_NAME"
-                
-                echo "Created stale branch: $NEW_BRANCH_NAME"
-              fi
-            fi
-          done < branches.txt
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          days-before-stale: 21
+          days-before-close: -1  # Don't close branches automatically
+          stale-branch-message: 'This branch has been marked as stale because it has not been updated in 21 days'
+          stale-branch-label: 'stale'
+          only-labels: ''  # Don't restrict to specific labels
+          operations-per-run: 100
+          delete-branch: false
+          include-only-assigned: false
+          ascending: false
+          remove-stale-when-updated: true
+          debug-only: false
+          enable-statistics: true
