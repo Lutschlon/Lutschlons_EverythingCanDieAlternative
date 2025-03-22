@@ -1,8 +1,3 @@
-###### Version 1.1.33<br> - Added beta compatibility for BrutalCompanyMinusExtraReborn by SoftDiamond <br> - Changed default health configuration, enemies like Baldi will have 1 hp instead of 0 hp now <br> - Updated ReadMe to better communicate mod compatibilities
-
-###### Version 1.1.32<br> - Changed the framework for mod compatibilities<br>- Added beta compatibility for LethalHands by SlapItNow<br>- Updated ReadMe with correct shotgun damage<details>Thanks to `ToastIsToasty` for reporting!</details>
-
-###### Version 1.1.31<br> - Uploaded the correct files
 ## Version 1.1.3
 
 - Fixed the creation of health configs, for not referencing original enemy hp but instead always defaulting to 3 hp <details><summary>Click for details</summary><p> Thanks to `pxntxrez` for reporting it on discord!<p>This fix only takes effect when you delete your existing `nwnt.EverythingCanDieAlternative.cfg` file or during a fresh installation in a new modpack.<p>Before this fix, enemies like Forest Giant would default to 3 hp, now they default to 38 hp like in the vanilla game. You can of course still configure them back to 3 hp or whatever you like to. <p>The default configuration caps enemy hp at 38. You can still manually configure hp to be higher. Why is it limited? The enemy "The Fiend" is configured with 1000 hp, i dont think having an hitable enemy with 1000 hp is what someone expects when installing my mod. 38 is already way to much for the shovel or shotgun but eh, might change the hp cap later.</details>
@@ -13,7 +8,7 @@
 
 ## Version 1.1.1
 
-- Fixed an error, where the enemies could only be hit on the first moon, but not on any moon afterwards in the same playthrough/session</details><summary>Click to see the error message</summary>Error setting up enemy: A variable with the identifier nwnt.EverythingCanDieAlternative.ECD_Health_1 already exists! Please use a different identifier.</details>
+- Fixed an error, where the enemies could only be hit on the first moon, but not on any moon afterwards in the same playthrough/session<details><summary>Click to see the error message</summary>Error setting up enemy: A variable with the identifier nwnt.EverythingCanDieAlternative.ECD_Health_1 already exists! Please use a different identifier.</details>
 
 
 ## Version 1.1.0
