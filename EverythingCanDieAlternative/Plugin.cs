@@ -16,6 +16,7 @@ namespace EverythingCanDieAlternative
     [BepInDependency("LethalNetworkAPI")]
     [BepInDependency("Entity378.sellbodies", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("SlapitNow.LethalHands", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("SoftDiamond.BrutalCompanyMinusExtraReborn", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
         public static Plugin Instance { get; private set; }
@@ -168,6 +169,6 @@ namespace EverythingCanDieAlternative
     {
         public const string PLUGIN_GUID = "nwnt.EverythingCanDieAlternative";
         public const string PLUGIN_NAME = "EverythingCanDieAlternative";
-        public const string PLUGIN_VERSION = "1.1.33";
+        public const string PLUGIN_VERSION = "1.1.34";
     }
 }
