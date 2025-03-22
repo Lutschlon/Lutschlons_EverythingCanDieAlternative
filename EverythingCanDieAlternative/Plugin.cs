@@ -7,19 +7,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using EverythingCanDieAlternative.ModCompatibility;
+using EverythingCanDieAlternative.ModCompatibility.Handlers;
 
 namespace EverythingCanDieAlternative
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     [BepInDependency("LethalNetworkAPI")]
     [BepInDependency("Entity378.sellbodies", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("SlapitNow.LethalHands", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
         public static Plugin Instance { get; private set; }
         public static ManualLogSource Log { get; private set; }
         public static Harmony Harmony { get; private set; }
         public static List<EnemyType> enemies = new List<EnemyType>();
-        public bool IsSellBodiesModDetected { get; private set; } = false;
         public static ConfigEntry<bool> PatchCruiserDamage { get; private set; }
         public static ConfigEntry<int> CruiserDamageAtHighSpeeds { get; private set; }
 
@@ -34,6 +36,9 @@ namespace EverythingCanDieAlternative
                 // Initialize the separate despawn configuration system
                 _ = DespawnConfiguration.Instance;
 
+                // Initialize the mod compatibility framework
+                ModCompatibilityManager.Instance.Initialize();
+
                 // Apply our patches
                 Patches.Initialize(Harmony);
 
@@ -43,14 +48,20 @@ namespace EverythingCanDieAlternative
             {
                 Log.LogError($"Error initializing {PluginInfo.PLUGIN_NAME}: {ex}");
             }
-            // Check for SellBodies mod
-            IsSellBodiesModDetected = AppDomain.CurrentDomain.GetAssemblies()
-                .Any(a => a.GetName().Name == "SellBodies" ||
-                         a.GetTypes().Any(t => t.Namespace?.Contains("CleaningCompany") == true));
-
-            if (IsSellBodiesModDetected)
-                Log.LogInfo("SellBodies mod detected - enabling compatibility mode");
         }
+
+        /// <summary>
+        /// Check if a specific mod is installed using the compatibility framework
+        /// </summary>
+        public bool IsModInstalled(string modId)
+        {
+            return ModCompatibilityManager.Instance.IsModInstalled(modId);
+        }
+
+        /// <summary>
+        /// Convenience method to check if SellBodies mod is installed
+        /// </summary>
+        public bool IsSellBodiesModDetected => IsModInstalled("Entity378.sellbodies");
 
         // Utility method for sanitizing names
         public static string RemoveInvalidCharacters(string source)
@@ -103,6 +114,13 @@ namespace EverythingCanDieAlternative
         {
             try
             {
+                // Ensure minimum default health of 1
+                if (defaultHealth <= 0)
+                {
+                    defaultHealth = 1;
+                    Log.LogInfo($"Enforcing minimum health of 1 for {mobName}");
+                }
+
                 string mob = RemoveInvalidCharacters(mobName).ToUpper();
                 string healthKey = mob + ".HEALTH";
 
@@ -111,6 +129,17 @@ namespace EverythingCanDieAlternative
                     if (RemoveInvalidCharacters(entry.Key.ToUpper()).Equals(healthKey))
                     {
                         int health = Convert.ToInt32(Instance.Config[entry].BoxedValue);
+
+                        // Ensure configured health is also at least 1
+                        if (health <= 0)
+                        {
+                            health = 1;
+                            Log.LogInfo($"Enforcing minimum configured health of 1 for {mobName}");
+
+                            // Update the config value to 1
+                            Instance.Config[entry].BoxedValue = 1;
+                        }
+
                         Log.LogInfo($"Enemy {mobName} health from config: {health}");
                         return health;
                     }
@@ -124,22 +153,21 @@ namespace EverythingCanDieAlternative
             catch (Exception e)
             {
                 Log.LogError($"Error getting health for {mobName}: {e.Message}");
-                return defaultHealth;
+                return Math.Max(1, defaultHealth); // Ensure at least 1 HP even in error cases
             }
         }
 
-        // Moved to DespawnConfiguration class
+        // Delegate to DespawnConfiguration class
         public static bool ShouldDespawn(string mobName)
         {
             return DespawnConfiguration.Instance.ShouldDespawnEnemy(mobName);
         }
-
     }
 
     public static class PluginInfo
     {
         public const string PLUGIN_GUID = "nwnt.EverythingCanDieAlternative";
         public const string PLUGIN_NAME = "EverythingCanDieAlternative";
-        public const string PLUGIN_VERSION = "1.1.3";
+        public const string PLUGIN_VERSION = "1.1.33";
     }
 }
