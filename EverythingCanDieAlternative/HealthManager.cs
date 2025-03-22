@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using LethalNetworkAPI;
+using EverythingCanDieAlternative.ModCompatibility;
+using EverythingCanDieAlternative.ModCompatibility.Handlers;
 
 namespace EverythingCanDieAlternative
 {
@@ -333,6 +335,23 @@ namespace EverythingCanDieAlternative
 
             int instanceId = enemy.GetInstanceID();
 
+            // Check for LethalHands compatibility to handle special punch damage (-22)
+            var lethalHandsHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.LethalHandsCompatibility>("SlapitNow.LethalHands");
+            if (lethalHandsHandler != null && lethalHandsHandler.IsInstalled && damage == -22)
+            {
+                damage = lethalHandsHandler.ConvertPunchForceToDamage(damage);
+                Plugin.Log.LogInfo($"Converted LethalHands punch to damage: {damage}");
+            }
+            else if (damage < 0)
+            {
+                // Prevent negative damage from other sources
+                Plugin.Log.LogWarning($"Received negative damage value: {damage}, setting to 0");
+                damage = 0;
+            }
+
+            // Skip processing if damage is zero (prevents wasting network traffic)
+            if (damage <= 0) return;
+
             // If we're the host, process damage directly
             if (StartOfRound.Instance.IsHost)
             {
@@ -468,9 +487,17 @@ namespace EverythingCanDieAlternative
             int instanceId = enemy.GetInstanceID();
             int enemyIndex = enemy.thisEnemyIndex;
 
-            // Wait 4.5 seconds if SellBodies is detected (slightly longer than its 4-second timer)
-            // or just 0.5 seconds if not
-            float waitTime = Plugin.Instance.IsSellBodiesModDetected ? 4.5f : 0.5f;
+            // Get the appropriate despawn delay based on installed mods
+            float waitTime = 0.5f; // Default delay without any compatibility
+
+            // Check for SellBodies compatibility using the framework
+            var sellBodiesHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.SellBodiesCompatibility>("Entity378.sellbodies");
+            if (sellBodiesHandler != null && sellBodiesHandler.IsInstalled)
+            {
+                waitTime = sellBodiesHandler.GetDespawnDelay();
+                Plugin.Log.LogInfo($"Using SellBodies compatibility despawn delay: {waitTime}s for {enemy.enemyType.enemyName}");
+            }
+
             yield return new WaitForSeconds(waitTime);
 
             // Only continue if the enemy still exists and is dead

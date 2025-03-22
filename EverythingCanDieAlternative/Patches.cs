@@ -1,4 +1,5 @@
-﻿using GameNetcodeStuff;
+﻿using EverythingCanDieAlternative.ModCompatibility;
+using GameNetcodeStuff;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
@@ -134,8 +135,25 @@ namespace EverythingCanDieAlternative
 
                 Plugin.Log.LogInfo($"Local hit detected on {__instance.enemyType.enemyName} from {(playerWhoHit?.playerUsername ?? "unknown")} with force {force}");
 
+                // Check for LethalHands compatibility
+                var lethalHandsHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.LethalHandsCompatibility>("SlapitNow.LethalHands");
+                bool isLethalHandsPunch = (lethalHandsHandler != null && lethalHandsHandler.IsInstalled && force == -22);
+
+                if (isLethalHandsPunch)
+                {
+                    Plugin.Log.LogInfo($"Detected LethalHands punch with force {force}");
+                }
+
                 // Process with our health system
                 NetworkedHealthManager.ProcessHit(__instance, force, playerWhoHit);
+
+                // For LethalHands punches, we need special handling
+                if (isLethalHandsPunch)
+                {
+                    // Let LethalHands process its own effects like sounds and animations
+                    // but don't let it apply damage via the vanilla system
+                    return true;
+                }
 
                 // Let the vanilla method run for animations, effects, and networking
                 return true;
