@@ -55,7 +55,7 @@ namespace EverythingCanDieAlternative
                 Plugin.Log.LogInfo($"Found {Plugin.enemies.Count} enemy types");
 
                 // Maximum HP when a new config gets generated
-                const int CAPPED_DEFAULT_HP = 15;
+                const int CAPPED_DEFAULT_HP = 38;
 
                 // Load config for all enemy types
                 foreach (var enemyType in Plugin.enemies)
