@@ -1,9 +1,9 @@
-# EverythingCanDieAlternative 1.1.34
+# EverythingCanDieAlternative 1.1.4
 
 This mod aims to make every enemy in the game killable with configurable hp. It aims to work with any modded weapon and any modded enemy.
 - You can of course also leave enemies immortal in the config to hit the right balance.
 - This mod despawns dead enemies by itself (configurable)
-- This mod is compatible with see [table](#Mod-Compatibilities) below
+- This mod is compatible with see [Mod Compatibilities Table](#Mod-Compatibilities) below
 
 > <details><summary> Differences from Original Mod</summary>- No separate shotgun/melee weapon settings<br>- No Explosion Effects: Enemies simply despawn or play their death animation if allowed to by the despawn config<br>- An alternative version of the EverythingCanDie mod from TheFluff as it did not work for me with a few modded enemies.</details>
 
@@ -23,7 +23,7 @@ Start the game and host a lobby, then close the game and check out the configura
 <br>Everyone needs to have this mod installed for it to work
 
 ## Known Issues
-- Hitting a Forest Giant or Old Bird with the cruiser does not kill them. I will test this further and work on a fix.
+- There are no known bugs right now. 
 
 <h3>Found a bug? Is my mod not compatible with your favourite mod? You can find me here:</h3>
 
