@@ -1,3 +1,7 @@
+## Version 1.1.41
+
+- Updated the SellBodiesFixed compatibility. The enemies Baldi and The Fiend will now spawn an item, the original SellBodiesFixed mod does not spawn an item for them. Also, enemies that have `nwnt.EverythingCanDieAlternative_Despawn_Rules.cfg` `.Despawn` set to `true` will despawn and spawn an item in an instant, unlike the 4 second delay the original mod forces.    
+
 ## Version 1.1.40
 
 - Fixed Enemies not being able to kill each other like BaboonHawks vs EyelessDogs <details><summary>Click for details</summary><p> Thanks to `SpinoRavenger` for reporting it on discord!</details>
