@@ -429,11 +429,21 @@ namespace EverythingCanDieAlternative
         }
 
         // Kill an enemy (only called on host)
+        // Add this to NetworkedHealthManager.cs - KillEnemy method
         private static void KillEnemy(EnemyAI enemy)
         {
             if (enemy == null || enemy.isEnemyDead) return;
 
             Plugin.Log.LogInfo($"Killing enemy {enemy.enemyType.enemyName}");
+
+            // Check for special handling for problematic enemies with SellBodies
+            var sellBodiesHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.SellBodiesCompatibility>("Entity378.sellbodies");
+            if (sellBodiesHandler != null && sellBodiesHandler.IsInstalled &&
+                sellBodiesHandler.IsProblemEnemy(enemy.enemyType.enemyName))
+            {
+                // Handle special loot spawning for this enemy before it's killed
+                sellBodiesHandler.HandleProblemEnemyDeath(enemy);
+            }
 
             // Force ownership back to host before killing
             if (!enemy.IsOwner)

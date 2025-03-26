@@ -148,7 +148,7 @@ namespace EverythingCanDieAlternative
 
                 // If config doesn't exist yet, create it
                 var configEntry = Instance.Config.Bind("Mobs", mob + ".Health", defaultHealth, $"Health for {mobName}");
-                Log.LogInfo($"Created config for {mobName} health: {configEntry.Value}");
+                Log.LogInfo($"Using config for {mobName} health: {configEntry.Value}");
                 return configEntry.Value;
             }
             catch (Exception e)
@@ -169,6 +169,6 @@ namespace EverythingCanDieAlternative
     {
         public const string PLUGIN_GUID = "nwnt.EverythingCanDieAlternative";
         public const string PLUGIN_NAME = "EverythingCanDieAlternative";
-        public const string PLUGIN_VERSION = "1.1.34";
+        public const string PLUGIN_VERSION = "1.1.41";
     }
 }
