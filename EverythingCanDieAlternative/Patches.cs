@@ -54,8 +54,8 @@ namespace EverythingCanDieAlternative
                 Plugin.enemies = new List<EnemyType>(Resources.FindObjectsOfTypeAll<EnemyType>());
                 Plugin.Log.LogInfo($"Found {Plugin.enemies.Count} enemy types");
 
-                // Maximum vanilla HP allowed (based on Forest Giant)
-                const int MAX_VANILLA_HP = 38;
+                // Maximum HP when a new config gets generated
+                const int CAPPED_DEFAULT_HP = 38;
 
                 // Load config for all enemy types
                 foreach (var enemyType in Plugin.enemies)
@@ -78,10 +78,10 @@ namespace EverythingCanDieAlternative
                             }
                             else
                             {
-                                // Cap the HP at MAX_VANILLA_HP
-                                defaultHealth = Math.Min(enemyAI.enemyHP, MAX_VANILLA_HP);
+                                // Cap the HP at CAPPED_DEFAULT_HP
+                                defaultHealth = Math.Min(enemyAI.enemyHP, CAPPED_DEFAULT_HP);
 
-                                if (enemyAI.enemyHP > MAX_VANILLA_HP)
+                                if (enemyAI.enemyHP > CAPPED_DEFAULT_HP)
                                 {
                                     Plugin.Log.LogInfo($"Capped HP for {enemyType.enemyName} from {enemyAI.enemyHP} to {defaultHealth}");
                                 }
