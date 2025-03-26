@@ -1,6 +1,6 @@
 ## Version 1.1.41
 
-- Updated the SellBodiesFixed compatibility. The enemies Baldi and The Fiend will now spawn an item, the original SellBodiesFixed mod does not spawn an item for them. These enemies are currently hardcoded, let me know if there are more enemies that dont spawn an item with the SellBodiesFixed mod and i add them.
+- Updated the SellBodiesFixed compatibility. The enemies `Baldi` and `The Fiend` will now spawn an item, the original SellBodiesFixed mod does not spawn an item for them. These enemies are currently hardcoded, let me know if there are more enemies that dont spawn an item with the SellBodiesFixed mod and i add them.
 
 ## Version 1.1.40
 
