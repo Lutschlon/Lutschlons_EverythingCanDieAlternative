@@ -1,18 +1,23 @@
+## Version 1.1.41
+
+- Updated the SellBodiesFixed compatibility. The enemies `Baldi` and `The Fiend` will now spawn an item. <details><summary>Click for details</summary> The original SellBodiesFixed mod does not spawn an item for them. These enemies are currently hardcoded with power level 2 items, let me know if there are more enemies that dont spawn an item with the SellBodiesFixed mod and i add them.</details>
+- Updated the default configuration so enemy health caps at 30, this should result in more consistent 1 shot kills when hitting an enemy with the [LethalThings](https://thunderstore.io/c/lethal-company/p/Evaisa/LethalThings/) Rocket Launcher, this only effects new generated configs, you can still configure health to be higher
+
 ## Version 1.1.40
 
-- Fixed Enemies not being able to kill each other like BaboonHawks vs EyelessDogs <details><summary>Click for details</summary><p> Thanks to `SpinoRavenger` for reporting it on discord!</details>
+- Fixed Enemies not being able to kill each other like BaboonHawks vs EyelessDogs <details><summary>Click for details</summary><p> Thanks to `SpinoRavenger` for reporting it on Discord!</details>
   
 ###### Hotfix 1.1.34 - Added SoftDependency for BrutalCompanyMinusExtraReborn
 
 ## Version 1.1.33
 - Added beta compatibility for BrutalCompanyMinusExtraReborn by SoftDiamond
-- Changed default health configuration, enemies like Baldi will have 1 hp instead of 0 hp now
+- Updated default health configuration, enemies like Baldi will have 1 hp instead of 0 hp now
 - Updated ReadMe to better communicate mod compatibilities
 
 ## Version 1.1.32
-- Changed the framework for mod compatibilities
+- Updated the framework for mod compatibilities
 - Added beta compatibility for LethalHands by SlapItNow
-- Updated ReadMe with correct shotgun damage<details>Thanks to `ToastIsToasty` for reporting!</details>
+- Updated ReadMe with correct shotgun damage<details>Thanks to `ToastIsToasty` for reporting it on Discord!</details>
 
 ###### Hotfix 1.1.31 - Uploaded the correct files
 
