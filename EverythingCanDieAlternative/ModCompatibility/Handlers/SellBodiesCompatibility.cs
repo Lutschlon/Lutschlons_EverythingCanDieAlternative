@@ -79,17 +79,13 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
         private void InitializeProblemEnemies()
         {
             // Just identify problematic enemies and what power level they should use
-            _problemEnemyPowerLevels.Add("Baldi", 1);
+            _problemEnemyPowerLevels.Add("Baldi", 2);
+            _problemEnemyPowerLevels.Add("The Fiend", 2);
 
             // Add more problematic enemies here as they're discovered
             // _problemEnemyPowerLevels.Add("OtherEnemy", 2);
-            // _problemEnemyPowerLevels.Add("BigBossEnemy", 3);
         }
 
-        /// <summary>
-        /// Get the appropriate despawn delay when SellBodies mod is active
-        /// </summary>
-        /// <returns>The despawn delay in seconds</returns>
         public float GetDespawnDelay()
         {
             // With SellBodies, we need a longer delay to allow for body selling
