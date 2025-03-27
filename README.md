@@ -12,7 +12,7 @@ Start the game and host a lobby, then close the game and check out the configura
 <br>For each enemy, you can configure:
 > nwnt.EverythingCanDieAlternative.cfg
 - `.Unimmortal` - Toggle if the enemy can be damaged (true/false) - Default is every enemy is killable
-- `.Health` - Set the enemy's health value, default values are like the original game, or how the modder configured their enemy - e.g. Forest Giant has 38 health!
+- `.Health` - You configure the enemy's health value completely to your liking
   - For reference: the shovel deals 1 damage, the vanilla shotgun either 1/3/5 based on distance, modded weapons work as well with their own stats
 
 > nwnt.EverythingCanDieAlternative_Despawn_Rules.cfg<br>
