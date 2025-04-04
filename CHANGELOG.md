@@ -1,4 +1,4 @@
-## Version 1.1.41
+## Version 1.1.42
 - LightEater doesnt die
 - SCP682 doesnt die
 - Updated the SellBodiesFixed compatibility. The enemies `Gorefield` and `Rabbit?` will now spawn items after death. See 1.1.41 for more details.
