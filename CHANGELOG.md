@@ -1,4 +1,9 @@
 ## Version 1.1.41
+- LightEater doesnt die
+- SCP682 doesnt die
+- Updated the SellBodiesFixed compatibility. The enemies `Gorefield` and `Rabbit?` will now spawn items after death. See 1.1.41 for more details.
+
+## Version 1.1.41
 
 - Updated the SellBodiesFixed compatibility. The enemies `Baldi` and `The Fiend` will now spawn an item. <details><summary>Click for details</summary> The original SellBodiesFixed mod does not spawn an item for them. These enemies are currently hardcoded with power level 2 items, let me know if there are more enemies that dont spawn an item with the SellBodiesFixed mod and i add them.</details>
 - Updated the default configuration so enemy health caps at 30, this should result in more consistent 1 shot kills when hitting an enemy with the [LethalThings](https://thunderstore.io/c/lethal-company/p/Evaisa/LethalThings/) Rocket Launcher, this only effects new generated configs, you can still configure health to be higher
