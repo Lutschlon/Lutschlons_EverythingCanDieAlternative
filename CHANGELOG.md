@@ -1,6 +1,6 @@
 ## Version 1.1.43
 
-- Added beta feature, that allows you to disable my mod for specific enemies if you want to preserve their original behavior.<details><summary>Click for details</summary>Inside the configuration file `BepInEx/config/nwnt.EverythingCanDieAlternative_Enemy_Control.cfg` you can set `Enemy.Enable = false` and my mod will let the vanilla game handle health, hits etc.<p>This can be useful if specific enemies have built-in hit/health/death mechanisms that you want to preserve.</details>
+- Added beta feature, that allows you to deactivate my mod for specific enemies if you want to preserve their original behavior.<details><summary>Click for details</summary>Inside the configuration file `nwnt.EverythingCanDieAlternative_Enemy_Control.cfg` you can set `Enemy.Enable = false` and my mod will let the vanilla game handle health, hits etc.<p>This can be useful if specific enemies have built-in hit/health/death mechanisms that you want to preserve.</details>
 
 ## Version 1.1.42
 
