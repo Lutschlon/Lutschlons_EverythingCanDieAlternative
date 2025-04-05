@@ -1,4 +1,4 @@
-# EverythingCanDieAlternative 1.1.43
+# EverythingCanDieAlternative 1.1.44
 
 This mod aims to make every enemy in the game killable with configurable hp. It aims to work with any modded weapon and any modded enemy.
 - You can of course also leave enemies immortal in the config to hit the right balance.
@@ -20,7 +20,7 @@ Start the game and host a lobby, then close the game and check out the configura
 - `EnableDespawnFeature` - Master Switch to enable or disable the despawn functionality as a whole
 
 > nwnt.EverythingCanDieAlternative_Enemy_Control.cfg<br>
-- `Enable` - Experimental feature, that allows you to deactivate this mod for specific enemies to preserve their original health/hit behavior
+- `.Enable` - Experimental feature, that allows you to deactivate this mod for specific enemies to preserve their original health/hit behavior
 
 <br>Everyone needs to have this mod installed for it to work. Everyone should have the same config.
 
