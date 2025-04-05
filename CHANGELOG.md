@@ -1,14 +1,18 @@
+## Version 1.1.5
+- Fixed some enemies like `Light Eater` or `SCP682` not dying after their configured HP reach 0 <details><summary>Click for details</summary>- Added a more forceful way of removing enemies that resist the vanilla kill method<p>- This approach should be robust for any future enemies as well</details>
+- Updated the SellBodiesFixed compatibility. The enemies `Light Eater` and `SCP682` will now spawn an item
+  
 ## Version 1.1.43
 
-- Added beta feature, that allows you to deactivate my mod for specific enemies if you want to preserve their original behavior.<details><summary>Click for details</summary>Inside the configuration file `nwnt.EverythingCanDieAlternative_Enemy_Control.cfg` you can set `Enemy.Enable = false` and my mod will let the vanilla game handle health, hits etc.<p>This can be useful if specific enemies have built-in hit/health/death mechanisms that you want to preserve.</details>
+- Added beta feature, that allows you to deactivate my mod for specific enemies if you want to preserve their original behavior<details><summary>Click for details</summary>Inside the configuration file `nwnt.EverythingCanDieAlternative_Enemy_Control.cfg` you can set `Enemy.Enable = false` and my mod will let the vanilla game handle health, hits etc.<p>This can be useful if specific enemies have built-in hit/health/death mechanisms that you want to preserve.</details>
 
 ## Version 1.1.42
 
-- Updated the SellBodiesFixed compatibility. The enemies `SCP3166` (Gorefield) and `Rabbit?` will now spawn an item. <details><summary>Click for details</summary> The original SellBodiesFixed mod does not spawn an item for them. These enemies are currently hardcoded with power level 2 and 1 items. Btw, i have no clue what mod adds the Rabbit enemy or if it even spawns naturally.</details>
+- Updated the SellBodiesFixed compatibility. The enemies `SCP3166` (Gorefield) and `Rabbit?` will now spawn an item <details><summary>Click for details</summary> The original SellBodiesFixed mod does not spawn an item for them. These enemies are currently hardcoded with power level 2 and 1 items. Btw, i have no clue what mod adds the Rabbit enemy or if it even spawns naturally.</details>
 
 ## Version 1.1.41
 
-- Updated the SellBodiesFixed compatibility. The enemies `Baldi` and `The Fiend` will now spawn an item. <details><summary>Click for details</summary> The original SellBodiesFixed mod does not spawn an item for them. These enemies are currently hardcoded with power level 2 items, let me know if there are more enemies that dont spawn an item with the SellBodiesFixed mod and i add them.</details>
+- Updated the SellBodiesFixed compatibility. The enemies `Baldi` and `The Fiend` will now spawn an item <details><summary>Click for details</summary> The original SellBodiesFixed mod does not spawn an item for them. These enemies are currently hardcoded with power level 2 items, let me know if there are more enemies that dont spawn an item with the SellBodiesFixed mod and i add them.</details>
 - Updated the default configuration so enemy health caps at 30, this should result in more consistent 1 shot kills when hitting an enemy with the [LethalThings](https://thunderstore.io/c/lethal-company/p/Evaisa/LethalThings/) Rocket Launcher, this only effects new generated configs, you can still configure health to be higher
 
 ## Version 1.1.40
