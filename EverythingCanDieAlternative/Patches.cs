@@ -55,7 +55,7 @@ namespace EverythingCanDieAlternative
                 Plugin.Log.LogInfo($"Found {Plugin.enemies.Count} enemy types");
 
                 // Maximum HP when a new config gets generated
-                const int CAPPED_DEFAULT_HP = 30;
+                const int CAPPED_DEFAULT_HP = 38;
 
                 // Load config for all enemy types
                 foreach (var enemyType in Plugin.enemies)
@@ -96,6 +96,9 @@ namespace EverythingCanDieAlternative
                     Plugin.GetMobHealth(sanitizedName, defaultHealth); // Use capped prefab HP value or fallback
                     Plugin.ShouldDespawn(sanitizedName); // Create despawn config entries
                 }
+
+                // Create enemy control config entries
+                EnemyControlConfiguration.Instance.PreCreateEnemyConfigEntries();
 
                 // Process existing enemies in the scene
                 ProcessExistingEnemies();
