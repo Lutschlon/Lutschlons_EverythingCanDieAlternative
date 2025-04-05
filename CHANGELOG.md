@@ -35,7 +35,7 @@
 
 ## Version 1.1.10
 
-- Fixed an error, where the enemies could only be hit on the first moon, but not on any moon afterwards in the same playthrough/session</details><summary>Click to see the error message</summary>Error setting up enemy: A variable with the identifier nwnt.EverythingCanDieAlternative.ECD_Health_1 already exists! Please use a different identifier.</details>
+- Fixed an error, where the enemies could only be hit on the first moon, but not on any moon afterwards in the same playthrough/session <details><summary>Click to see the error message</summary>Error setting up enemy: A variable with the identifier nwnt.EverythingCanDieAlternative.ECD_Health_1 already exists! Please use a different identifier.</details>
 
 
 ## Version 1.1.00
