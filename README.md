@@ -22,7 +22,7 @@ Start the game and host a lobby, then close the game and check out the configura
 > nwnt.EverythingCanDieAlternative_Enemy_Control.cfg<br>
 - `Enable` - Experimental feature, that allows you to deactivate this mod for specific enemies to preserve their original health/hit behavior
 
-<br>Everyone needs to have this mod installed for it to work
+<br>Everyone needs to have this mod installed for it to work. Everyone should have the same config.
 
 ## Known Issues
 - Enemy vs Enemy combat might cause short log spam when one enemy dies to a BaboonHawk. While this does not cause gameplay issues it may cause a short lagspike.
