@@ -34,9 +34,9 @@ namespace EverythingCanDieAlternative
 
             try
             {
-                // Initialize the separate despawn configuration system
+                // Initialize the configuration system
                 _ = DespawnConfiguration.Instance;
-
+                _ = EnemyControlConfiguration.Instance;
                 // Initialize the mod compatibility framework
                 ModCompatibilityManager.Instance.Initialize();
 
@@ -51,18 +51,19 @@ namespace EverythingCanDieAlternative
             }
         }
 
-        /// <summary>
         /// Check if a specific mod is installed using the compatibility framework
-        /// </summary>
         public bool IsModInstalled(string modId)
         {
             return ModCompatibilityManager.Instance.IsModInstalled(modId);
         }
 
-        /// <summary>
         /// Convenience method to check if SellBodies mod is installed
-        /// </summary>
         public bool IsSellBodiesModDetected => IsModInstalled("Entity378.sellbodies");
+
+        public static bool IsModEnabledForEnemy(string mobName)
+        {
+            return EnemyControlConfiguration.Instance.IsModEnabledForEnemy(mobName);
+        }
 
         // Utility method for sanitizing names
         public static string RemoveInvalidCharacters(string source)
@@ -169,6 +170,6 @@ namespace EverythingCanDieAlternative
     {
         public const string PLUGIN_GUID = "nwnt.EverythingCanDieAlternative";
         public const string PLUGIN_NAME = "EverythingCanDieAlternative";
-        public const string PLUGIN_VERSION = "1.1.42";
+        public const string PLUGIN_VERSION = "1.1.43";
     }
 }

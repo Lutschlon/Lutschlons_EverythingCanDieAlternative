@@ -214,6 +214,15 @@ namespace EverythingCanDieAlternative
 
                 string enemyName = enemy.enemyType.enemyName;
                 string sanitizedName = Plugin.RemoveInvalidCharacters(enemyName).ToUpper();
+
+                // Check if mod is enabled for this enemy from the control configuration
+                if (!Plugin.IsModEnabledForEnemy(sanitizedName))
+                {
+                    Plugin.Log.LogInfo($"Mod disabled for enemy {enemyName} via config, using vanilla behavior");
+                    processedEnemies[instanceId] = true; // Mark as processed to avoid re-checking
+                    return;
+                }
+
                 bool canDamage = Plugin.CanMob(".Unimmortal", sanitizedName);
 
                 if (canDamage)
@@ -313,6 +322,7 @@ namespace EverythingCanDieAlternative
             // If health reached zero, kill the enemy (only on host)
             if (newHealth <= 0 && !enemy.isEnemyDead && StartOfRound.Instance.IsHost)
             {
+                // Plugin.Log.LogInfo($"Found enemy with name: {enemy.enemyType.enemyName}");
                 KillEnemy(enemy);
             }
         }
@@ -341,6 +351,14 @@ namespace EverythingCanDieAlternative
             if (enemy == null || enemy.isEnemyDead) return;
 
             int instanceId = enemy.GetInstanceID();
+
+            // Check if mod is enabled for this enemy from the control configuration
+            string sanitizedName = Plugin.RemoveInvalidCharacters(enemy.enemyType.enemyName).ToUpper();
+            if (!Plugin.IsModEnabledForEnemy(sanitizedName))
+            {
+                Plugin.Log.LogInfo($"Mod disabled for enemy {enemy.enemyType.enemyName}, not processing hit");
+                return; // Skip processing hit for disabled enemies
+            }
 
             // Check for LethalHands compatibility to handle special punch damage (-22)
             var lethalHandsHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.LethalHandsCompatibility>("SlapitNow.LethalHands");
@@ -403,6 +421,14 @@ namespace EverythingCanDieAlternative
             if (enemy == null || enemy.isEnemyDead) return;
 
             int instanceId = enemy.GetInstanceID();
+
+            // Check if mod is enabled for this enemy from the control configuration
+            string sanitizedName = Plugin.RemoveInvalidCharacters(enemy.enemyType.enemyName).ToUpper();
+            if (!Plugin.IsModEnabledForEnemy(sanitizedName))
+            {
+                Plugin.Log.LogInfo($"Mod disabled for enemy {enemy.enemyType.enemyName}, not processing damage");
+                return; // Skip processing damage for disabled enemies
+            }
 
             // Ensure enemy is set up
             if (!processedEnemies.ContainsKey(instanceId) || !processedEnemies[instanceId])
