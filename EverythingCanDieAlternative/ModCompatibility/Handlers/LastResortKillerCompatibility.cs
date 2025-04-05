@@ -85,7 +85,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             else if (attempts == 3)
             {
                 // Third attempt: Force-set internal states + aggressive component disabling
-                Plugin.Log.LogInfo($"Aggressive force-state and component disabling for {enemy.enemyType.enemyName}");
+                //Plugin.Log.LogInfo($"Aggressive force-state and component disabling for {enemy.enemyType.enemyName}");
                 ForceDeadState(enemy);
 
                 // More forceful approach - disable all MonoBehaviours except the main EnemyAI
@@ -98,8 +98,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                     {
                         try
                         {
-                            // This is a very aggressive approach that might cause issues,
-                            // but at this point we've already tried gentler methods
+                            // This is a very aggressive approach that might cause issues
                             Plugin.Log.LogInfo($"Forcing network despawn for {enemy.enemyType.enemyName}");
                             enemy.NetworkObject.Despawn();
                         }
@@ -140,16 +139,6 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             }
         }
 
-        /// <summary>
-        /// Handle SellBodies compatibility for problem enemies
-        /// This ensures loot is spawned even when using forced despawn methods
-        /// </summary>
-        private void HandleSellBodiesCompatibility(EnemyAI enemy)
-        {
-            // We don't need to handle SellBodies compatibility here anymore
-            // It's already being handled in NetworkedHealthManager.KillEnemy
-            // This method is kept as a placeholder in case we need specialized handling in the future
-        }
 
         /// <summary>
         /// Schedule a check to see if the enemy actually died
@@ -270,7 +259,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                     // Skip the main EnemyAI component
                     if (component != enemy && component.enabled)
                     {
-                        Plugin.Log.LogInfo($"Disabling component {component.GetType().Name} on {enemy.enemyType.enemyName}");
+                        //Plugin.Log.LogInfo($"Disabling component {component.GetType().Name} on {enemy.enemyType.enemyName}");
                         component.enabled = false;
                     }
                 }

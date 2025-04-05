@@ -34,6 +34,9 @@ namespace EverythingCanDieAlternative
         // Dictionary to track which enemies are in despawn process
         private static readonly Dictionary<int, bool> enemiesInDespawnProcess = new Dictionary<int, bool>();
 
+        // NEW: Dictionary to track which enemies should be immortal (Enabled=true, Unimmortal=false)
+        private static readonly Dictionary<int, bool> immortalEnemies = new Dictionary<int, bool>();
+
         // Network message for despawning enemies
         private static LNetworkMessage<int> despawnMessage;
 
@@ -65,6 +68,7 @@ namespace EverythingCanDieAlternative
             enemyNetworkIds.Clear();
             enemyNetworkVarNames.Clear();
             enemiesInDespawnProcess.Clear();
+            immortalEnemies.Clear(); // NEW: Clear immortal enemies tracking
 
             // Reset the counter
             networkVarCounter = 0;
@@ -225,6 +229,7 @@ namespace EverythingCanDieAlternative
 
                 bool canDamage = Plugin.CanMob(".Unimmortal", sanitizedName);
 
+                // MODIFIED: Handle both damageable and immortal-but-enabled enemies differently
                 if (canDamage)
                 {
                     // Get configured health
@@ -296,11 +301,26 @@ namespace EverythingCanDieAlternative
                     // Mark as processed
                     processedEnemies[instanceId] = true;
 
+                    // Not immortal
+                    immortalEnemies[instanceId] = false;
+
                     Plugin.Log.LogInfo($"Setup enemy {enemyName} (ID: {instanceId}, NetID: {enemy.NetworkObjectId}, Index: {enemy.thisEnemyIndex}) with {configHealth} networked health");
                 }
                 else
                 {
-                    Plugin.Log.LogInfo($"Enemy {enemyName} is not configured to be damageable");
+                    // NEW CODE: Handle immortal-but-enabled enemies
+                    Plugin.Log.LogInfo($"Enemy {enemyName} is configured as immortal (Unimmortal=false, Enabled=true)");
+
+                    // Set high HP value to make them effectively immortal
+                    enemy.enemyHP = 999;
+
+                    // Mark as immortal for hit processing
+                    immortalEnemies[instanceId] = true;
+
+                    // Mark as processed
+                    processedEnemies[instanceId] = true;
+
+                    Plugin.Log.LogInfo($"Set enemy {enemyName} (ID: {instanceId}) to be immortal with 999 HP");
                 }
             }
             catch (Exception ex)
@@ -358,6 +378,15 @@ namespace EverythingCanDieAlternative
             {
                 Plugin.Log.LogInfo($"Mod disabled for enemy {enemy.enemyType.enemyName}, not processing hit");
                 return; // Skip processing hit for disabled enemies
+            }
+
+            // NEW CODE: Check if this is an immortal enemy (Enabled=true, Unimmortal=false)
+            if (immortalEnemies.TryGetValue(instanceId, out bool isImmortal) && isImmortal)
+            {
+                // For immortal enemies, just refresh their HP to 999 and don't process damage
+                enemy.enemyHP = 999;
+                Plugin.Log.LogInfo($"Refreshed immortal enemy {enemy.enemyType.enemyName} HP to 999");
+                return;
             }
 
             // Check for LethalHands compatibility to handle special punch damage (-22)
@@ -428,6 +457,15 @@ namespace EverythingCanDieAlternative
             {
                 Plugin.Log.LogInfo($"Mod disabled for enemy {enemy.enemyType.enemyName}, not processing damage");
                 return; // Skip processing damage for disabled enemies
+            }
+
+            // NEW CODE: Check if this is an immortal enemy (Enabled=true, Unimmortal=false)
+            if (immortalEnemies.TryGetValue(instanceId, out bool isImmortal) && isImmortal)
+            {
+                // For immortal enemies, just refresh their HP to 999 and don't process damage
+                enemy.enemyHP = 999;
+                Plugin.Log.LogInfo($"Refreshed immortal enemy {enemy.enemyType.enemyName} HP to 999");
+                return;
             }
 
             // Ensure enemy is set up

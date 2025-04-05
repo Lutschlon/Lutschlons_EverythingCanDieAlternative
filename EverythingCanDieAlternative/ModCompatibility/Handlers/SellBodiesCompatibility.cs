@@ -152,7 +152,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
 
             try
             {
-                Plugin.Log.LogInfo($"SellBodies: Attempting to spawn loot for {enemyName} (Power Level: {powerLevel})");
+                //Plugin.Log.LogInfo($"SellBodies: Attempting to spawn loot for {enemyName} (Power Level: {powerLevel})");
 
                 // Find the appropriate prefab based on power level from SellBodies
                 string prefabName = $"ModdedEnemyPowerLevel{powerLevel}Body";
@@ -164,7 +164,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                     yield break;
                 }
 
-                Plugin.Log.LogInfo($"SellBodies: Found prefab: {prefab.name}");
+                //Plugin.Log.LogInfo($"SellBodies: Found prefab: {prefab.name}");
 
                 // Spawn position with offset
                 Vector3 spawnPos = position + new Vector3(0, 1f, 0);
@@ -173,13 +173,13 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                 GameObject spawnedObj = GameObject.Instantiate(prefab, spawnPos, rotation,
                     RoundManager.Instance.mapPropsContainer.transform);
 
-                Plugin.Log.LogInfo($"SellBodies: Instantiated loot object: {spawnedObj.name}");
+                //Plugin.Log.LogInfo($"SellBodies: Instantiated loot object: {spawnedObj.name}");
 
                 // Spawn the network object
                 var networkObj = spawnedObj.GetComponent<NetworkObject>();
                 if (networkObj != null)
                 {
-                    Plugin.Log.LogInfo($"SellBodies: Attempting to spawn network object");
+                   // Plugin.Log.LogInfo($"SellBodies: Attempting to spawn network object");
                     networkObj.Spawn(true);
                     Plugin.Log.LogInfo($"SellBodies: Successfully spawned SellBodies loot for {enemyName}");
                 }
@@ -199,7 +199,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
         private GameObject FindPrefabAtRuntime(string prefabName)
         {
             string searchName = prefabName.Replace("Body", "");
-            Plugin.Log.LogInfo($"SellBodies: Searching for prefab with name containing '{searchName}'");
+            //Plugin.Log.LogInfo($"SellBodies: Searching for prefab with name containing '{searchName}'");
 
             try
             {
@@ -210,7 +210,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                     return null;
                 }
 
-                Plugin.Log.LogInfo($"SellBodies: Checking {StartOfRound.Instance.allItemsList.itemsList.Count} items");
+                //Plugin.Log.LogInfo($"SellBodies: Checking {StartOfRound.Instance.allItemsList.itemsList.Count} items");
 
                 // Look for items by name pattern
                 foreach (var item in StartOfRound.Instance.allItemsList.itemsList)
@@ -222,7 +222,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                         (item.itemName != null && item.itemName.Contains(searchName)) ||
                         (item.spawnPrefab != null && item.spawnPrefab.name.Contains(searchName)))
                     {
-                        Plugin.Log.LogInfo($"SellBodies: Found matching item: {item.name}");
+                        //Plugin.Log.LogInfo($"SellBodies: Found matching item: {item.name}");
                         return item.spawnPrefab;
                     }
                 }
@@ -242,7 +242,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                         // Check item name for power level
                         if (item.name.Contains($"PowerLevel{powerLevel}"))
                         {
-                            Plugin.Log.LogInfo($"SellBodies: Found power level match: {item.name}");
+                            //Plugin.Log.LogInfo($"SellBodies: Found power level match: {item.name}");
                             return item.spawnPrefab;
                         }
                     }
