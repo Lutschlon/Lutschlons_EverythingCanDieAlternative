@@ -454,8 +454,15 @@ namespace EverythingCanDieAlternative
             }
         }
 
+        // Notify clients to destroy an enemy by index
+        public static void NotifyClientsOfDestroy(int enemyIndex)
+        {
+            // Inform clients to destroy this enemy
+            if (despawnMessage != null)
+                despawnMessage.SendClients(enemyIndex);
+        }
+
         // Kill an enemy (only called on host)
-        // Add this to NetworkedHealthManager.cs - KillEnemy method
         private static void KillEnemy(EnemyAI enemy)
         {
             if (enemy == null || enemy.isEnemyDead) return;
@@ -479,14 +486,27 @@ namespace EverythingCanDieAlternative
                 enemy.ChangeOwnershipOfEnemy(hostId);
             }
 
-            // Try killing the enemy
-            enemy.KillEnemyOnOwnerClient(false);
-
-            // For problematic enemies like Spring, try again with destroy=true as fallback
-            if (enemy.enemyType.enemyName.Contains("Spring"))
+            // Use our new LastResortKiller compatibility handler for robust killing
+            var lastResortKiller = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.LastResortKillerCompatibility>("nwnt.EverythingCanDieAlternative.LastResortKiller");
+            if (lastResortKiller != null)
             {
-                Plugin.Log.LogInfo($"Using fallback kill method for {enemy.enemyType.enemyName}");
-                enemy.KillEnemyOnOwnerClient(true);
+                // Check if this enemy should despawn after death
+                bool shouldDespawn = DespawnConfiguration.Instance.ShouldDespawnEnemy(enemy.enemyType.enemyName);
+
+                // Let the handler attempt to kill the enemy using progressive methods
+                lastResortKiller.AttemptToKillEnemy(enemy, shouldDespawn);
+            }
+            else
+            {
+                // Fallback to the original killing method if handler not found (shouldn't happen)
+                enemy.KillEnemyOnOwnerClient(false);
+
+                // For problematic enemies like Spring, try again with destroy=true as fallback
+                if (enemy.enemyType.enemyName.Contains("Spring"))
+                {
+                    Plugin.Log.LogInfo($"Using fallback kill method for {enemy.enemyType.enemyName}");
+                    enemy.KillEnemyOnOwnerClient(true);
+                }
             }
 
             // Check if this enemy should despawn after death
