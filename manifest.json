@@ -1,8 +1,8 @@
 {
   "name": "EverythingCanDieAlternative",
-  "version_number": "1.1.40",
+  "version_number": "1.1.50",
   "website_url": "https://github.com/Lutschlon/Lutschlons_EverythingCanDieAlternative",
-  "description": "Allows every enemy to be damageable / hitable / killable - configurable - They now despawn as well",
+  "description": "Allows every enemy to be damageable / hitable / killable - configurable - Dead enemies despawn as well",
   "dependencies": [
     "BepInEx-BepInExPack-5.4.2100",
     "xilophor-LethalNetworkAPI-3.3.2"

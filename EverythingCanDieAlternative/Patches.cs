@@ -28,6 +28,11 @@ namespace EverythingCanDieAlternative
                 var hitLocalPrefix = AccessTools.Method(typeof(Patches), nameof(HitEnemyOnLocalClientPrefix));
                 harmony.Patch(hitLocalMethod, new HarmonyMethod(hitLocalPrefix));
 
+                // NEW: Patch HitEnemy to ensure vanilla hits are also captured for immortal enemies
+                var hitEnemyMethod = AccessTools.Method(typeof(EnemyAI), "HitEnemy");
+                var hitEnemyPrefix = AccessTools.Method(typeof(Patches), nameof(HitEnemyPrefix));
+                harmony.Patch(hitEnemyMethod, new HarmonyMethod(hitEnemyPrefix));
+
                 // Patch RoundManager.FinishGeneratingLevel to refresh BrutalCompanyMinus compatibility
                 var finishGeneratingLevelMethod = AccessTools.Method(typeof(RoundManager), "FinishGeneratingLevel");
                 var finishGeneratingLevelPostfix = AccessTools.Method(typeof(Patches), nameof(FinishGeneratingLevelPostfix));
@@ -55,7 +60,7 @@ namespace EverythingCanDieAlternative
                 Plugin.Log.LogInfo($"Found {Plugin.enemies.Count} enemy types");
 
                 // Maximum HP when a new config gets generated
-                const int CAPPED_DEFAULT_HP = 38;
+                const int CAPPED_DEFAULT_HP = 30;
 
                 // Load config for all enemy types
                 foreach (var enemyType in Plugin.enemies)
@@ -178,6 +183,37 @@ namespace EverythingCanDieAlternative
             catch (Exception ex)
             {
                 Plugin.Log.LogError($"Error in HitEnemyOnLocalClientPrefix: {ex}");
+                return true;
+            }
+        }
+
+        // NEW: Patch for EnemyAI.HitEnemy to handle immortal enemies
+        public static bool HitEnemyPrefix(EnemyAI __instance, int force, PlayerControllerB playerWhoHit)
+        {
+            try
+            {
+                if (__instance == null || __instance.isEnemyDead) return true;
+
+                string enemyName = __instance.enemyType.enemyName;
+                string sanitizedName = Plugin.RemoveInvalidCharacters(enemyName).ToUpper();
+
+                // Only handle enemies that are enabled but set as immortal (Unimmortal=false)
+                if (Plugin.IsModEnabledForEnemy(sanitizedName) && !Plugin.CanMob(".Unimmortal", sanitizedName))
+                {
+                    // Reset HP to 999 to ensure immortality
+                    __instance.enemyHP = 999;
+                    Plugin.Log.LogInfo($"HitEnemyPrefix: Refreshed immortal enemy {enemyName} HP to 999");
+
+                    // Still let the vanilla method run for sound effects and animations
+                    return true;
+                }
+
+                // For other enemies, let the normal process happen
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError($"Error in HitEnemyPrefix: {ex}");
                 return true;
             }
         }

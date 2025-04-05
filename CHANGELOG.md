@@ -1,19 +1,25 @@
+## Version 1.1.50
+- Fixed that some enemies like `Light Eater` or `SCP682` will not die after their configured HP reach 0 <details><summary>Click for details</summary> - Added a more forceful way of removing enemies that resist the vanilla kill method<p>- This approach should be robust for any future enemies as well</details>
+- Updated how `.Unimmortal = false` effects gameplay - it will now give enemies 999 vanilla HP, this wont save them from instakills<details><summary>Click for details</summary>Hitting such an enemy will not trigger the EverythingCanDieAlternative hit processing, this is unchanged from earlier patches <p> Before this patch, enemies would revert to vanilla HP values, you can make enemies use vanilla values by setting `.Enable = false`</details>
+- Updated the SellBodiesFixed compatibility. The enemies `Light Eater` and `SCP682` will now spawn an item
+  
 ## Version 1.1.43
 
-- Added beta feature, that allows you to deactivate my mod for specific enemies if you want to preserve their original behavior.<details><summary>Click for details</summary>Inside the configuration file `nwnt.EverythingCanDieAlternative_Enemy_Control.cfg` you can set `Enemy.Enable = false` and my mod will let the vanilla game handle health, hits etc.<p>This can be useful if specific enemies have built-in hit/health/death mechanisms that you want to preserve.</details>
+- Added beta feature, that allows you to deactivate my mod for specific enemies if you want to preserve their original behavior<details><summary>Click for details</summary>Inside the configuration file `nwnt.EverythingCanDieAlternative_Enemy_Control.cfg` you can set `Enemy.Enable = false` and my mod will let the vanilla game handle health, hits etc.<p>This can be useful if specific enemies have built-in hit/health/death mechanisms that you want to preserve.</details>
 
 ## Version 1.1.42
 
-- Updated the SellBodiesFixed compatibility. The enemies `SCP3166` (Gorefield) and `Rabbit?` will now spawn an item. <details><summary>Click for details</summary> The original SellBodiesFixed mod does not spawn an item for them. These enemies are currently hardcoded with power level 2 and 1 items. Btw, i have no clue what mod adds the Rabbit enemy or if it even spawns naturally.</details>
+- Updated the SellBodiesFixed compatibility. The enemies `SCP3166` (Gorefield) and `Rabbit?` will now spawn an item <details><summary>Click for details</summary> The original SellBodiesFixed mod does not spawn an item for them. These enemies are currently hardcoded with power level 2 and 1 items. Btw, i have no clue what mod adds the Rabbit enemy or if it even spawns naturally.</details>
 
 ## Version 1.1.41
 
-- Updated the SellBodiesFixed compatibility. The enemies `Baldi` and `The Fiend` will now spawn an item. <details><summary>Click for details</summary> The original SellBodiesFixed mod does not spawn an item for them. These enemies are currently hardcoded with power level 2 items, let me know if there are more enemies that dont spawn an item with the SellBodiesFixed mod and i add them.</details>
+- Updated the SellBodiesFixed compatibility. The enemies `Baldi` and `The Fiend` will now spawn an item <details><summary>Click for details</summary> The original SellBodiesFixed mod does not spawn an item for them. These enemies are currently hardcoded with power level 2 items, let me know if there are more enemies that dont spawn an item with the SellBodiesFixed mod and i add them.</details>
 - Updated the default configuration so enemy health caps at 30, this should result in more consistent 1 shot kills when hitting an enemy with the [LethalThings](https://thunderstore.io/c/lethal-company/p/Evaisa/LethalThings/) Rocket Launcher, this only effects new generated configs, you can still configure health to be higher
 
 ## Version 1.1.40
 
 - Fixed Enemies not being able to kill each other like BaboonHawks vs EyelessDogs <details><summary>Click for details</summary><p> Thanks to `SpinoRavenger` for reporting it on Discord!</details>
+
 ##
 ###### Hotfix 1.1.34 - Added SoftDependency for BrutalCompanyMinusExtraReborn
 
@@ -26,10 +32,11 @@
 - Updated the framework for mod compatibilities
 - Added beta compatibility for LethalHands by SlapItNow
 - Updated ReadMe with correct shotgun damage<details>Thanks to `ToastIsToasty` for reporting it on Discord!</details>
-##
+
 ###### Hotfix 1.1.31 - Uploaded the correct files
 
 ## Version 1.1.30
+##
 
 - Fixed the creation of health configs, for not referencing original enemy hp but instead always defaulting to 3 hp <details><summary>Click for details</summary><p> Thanks to `pxntxrez` for reporting it on discord!<p>This fix only takes effect when you delete your existing `nwnt.EverythingCanDieAlternative.cfg` file or during a fresh installation in a new modpack.<p>Before this fix, enemies like Forest Giant would default to 3 hp, now they default to 38 hp like in the vanilla game. You can of course still configure them back to 3 hp or whatever you like to. <p>The default configuration caps enemy hp at 38. You can still manually configure hp to be higher. Why is it limited? The enemy "The Fiend" is configured with 1000 hp, i dont think having an hitable enemy with 1000 hp is what someone expects when installing my mod. 38 is already way to much for the shovel or shotgun but eh, might change the hp cap later.</details>
 

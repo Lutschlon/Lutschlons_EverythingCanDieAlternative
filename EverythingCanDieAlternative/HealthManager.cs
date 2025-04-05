@@ -34,6 +34,9 @@ namespace EverythingCanDieAlternative
         // Dictionary to track which enemies are in despawn process
         private static readonly Dictionary<int, bool> enemiesInDespawnProcess = new Dictionary<int, bool>();
 
+        // NEW: Dictionary to track which enemies should be immortal (Enabled=true, Unimmortal=false)
+        private static readonly Dictionary<int, bool> immortalEnemies = new Dictionary<int, bool>();
+
         // Network message for despawning enemies
         private static LNetworkMessage<int> despawnMessage;
 
@@ -65,6 +68,7 @@ namespace EverythingCanDieAlternative
             enemyNetworkIds.Clear();
             enemyNetworkVarNames.Clear();
             enemiesInDespawnProcess.Clear();
+            immortalEnemies.Clear(); // NEW: Clear immortal enemies tracking
 
             // Reset the counter
             networkVarCounter = 0;
@@ -225,6 +229,7 @@ namespace EverythingCanDieAlternative
 
                 bool canDamage = Plugin.CanMob(".Unimmortal", sanitizedName);
 
+                // MODIFIED: Handle both damageable and immortal-but-enabled enemies differently
                 if (canDamage)
                 {
                     // Get configured health
@@ -296,11 +301,26 @@ namespace EverythingCanDieAlternative
                     // Mark as processed
                     processedEnemies[instanceId] = true;
 
+                    // Not immortal
+                    immortalEnemies[instanceId] = false;
+
                     Plugin.Log.LogInfo($"Setup enemy {enemyName} (ID: {instanceId}, NetID: {enemy.NetworkObjectId}, Index: {enemy.thisEnemyIndex}) with {configHealth} networked health");
                 }
                 else
                 {
-                    Plugin.Log.LogInfo($"Enemy {enemyName} is not configured to be damageable");
+                    // NEW CODE: Handle immortal-but-enabled enemies
+                    Plugin.Log.LogInfo($"Enemy {enemyName} is configured as immortal (Unimmortal=false, Enabled=true)");
+
+                    // Set high HP value to make them effectively immortal
+                    enemy.enemyHP = 999;
+
+                    // Mark as immortal for hit processing
+                    immortalEnemies[instanceId] = true;
+
+                    // Mark as processed
+                    processedEnemies[instanceId] = true;
+
+                    Plugin.Log.LogInfo($"Set enemy {enemyName} (ID: {instanceId}) to be immortal with 999 HP");
                 }
             }
             catch (Exception ex)
@@ -358,6 +378,15 @@ namespace EverythingCanDieAlternative
             {
                 Plugin.Log.LogInfo($"Mod disabled for enemy {enemy.enemyType.enemyName}, not processing hit");
                 return; // Skip processing hit for disabled enemies
+            }
+
+            // NEW CODE: Check if this is an immortal enemy (Enabled=true, Unimmortal=false)
+            if (immortalEnemies.TryGetValue(instanceId, out bool isImmortal) && isImmortal)
+            {
+                // For immortal enemies, just refresh their HP to 999 and don't process damage
+                enemy.enemyHP = 999;
+                Plugin.Log.LogInfo($"Refreshed immortal enemy {enemy.enemyType.enemyName} HP to 999");
+                return;
             }
 
             // Check for LethalHands compatibility to handle special punch damage (-22)
@@ -430,6 +459,15 @@ namespace EverythingCanDieAlternative
                 return; // Skip processing damage for disabled enemies
             }
 
+            // NEW CODE: Check if this is an immortal enemy (Enabled=true, Unimmortal=false)
+            if (immortalEnemies.TryGetValue(instanceId, out bool isImmortal) && isImmortal)
+            {
+                // For immortal enemies, just refresh their HP to 999 and don't process damage
+                enemy.enemyHP = 999;
+                Plugin.Log.LogInfo($"Refreshed immortal enemy {enemy.enemyType.enemyName} HP to 999");
+                return;
+            }
+
             // Ensure enemy is set up
             if (!processedEnemies.ContainsKey(instanceId) || !processedEnemies[instanceId])
             {
@@ -454,8 +492,15 @@ namespace EverythingCanDieAlternative
             }
         }
 
+        // Notify clients to destroy an enemy by index
+        public static void NotifyClientsOfDestroy(int enemyIndex)
+        {
+            // Inform clients to destroy this enemy
+            if (despawnMessage != null)
+                despawnMessage.SendClients(enemyIndex);
+        }
+
         // Kill an enemy (only called on host)
-        // Add this to NetworkedHealthManager.cs - KillEnemy method
         private static void KillEnemy(EnemyAI enemy)
         {
             if (enemy == null || enemy.isEnemyDead) return;
@@ -479,14 +524,27 @@ namespace EverythingCanDieAlternative
                 enemy.ChangeOwnershipOfEnemy(hostId);
             }
 
-            // Try killing the enemy
-            enemy.KillEnemyOnOwnerClient(false);
-
-            // For problematic enemies like Spring, try again with destroy=true as fallback
-            if (enemy.enemyType.enemyName.Contains("Spring"))
+            // Use our new LastResortKiller compatibility handler for robust killing
+            var lastResortKiller = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.LastResortKillerCompatibility>("nwnt.EverythingCanDieAlternative.LastResortKiller");
+            if (lastResortKiller != null)
             {
-                Plugin.Log.LogInfo($"Using fallback kill method for {enemy.enemyType.enemyName}");
-                enemy.KillEnemyOnOwnerClient(true);
+                // Check if this enemy should despawn after death
+                bool shouldDespawn = DespawnConfiguration.Instance.ShouldDespawnEnemy(enemy.enemyType.enemyName);
+
+                // Let the handler attempt to kill the enemy using progressive methods
+                lastResortKiller.AttemptToKillEnemy(enemy, shouldDespawn);
+            }
+            else
+            {
+                // Fallback to the original killing method if handler not found (shouldn't happen)
+                enemy.KillEnemyOnOwnerClient(false);
+
+                // For problematic enemies like Spring, try again with destroy=true as fallback
+                if (enemy.enemyType.enemyName.Contains("Spring"))
+                {
+                    Plugin.Log.LogInfo($"Using fallback kill method for {enemy.enemyType.enemyName}");
+                    enemy.KillEnemyOnOwnerClient(true);
+                }
             }
 
             // Check if this enemy should despawn after death
