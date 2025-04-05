@@ -19,7 +19,9 @@ Start the game and host a lobby, then close the game and check out the configura
 - `.Despawn` - Toggle if the model of the enemy should get forced to despawn after its death
 - `EnableDespawnFeature` - Master Switch to enable or disable the despawn functionality as a whole
 
- 
+> nwnt.EverythingCanDieAlternative_Enemy_Control.cfg<br>
+- `Enable` - Experimental feature, that allows you to deactivate this mod for specific enemies to preserve their original health/hit behavior
+
 <br>Everyone needs to have this mod installed for it to work
 
 ## Known Issues
