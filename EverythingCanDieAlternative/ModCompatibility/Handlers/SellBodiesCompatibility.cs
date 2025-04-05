@@ -81,6 +81,8 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             // Just identify problematic enemies and what power level they should use
             _problemEnemyPowerLevels.Add("Baldi", 2);
             _problemEnemyPowerLevels.Add("The Fiend", 2);
+            _problemEnemyPowerLevels.Add("Gorefield", 2);
+            _problemEnemyPowerLevels.Add("Rabbit?", 1); 
 
             // Add more problematic enemies here as they're discovered
             // _problemEnemyPowerLevels.Add("OtherEnemy", 2);
@@ -92,17 +94,13 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             return 4.5f; // 4.5 seconds is slightly longer than SellBodies' 4-second timer
         }
 
-        /// <summary>
         /// Check if an enemy needs special handling
-        /// </summary>
         public bool IsProblemEnemy(string enemyName)
         {
             return _problemEnemyPowerLevels.ContainsKey(enemyName);
         }
 
-        /// <summary>
         /// Handle a problematic enemy's death by spawning appropriate loot
-        /// </summary>
         public void HandleProblemEnemyDeath(EnemyAI enemy)
         {
             if (enemy == null || !IsInstalled) return;
