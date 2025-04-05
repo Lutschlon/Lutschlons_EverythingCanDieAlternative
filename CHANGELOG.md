@@ -1,7 +1,6 @@
 ## Version 1.1.42
-- LightEater doesnt die
-- SCP682 doesnt die
-- Updated the SellBodiesFixed compatibility. The enemies `Gorefield` and `Rabbit?` will now spawn items after death. See 1.1.41 for more details.
+
+- Updated the SellBodiesFixed compatibility. The enemies `SCP3166` (Gorefield) and `Rabbit?` will now spawn an item. <details><summary>Click for details</summary> The original SellBodiesFixed mod does not spawn an item for them. These enemies are currently hardcoded with power level 2 and 1 items. Btw, i have no clue what mod adds the Rabbit enemy or if it even spawns naturally.</details>
 
 ## Version 1.1.41
 
@@ -11,7 +10,7 @@
 ## Version 1.1.40
 
 - Fixed Enemies not being able to kill each other like BaboonHawks vs EyelessDogs <details><summary>Click for details</summary><p> Thanks to `SpinoRavenger` for reporting it on Discord!</details>
-  
+##
 ###### Hotfix 1.1.34 - Added SoftDependency for BrutalCompanyMinusExtraReborn
 
 ## Version 1.1.33
@@ -23,7 +22,7 @@
 - Updated the framework for mod compatibilities
 - Added beta compatibility for LethalHands by SlapItNow
 - Updated ReadMe with correct shotgun damage<details>Thanks to `ToastIsToasty` for reporting it on Discord!</details>
-
+##
 ###### Hotfix 1.1.31 - Uploaded the correct files
 
 ## Version 1.1.30
