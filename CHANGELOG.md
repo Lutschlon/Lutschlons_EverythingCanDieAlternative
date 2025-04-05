@@ -1,3 +1,7 @@
+## Version 1.1.42
+
+- Updated the SellBodiesFixed compatibility. The enemies `SCP3166` (Gorefield) and `Rabbit?` will now spawn an item. <details><summary>Click for details</summary> The original SellBodiesFixed mod does not spawn an item for them. These enemies are currently hardcoded with power level 2 and 1 items. Btw, i have no clue what mod adds the Rabbit enemy or if it even spawns naturally.</details>
+
 ## Version 1.1.41
 
 - Updated the SellBodiesFixed compatibility. The enemies `Baldi` and `The Fiend` will now spawn an item. <details><summary>Click for details</summary> The original SellBodiesFixed mod does not spawn an item for them. These enemies are currently hardcoded with power level 2 items, let me know if there are more enemies that dont spawn an item with the SellBodiesFixed mod and i add them.</details>
@@ -6,7 +10,7 @@
 ## Version 1.1.40
 
 - Fixed Enemies not being able to kill each other like BaboonHawks vs EyelessDogs <details><summary>Click for details</summary><p> Thanks to `SpinoRavenger` for reporting it on Discord!</details>
-  
+##
 ###### Hotfix 1.1.34 - Added SoftDependency for BrutalCompanyMinusExtraReborn
 
 ## Version 1.1.33
@@ -18,7 +22,7 @@
 - Updated the framework for mod compatibilities
 - Added beta compatibility for LethalHands by SlapItNow
 - Updated ReadMe with correct shotgun damage<details>Thanks to `ToastIsToasty` for reporting it on Discord!</details>
-
+##
 ###### Hotfix 1.1.31 - Uploaded the correct files
 
 ## Version 1.1.30
@@ -31,7 +35,7 @@
 
 ## Version 1.1.10
 
-- Fixed an error, where the enemies could only be hit on the first moon, but not on any moon afterwards in the same playthrough/session</details><summary>Click to see the error message</summary>Error setting up enemy: A variable with the identifier nwnt.EverythingCanDieAlternative.ECD_Health_1 already exists! Please use a different identifier.</details>
+- Fixed an error, where the enemies could only be hit on the first moon, but not on any moon afterwards in the same playthrough/session <details><summary>Click to see the error message</summary>Error setting up enemy: A variable with the identifier nwnt.EverythingCanDieAlternative.ECD_Health_1 already exists! Please use a different identifier.</details>
 
 
 ## Version 1.1.00
