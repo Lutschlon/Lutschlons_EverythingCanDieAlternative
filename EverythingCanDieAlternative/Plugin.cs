@@ -9,6 +9,7 @@ using System.Text;
 using UnityEngine;
 using EverythingCanDieAlternative.ModCompatibility;
 using EverythingCanDieAlternative.ModCompatibility.Handlers;
+using EverythingCanDieAlternative.UI;
 
 namespace EverythingCanDieAlternative
 {
@@ -37,13 +38,17 @@ namespace EverythingCanDieAlternative
                 // Initialize the configuration system
                 _ = DespawnConfiguration.Instance;
                 _ = EnemyControlConfiguration.Instance;
+
                 // Initialize the mod compatibility framework
                 ModCompatibilityManager.Instance.Initialize();
 
                 // Apply our patches
                 Patches.Initialize(Harmony);
 
-                Log.LogInfo($"{PluginInfo.PLUGIN_NAME} v{PluginInfo.PLUGIN_VERSION} is loaded with network support!");
+                // Initialize the configuration menu
+                ConfigMenuPatch.Initialize(Harmony);
+
+                Log.LogInfo($"{PluginInfo.PLUGIN_NAME} v{PluginInfo.PLUGIN_VERSION} is loaded with network support and configuration menu!");
             }
             catch (Exception ex)
             {
@@ -170,6 +175,6 @@ namespace EverythingCanDieAlternative
     {
         public const string PLUGIN_GUID = "nwnt.EverythingCanDieAlternative";
         public const string PLUGIN_NAME = "EverythingCanDieAlternative";
-        public const string PLUGIN_VERSION = "1.1.50";
+        public const string PLUGIN_VERSION = "1.1.51"; // Updated version number with UI feature
     }
 }
