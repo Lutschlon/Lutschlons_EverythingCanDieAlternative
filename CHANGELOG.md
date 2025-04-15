@@ -1,6 +1,7 @@
 ## Version 1.1.51
 - Added an experimental configuration menu to the games main menu, I dont think this is a good way of doing it, if everyone would do it like this it would be stinky
 - Changed how the Despawn and Control configs are getting generated, they will now have a proper dropdown menu for ture or false
+- Added `nwnt.EverythingCanDieAlternative_UI_Settings.cfg` with options to reduce log spam in general
 
 ## Version 1.1.50
 - Fixed that some enemies like `Light Eater` or `SCP682` will not die after their configured HP reach 0 <details><summary>Click for details</summary> - Added a more forceful way of removing enemies that resist the vanilla kill method<p>- This approach should be robust for any future enemies as well</details>
