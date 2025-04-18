@@ -178,6 +178,7 @@ namespace EverythingCanDieAlternative
             {
                 Plugin.Log.LogError($"Error in EnemyAIStartPostfix: {ex.Message}");
             }
+
         }
 
         // This is the only hit interception point we need
@@ -268,5 +269,6 @@ namespace EverythingCanDieAlternative
                 Plugin.Log.LogError($"Error in FinishGeneratingLevelPostfix: {ex.Message}");
             }
         }
+
     }
 }

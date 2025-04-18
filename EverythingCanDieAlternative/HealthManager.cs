@@ -71,36 +71,10 @@ namespace EverythingCanDieAlternative
             enemyNetworkIds.Clear();
             enemyNetworkVarNames.Clear();
             enemiesInDespawnProcess.Clear();
-            immortalEnemies.Clear(); 
+            immortalEnemies.Clear();
 
-            // Reset the counter
-            networkVarCounter = 0;
-
-            // Only create network messages if they haven't been created yet or are null
-            if (!networkMessagesCreated || hitMessage == null || despawnMessage == null)
-            {
-                try
-                {
-                    Plugin.Log.LogInfo("Creating network messages");
-                    CreateNetworkMessages();
-                    networkMessagesCreated = true;
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError($"Error creating network messages: {ex}");
-
-                    // If error contains "already exists", messages are already registered
-                    if (ex.Message.Contains("already exists"))
-                    {
-                        Plugin.Log.LogWarning("Network messages already exist, continuing without recreation");
-                        networkMessagesCreated = true;
-                    }
-                }
-            }
-            else
-            {
-                Plugin.Log.LogInfo("Network messages already created, skipping creation");
-            }
+            // Create our hit message IMMEDIATELY at startup - not waiting for network
+            CreateNetworkMessages();
 
             Plugin.Log.LogInfo("Networked Health Manager initialized");
         }
@@ -109,84 +83,50 @@ namespace EverythingCanDieAlternative
         {
             try
             {
-                // Add additional safeguard - don't recreate messages if they already exist
-                if (hitMessage != null && despawnMessage != null)
-                {
-                    Plugin.Log.LogInfo("Network messages already exist, skipping creation");
-                    return;
-                }
-
                 // Create the hit message
-                if (hitMessage == null)
-                {
-                    try
+                hitMessage = LNetworkMessage<HitData>.Create("ECD_HitMessage",
+                    // First param: server receive callback
+                    (hitData, clientId) =>
                     {
-                        hitMessage = LNetworkMessage<HitData>.Create("ECD_HitMessage",
-                            // First param: server receive callback
-                            (hitData, clientId) =>
+                        Plugin.LogInfo($"[HOST] Received hit message from client {clientId}: {hitData}");
+                        if (StartOfRound.Instance.IsHost)
+                        {
+                            // Try to find the enemy using multiple methods
+                            EnemyAI enemy = FindEnemyMultiMethod(hitData);
+
+                            if (enemy != null && !enemy.isEnemyDead)
                             {
-                                Plugin.Log.LogInfo($"[HOST] Received hit message from client {clientId}: {hitData}");
-                                if (StartOfRound.Instance.IsHost)
-                                {
-                                    // Try to find the enemy using multiple methods
-                                    EnemyAI enemy = FindEnemyMultiMethod(hitData);
-
-                                    if (enemy != null && !enemy.isEnemyDead)
-                                    {
-                                        ProcessDamageDirectly(enemy, hitData.Damage);
-                                    }
-                                    else
-                                    {
-                                        Plugin.Log.LogWarning($"Could not find enemy: {hitData.EnemyName} (NetworkID: {hitData.EnemyNetworkId}, Index: {hitData.EnemyIndex})");
-                                    }
-                                }
-                            });
-
-                        Plugin.Log.LogInfo("Hit message created successfully");
-                    }
-                    catch (Exception ex)
-                    {
-                        Plugin.Log.LogError($"Failed to create hit message: {ex.Message}");
-                        throw;
-                    }
-                }
+                                ProcessDamageDirectly(enemy, hitData.Damage);
+                            }
+                            else
+                            {
+                                Plugin.Log.LogWarning($"Could not find enemy: {hitData.EnemyName} (NetworkID: {hitData.EnemyNetworkId}, Index: {hitData.EnemyIndex})");
+                            }
+                        }
+                    });
 
                 // Create the despawn message (server to clients)
-                if (despawnMessage == null)
-                {
-                    try
+                despawnMessage = LNetworkMessage<int>.Create("ECD_DespawnMessage",
+                    // This is the client-side receiver
+                    (enemyIndex, clientId) =>
                     {
-                        despawnMessage = LNetworkMessage<int>.Create("ECD_DespawnMessage",
-                            // This is the client-side receiver
-                            (enemyIndex, clientId) =>
+                        if (!StartOfRound.Instance.IsHost)
+                        {
+                            // Find the enemy by index and destroy it on clients
+                            EnemyAI enemy = FindEnemyByIndex(enemyIndex);
+                            if (enemy != null)
                             {
-                                if (!StartOfRound.Instance.IsHost)
-                                {
-                                    // Find the enemy by index and destroy it on clients
-                                    EnemyAI enemy = FindEnemyByIndex(enemyIndex);
-                                    if (enemy != null)
-                                    {
-                                        Plugin.Log.LogInfo($"[CLIENT] Received despawn message for enemy index {enemyIndex}");
-                                        GameObject.Destroy(enemy.gameObject);
-                                    }
-                                }
-                            });
+                                Plugin.LogInfo($"[CLIENT] Received despawn message for enemy index {enemyIndex}");
+                                GameObject.Destroy(enemy.gameObject);
+                            }
+                        }
+                    });
 
-                        Plugin.Log.LogInfo("Despawn message created successfully");
-                    }
-                    catch (Exception ex)
-                    {
-                        Plugin.Log.LogError($"Failed to create despawn message: {ex.Message}");
-                        throw;
-                    }
-                }
-
-                Plugin.Log.LogInfo("Network messages created successfully");
+                Plugin.LogInfo("Network messages created successfully");
             }
             catch (Exception ex)
             {
                 Plugin.Log.LogError($"Error creating network messages: {ex}");
-                throw;
             }
         }
 
@@ -213,7 +153,7 @@ namespace EverythingCanDieAlternative
                 {
                     if (enemy.thisEnemyIndex == hitData.EnemyIndex)
                     {
-                        Plugin.Log.LogInfo($"Found enemy by index: {hitData.EnemyIndex}");
+                        Plugin.LogInfo($"Found enemy by index: {hitData.EnemyIndex}");
                         return enemy;
                     }
                 }
@@ -226,7 +166,7 @@ namespace EverythingCanDieAlternative
                 {
                     if (enemy.NetworkObjectId == hitData.EnemyNetworkId)
                     {
-                        Plugin.Log.LogInfo($"Found enemy by NetworkObjectId: {hitData.EnemyNetworkId}");
+                        Plugin.LogInfo($"Found enemy by NetworkObjectId: {hitData.EnemyNetworkId}");
                         return enemy;
                     }
                 }
@@ -239,7 +179,7 @@ namespace EverythingCanDieAlternative
                 {
                     if (enemy.enemyType.enemyName == hitData.EnemyName)
                     {
-                        Plugin.Log.LogInfo($"Found enemy by name: {hitData.EnemyName}");
+                        Plugin.LogInfo($"Found enemy by name: {hitData.EnemyName}");
                         return enemy;
                     }
                 }
@@ -282,7 +222,7 @@ namespace EverythingCanDieAlternative
                 // Check if mod is enabled for this enemy from the control configuration
                 if (!Plugin.IsModEnabledForEnemy(sanitizedName))
                 {
-                    Plugin.Log.LogInfo($"Mod disabled for enemy {enemyName} via config, using vanilla behavior");
+                    Plugin.LogInfo($"Mod disabled for enemy {enemyName} via config, using vanilla behavior");
                     processedEnemies[instanceId] = true; // Mark as processed to avoid re-checking
                     return;
                 }
@@ -331,7 +271,7 @@ namespace EverythingCanDieAlternative
 
                             // Try with a different name if there was a duplicate
                             varName = $"ECD_Health_{enemy.thisEnemyIndex}_{networkVarCounter++}_Retry";
-                            Plugin.Log.LogInfo($"Retrying with new variable name: {varName}");
+                            Plugin.LogInfo($"Retrying with new variable name: {varName}");
 
                             // Store the new variable name
                             enemyNetworkVarNames[instanceId] = varName;
@@ -345,7 +285,7 @@ namespace EverythingCanDieAlternative
                     else
                     {
                         healthVar = enemyHealthVars[instanceId];
-                        Plugin.Log.LogInfo($"Using existing health variable for enemy {enemyName} (ID: {instanceId})");
+                        Plugin.LogInfo($"Using existing health variable for enemy {enemyName} (ID: {instanceId})");
                     }
 
                     // Store max health
@@ -369,7 +309,7 @@ namespace EverythingCanDieAlternative
                 else
                 {
                     // Handle immortal-but-enabled enemies
-                    Plugin.Log.LogInfo($"Enemy {enemyName} is configured as immortal (Unimmortal=false, Enabled=true)");
+                    Plugin.LogInfo($"Enemy {enemyName} is configured as immortal (Unimmortal=false, Enabled=true)");
 
                     // Set high HP value to make them effectively immortal
                     enemy.enemyHP = 999;
@@ -436,7 +376,7 @@ namespace EverythingCanDieAlternative
             string sanitizedName = Plugin.RemoveInvalidCharacters(enemy.enemyType.enemyName).ToUpper();
             if (!Plugin.IsModEnabledForEnemy(sanitizedName))
             {
-                Plugin.Log.LogInfo($"Mod disabled for enemy {enemy.enemyType.enemyName}, not processing hit");
+                Plugin.LogInfo($"Mod disabled for enemy {enemy.enemyType.enemyName}, not processing hit");
                 return; // Skip processing hit for disabled enemies
             }
 
@@ -454,7 +394,7 @@ namespace EverythingCanDieAlternative
             if (lethalHandsHandler != null && lethalHandsHandler.IsInstalled && damage == -22)
             {
                 damage = lethalHandsHandler.ConvertPunchForceToDamage(damage);
-                Plugin.Log.LogInfo($"Converted LethalHands punch to damage: {damage}");
+                Plugin.LogInfo($"Converted LethalHands punch to damage: {damage}");
             }
             else if (damage < 0)
             {
@@ -469,7 +409,7 @@ namespace EverythingCanDieAlternative
             // If we're the host, process damage directly
             if (StartOfRound.Instance.IsHost)
             {
-                Plugin.Log.LogInfo($"Processing hit locally as host: Enemy {enemy.enemyType.enemyName}, Damage {damage}");
+                Plugin.LogInfo($"Processing hit locally as host: Enemy {enemy.enemyType.enemyName}, Damage {damage}");
                 ProcessDamageDirectly(enemy, damage);
             }
             else
@@ -495,7 +435,7 @@ namespace EverythingCanDieAlternative
 
                     // Send the message to the server
                     hitMessage.SendServer(hitData);
-                    Plugin.Log.LogInfo($"Sent hit message to server: Enemy {enemy.enemyType.enemyName}, Damage {damage}, Index {enemy.thisEnemyIndex}");
+                    Plugin.LogInfo($"Sent hit message to server: Enemy {enemy.enemyType.enemyName}, Damage {damage}, Index {enemy.thisEnemyIndex}");
                 }
                 catch (Exception ex)
                 {
@@ -515,7 +455,7 @@ namespace EverythingCanDieAlternative
             string sanitizedName = Plugin.RemoveInvalidCharacters(enemy.enemyType.enemyName).ToUpper();
             if (!Plugin.IsModEnabledForEnemy(sanitizedName))
             {
-                Plugin.Log.LogInfo($"Mod disabled for enemy {enemy.enemyType.enemyName}, not processing damage");
+                Plugin.LogInfo($"Mod disabled for enemy {enemy.enemyType.enemyName}, not processing damage");
                 return; // Skip processing damage for disabled enemies
             }
 
@@ -565,7 +505,7 @@ namespace EverythingCanDieAlternative
         {
             if (enemy == null || enemy.isEnemyDead) return;
 
-            Plugin.Log.LogInfo($"Killing enemy {enemy.enemyType.enemyName}");
+            Plugin.LogInfo($"Killing enemy {enemy.enemyType.enemyName}");
 
             // Check for special handling for problematic enemies with SellBodies
             var sellBodiesHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.SellBodiesCompatibility>("Entity378.sellbodies");
@@ -579,7 +519,7 @@ namespace EverythingCanDieAlternative
             // Force ownership back to host before killing
             if (!enemy.IsOwner)
             {
-                Plugin.Log.LogInfo($"Attempting to take ownership of {enemy.enemyType.enemyName} to kill it");
+                Plugin.LogInfo($"Attempting to take ownership of {enemy.enemyType.enemyName} to kill it");
                 ulong hostId = StartOfRound.Instance.allPlayerScripts[0].actualClientId;
                 enemy.ChangeOwnershipOfEnemy(hostId);
             }
@@ -602,7 +542,7 @@ namespace EverythingCanDieAlternative
                 // For problematic enemies like Spring, try again with destroy=true as fallback
                 if (enemy.enemyType.enemyName.Contains("Spring"))
                 {
-                    Plugin.Log.LogInfo($"Using fallback kill method for {enemy.enemyType.enemyName}");
+                    Plugin.LogInfo($"Using fallback kill method for {enemy.enemyType.enemyName}");
                     enemy.KillEnemyOnOwnerClient(true);
                 }
             }
@@ -631,7 +571,7 @@ namespace EverythingCanDieAlternative
             // Mark as in despawn process
             enemiesInDespawnProcess[instanceId] = true;
 
-            Plugin.Log.LogInfo($"Starting despawn process for {enemy.enemyType.enemyName} (Index: {enemy.thisEnemyIndex})");
+            Plugin.LogInfo($"Starting despawn process for {enemy.enemyType.enemyName} (Index: {enemy.thisEnemyIndex})");
 
             // Start a coroutine to check for animation completion and despawn the enemy
             if (StartOfRound.Instance != null)
@@ -656,7 +596,7 @@ namespace EverythingCanDieAlternative
             if (sellBodiesHandler != null && sellBodiesHandler.IsInstalled)
             {
                 waitTime = sellBodiesHandler.GetDespawnDelay();
-                Plugin.Log.LogInfo($"Using SellBodies compatibility despawn delay: {waitTime}s for {enemy.enemyType.enemyName}");
+                Plugin.LogInfo($"Using SellBodies compatibility despawn delay: {waitTime}s for {enemy.enemyType.enemyName}");
             }
 
             yield return new WaitForSeconds(waitTime);
