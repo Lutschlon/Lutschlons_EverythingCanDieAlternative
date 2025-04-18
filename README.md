@@ -15,6 +15,8 @@ Now you can check out the EverythingCanDieAlt menu or the .cfg files.
 ![Configuration Menu](https://github.com/Lutschlon/Lutschlons_EverythingCanDieAlternative/blob/1.1.52/images/UI_1.1.52.png)
 
 ____
+- The menu can be hidden / shown with `LethalConfig` as well
+____
 _Help for the .cfg files_
 <br>For each enemy, you can configure:
 > nwnt.EverythingCanDieAlternative.cfg
