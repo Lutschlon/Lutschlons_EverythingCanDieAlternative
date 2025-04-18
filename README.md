@@ -8,7 +8,14 @@ This mod aims to make every enemy in the game killable with configurable hp. It 
 > <details><summary> Differences from Original Mod</summary>- No separate shotgun/melee weapon settings<br>- No Explosion Effects: Enemies simply despawn or play their death animation if allowed to by the despawn config<br>- An alternative version of the EverythingCanDie mod from TheFluff as it did not work for me with a few modded enemies.</details>
 
 ## Configuration
-Start the game and host a lobby, then close the game and check out the configuration files in Thunderstore.
+In order to generate the enemy configs: Start the game and host a lobby, quit the lobby.
+
+Now you can check out the EverythingCanDieAlt menu or the .cfg files.
+
+![Configuration Menu](https://github.com/Lutschlon/Lutschlons_EverythingCanDieAlternative/blob/1.1.52/images/UI_1.1.52.png)
+
+____
+_Help for the .cfg files_
 <br>For each enemy, you can configure:
 > nwnt.EverythingCanDieAlternative.cfg
 - `.Unimmortal` - Toggle if the enemy can be damaged (true/false) - Default is every enemy is killable
