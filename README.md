@@ -24,8 +24,16 @@ Start the game and host a lobby, then close the game and check out the configura
 
 <br>Everyone needs to have this mod installed for it to work. Everyone should have the same config.
 
+## Mod Compatibilities
+Iam working on compatibilities for a few requested mods. Let me know if you have any issues with said mods, as testing all of them is not possible for me alone. Mods with known issues might be fixed later.
+| List of implemented compatibility patches|Mods that seem to work out of the box| Mods with known issues|
+| ------- | ------- | ------- |
+| [SellBodiesFixed](https://thunderstore.io/c/lethal-company/p/Entity378/SellBodiesFixed/)|[Enhanced Monsters](https://thunderstore.io/c/lethal-company/p/VELD/Enhanced_Monsters/)|[Hitmarker](https://thunderstore.io/c/lethal-company/p/Zehs/Hitmarker/) - death hitmarker doesnt work|
+| [LethalHands](https://thunderstore.io/c/lethal-company/p/SlapItNow/LethalHands/)|[MoreCounterplay](https://thunderstore.io/c/lethal-company/p/BaronDrakula/MoreCounterplay/)|[EnemyHealthBars](https://thunderstore.io/c/lethal-company/p/NotezyTeam/EnemyHealthBars/) - HealthBar doesnt work|
+| [BrutalCompanyMinusExtraReborn](https://thunderstore.io/c/lethal-company/p/SoftDiamond/BrutalCompanyMinusExtraReborn/)|||
+
 ## Known Issues
-- Enemy vs Enemy combat might cause short log spam when one enemy dies to a BaboonHawk. While this does not cause gameplay issues it may cause a short lagspike.
+- Currently none
 
 <h3>Found a bug? Is my mod not compatible with your favourite mod? You can find me here:</h3>
 
@@ -35,16 +43,6 @@ Start the game and host a lobby, then close the game and check out the configura
     <td style="padding: 8px; background-color: #f2f2f2;"><a href="https://discord.com/channels/1168655651455639582/1348071762549805208">My Mod Page</a></td>
   </tr>
 </table>
-
-## Mod Compatibilities
-Iam working on compatibilities for a few requested mods. Let me know if you have any issues with said mods, as testing all of them is not possible for me alone. Mods with known issues might be fixed later.
-| List of implemented compatibility patches|Mods that seem to work out of the box| Mods with known issues|
-| ------- | ------- | ------- |
-| [SellBodiesFixed](https://thunderstore.io/c/lethal-company/p/Entity378/SellBodiesFixed/)|[Enhanced Monsters](https://thunderstore.io/c/lethal-company/p/VELD/Enhanced_Monsters/)|[Hitmarker](https://thunderstore.io/c/lethal-company/p/Zehs/Hitmarker/) - death hitmarker doesnt work|
-| [LethalHands](https://thunderstore.io/c/lethal-company/p/SlapItNow/LethalHands/)|[MoreCounterplay](https://thunderstore.io/c/lethal-company/p/BaronDrakula/MoreCounterplay/)|[EnemyHealthBars](https://thunderstore.io/c/lethal-company/p/NotezyTeam/EnemyHealthBars/) - HealthBar doesnt work|
-| [BrutalCompanyMinusExtraReborn](https://thunderstore.io/c/lethal-company/p/SoftDiamond/BrutalCompanyMinusExtraReborn/)|||
-
-
 
 ## Credits
 Based on the original EverythingCanDie mod from here: [Thunderstore page](https://thunderstore.io/c/lethal-company/p/TheFluff/EverythingCanDie/) and [GitHub](https://github.com/nyakowint/EverythingCanDie-LC/tree/main).
