@@ -18,6 +18,7 @@ namespace EverythingCanDieAlternative
     [BepInDependency("Entity378.sellbodies", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("SlapitNow.LethalHands", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("SoftDiamond.BrutalCompanyMinusExtraReborn", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("ainavt.lc.lethalconfig", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
         public static Plugin Instance { get; private set; }
@@ -27,6 +28,9 @@ namespace EverythingCanDieAlternative
         public static ConfigEntry<bool> PatchCruiserDamage { get; private set; }
         public static ConfigEntry<int> CruiserDamageAtHighSpeeds { get; private set; }
 
+        // Flag to indicate if logging should be conditionally suppressed
+        private static bool _infoLogsEnabled = true;
+
         private void Awake()
         {
             Instance = this;
@@ -35,24 +39,49 @@ namespace EverythingCanDieAlternative
 
             try
             {
-                // Initialize the configuration system
+                // DIRECT LOGGING - never suppressed
+                //Log.LogInfo($"Initializing {PluginInfo.PLUGIN_NAME} v{PluginInfo.PLUGIN_VERSION}...");
+
+                // Initialize the UI configuration first
+               //Log.LogInfo("Initializing UIConfiguration...");
+                _ = UIConfiguration.Instance;
+
+                // Now we can safely check if info logs should be enabled
+                if (UIConfiguration.Instance != null && UIConfiguration.Instance.IsInitialized)
+                {
+                    _infoLogsEnabled = UIConfiguration.Instance.ShouldLogInfo();
+                    //Log.LogInfo($"UI configuration loaded, info logging is {(_infoLogsEnabled ? "enabled" : "disabled")}");
+                }
+
+                // Initialize the configuration systems
+               //Log.LogInfo("Initializing DespawnConfiguration...");
                 _ = DespawnConfiguration.Instance;
+
+                //Log.LogInfo("Initializing EnemyControlConfiguration...");
                 _ = EnemyControlConfiguration.Instance;
 
-                // Initialize the mod compatibility framework
                 ModCompatibilityManager.Instance.Initialize();
 
                 // Apply our patches
+                //Log.LogInfo("Applying patches...");
                 Patches.Initialize(Harmony);
 
-                // Initialize the configuration menu
-                ConfigMenuPatch.Initialize(Harmony);
-
-                Log.LogInfo($"{PluginInfo.PLUGIN_NAME} v{PluginInfo.PLUGIN_VERSION} is loaded with network support and configuration menu!");
+                // Initialize the configuration menu if enabled
+                if (UIConfiguration.Instance.IsConfigMenuEnabled())
+                {
+                    //Log.LogInfo("Initializing config menu...");
+                    ConfigMenuPatch.Initialize(Harmony);
+                    LogInfo($"{PluginInfo.PLUGIN_NAME} v{PluginInfo.PLUGIN_VERSION} is loaded with network support and configuration menu!");
+                }
+                else
+                {
+                    LogInfo($"{PluginInfo.PLUGIN_NAME} v{PluginInfo.PLUGIN_VERSION} is loaded with network support (configuration menu disabled)");
+                }
             }
             catch (Exception ex)
             {
-                Log.LogError($"Error initializing {PluginInfo.PLUGIN_NAME}: {ex}");
+                Log.LogError($"Error initializing {PluginInfo.PLUGIN_NAME}: {ex.Message}");
+                Log.LogError($"Stack trace: {ex.StackTrace}");
             }
         }
 
@@ -86,6 +115,28 @@ namespace EverythingCanDieAlternative
             return string.Join("", sb.ToString().Split(default(string[]), StringSplitOptions.RemoveEmptyEntries));
         }
 
+        // New conditional logging methods - SAFER version
+        public static void LogInfo(string message)
+        {
+            // Check the simple flag first instead of accessing UIConfiguration directly
+            if (_infoLogsEnabled)
+            {
+                Log.LogInfo(message);
+            }
+        }
+
+        // Keep original logging for errors and warnings
+        public static void LogError(string message)
+        {
+            Log.LogError(message);
+        }
+
+        public static void LogWarning(string message)
+        {
+            Log.LogWarning(message);
+        }
+
+        // Check if an enemy is killable based on config
         // Check if an enemy is killable based on config
         public static bool CanMob(string identifier, string mobName)
         {
@@ -94,20 +145,25 @@ namespace EverythingCanDieAlternative
                 string mob = RemoveInvalidCharacters(mobName).ToUpper();
                 string mobConfigKey = mob + identifier.ToUpper();
 
+                // Create configEntry variable to store the entry we find
+                ConfigEntry<bool> configEntry = null;
+
                 foreach (ConfigDefinition entry in Instance.Config.Keys)
                 {
                     if (RemoveInvalidCharacters(entry.Key.ToUpper()).Equals(RemoveInvalidCharacters(mobConfigKey)))
                     {
-                        bool result = Instance.Config[entry].BoxedValue.ToString().ToUpper().Equals("TRUE");
-                        Log.LogDebug($"Mob config: [Mobs] {mobConfigKey} = {result}");
+                        // Get the actual ConfigEntry object to ensure we get current value
+                        configEntry = (ConfigEntry<bool>)Instance.Config[entry];
+                        bool result = configEntry.Value;
+                        //Plugin.LogInfo($"Mob config: [Mobs] {mobConfigKey} = {result}");
                         return result;
                     }
                 }
 
                 // If config doesn't exist yet, create it
-                Instance.Config.Bind("Mobs", mob + identifier, true, $"If true, {mobName} will be damageable");
-                Log.LogDebug($"No config found for [Mobs] {mobConfigKey}, defaulting to true");
-                return true;
+                configEntry = Instance.Config.Bind("Mobs", mob + identifier, true, $"If true, {mobName} will be damageable");
+                //Plugin.LogInfo($"No config found for [Mobs] {mobConfigKey}, defaulting to true");
+                return configEntry.Value;
             }
             catch (Exception e)
             {
@@ -131,11 +187,16 @@ namespace EverythingCanDieAlternative
                 string mob = RemoveInvalidCharacters(mobName).ToUpper();
                 string healthKey = mob + ".HEALTH";
 
+                // Create configEntry variable to store the entry we find
+                ConfigEntry<int> configEntry = null;
+
                 foreach (ConfigDefinition entry in Instance.Config.Keys)
                 {
                     if (RemoveInvalidCharacters(entry.Key.ToUpper()).Equals(healthKey))
                     {
-                        int health = Convert.ToInt32(Instance.Config[entry].BoxedValue);
+                        // Cast to correct type to ensure we access the real current value
+                        configEntry = (ConfigEntry<int>)Instance.Config[entry];
+                        int health = configEntry.Value;
 
                         // Ensure configured health is also at least 1
                         if (health <= 0)
@@ -144,7 +205,7 @@ namespace EverythingCanDieAlternative
                             Log.LogInfo($"Enforcing minimum configured health of 1 for {mobName}");
 
                             // Update the config value to 1
-                            Instance.Config[entry].BoxedValue = 1;
+                            configEntry.Value = 1;
                         }
 
                         Log.LogInfo($"Enemy {mobName} health from config: {health}");
@@ -153,7 +214,7 @@ namespace EverythingCanDieAlternative
                 }
 
                 // If config doesn't exist yet, create it
-                var configEntry = Instance.Config.Bind("Mobs", mob + ".Health", defaultHealth, $"Health for {mobName}");
+                configEntry = Instance.Config.Bind("Mobs", mob + ".Health", defaultHealth, $"Health for {mobName}");
                 Log.LogInfo($"Using config for {mobName} health: {configEntry.Value}");
                 return configEntry.Value;
             }
@@ -175,6 +236,6 @@ namespace EverythingCanDieAlternative
     {
         public const string PLUGIN_GUID = "nwnt.EverythingCanDieAlternative";
         public const string PLUGIN_NAME = "EverythingCanDieAlternative";
-        public const string PLUGIN_VERSION = "1.1.51"; // Updated version number with UI feature
+        public const string PLUGIN_VERSION = "1.1.52";
     }
 }

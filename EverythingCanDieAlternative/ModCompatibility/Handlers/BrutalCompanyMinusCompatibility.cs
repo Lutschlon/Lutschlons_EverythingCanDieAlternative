@@ -73,7 +73,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
         protected override void OnModInitialize()
         {
             // BrutalCompanyMinus specific initialization
-            Plugin.Log.LogInfo("BrutalCompanyMinus compatibility initialized");
+            //Plugin.LogInfo("BrutalCompanyMinus compatibility initialized");
 
             // Initialize reflection references
             InitializeReflectionFields();
@@ -106,7 +106,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
 
                                 if (_bonusEnemyHpField != null)
                                 {
-                                    Plugin.Log.LogInfo("Successfully located BrutalCompanyMinus.Minus.Manager.bonusEnemyHp field");
+                                    Plugin.LogInfo("Successfully located BrutalCompanyMinus.Minus.Manager.bonusEnemyHp field");
                                     _fieldsInitialized = true;
                                     return;
                                 }

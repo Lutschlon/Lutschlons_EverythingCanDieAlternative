@@ -60,7 +60,7 @@ namespace EverythingCanDieAlternative.ModCompatibility
         {
             if (IsInstalled)
             {
-                Plugin.Log.LogInfo($"{ModName} detected - enabling compatibility features");
+                //Plugin.LogInfo($"{ModName} detected - enabling compatibility features");
                 OnModInitialize();
             }
         }

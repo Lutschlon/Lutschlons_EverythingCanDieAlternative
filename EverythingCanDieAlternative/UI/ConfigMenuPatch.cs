@@ -58,7 +58,7 @@ namespace EverythingCanDieAlternative.UI
             var buttonText = configButtonObj.GetComponentInChildren<TextMeshProUGUI>();
             if (buttonText != null)
             {
-                buttonText.text = "EverythingCanDieAlt";
+                buttonText.text = "> EverythingCanDieAlt";
             }
 
             // Replace the click event
@@ -111,7 +111,7 @@ namespace EverythingCanDieAlternative.UI
                 var startPostfixMethod = AccessTools.Method(typeof(ConfigMenuPatch), nameof(Start));
                 harmony.Patch(startMethod, null, new HarmonyMethod(startPostfixMethod));
 
-                Plugin.Log.LogInfo("Registered config menu patch");
+                //lugin.Log.LogInfo("Registered config menu patch");
             }
             catch (Exception ex)
             {

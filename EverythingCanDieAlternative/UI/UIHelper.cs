@@ -343,10 +343,29 @@ namespace EverythingCanDieAlternative.UI
                 else
                 {
                     // Restore proper colors
-                    YesImage.color = IsYes ? new Color(0.2f, 0.8f, 0.2f) : new Color(0.3f, 0.3f, 0.3f);
-                    NoImage.color = !IsYes ? new Color(0.8f, 0.2f, 0.2f) : new Color(0.3f, 0.3f, 0.3f);
+                    YesImage.color = IsYes ? UITheme.PositiveColor : UITheme.NeutralColor;
+                    NoImage.color = !IsYes ? UITheme.NegativeColor : UITheme.NeutralColor;
                     YesText.color = IsYes ? Color.white : new Color(0.7f, 0.7f, 0.7f);
                     NoText.color = !IsYes ? Color.white : new Color(0.7f, 0.7f, 0.7f);
+                }
+            }
+
+            /// <summary>
+            /// Updates the visual state of the Yes/No selector to match the specified value
+            /// </summary>
+            /// <param name="isYes">Whether the Yes button should be selected</param>
+            public void UpdateVisualState(bool isYes)
+            {
+                // Update internal state
+                IsYes = isYes;
+
+                // Update visual appearance
+                if (YesButton.interactable) // Only update colors if the control is enabled
+                {
+                    YesImage.color = isYes ? UITheme.PositiveColor : UITheme.NeutralColor;
+                    NoImage.color = !isYes ? UITheme.NegativeColor : UITheme.NeutralColor;
+                    YesText.color = isYes ? Color.white : new Color(0.7f, 0.7f, 0.7f);
+                    NoText.color = !isYes ? Color.white : new Color(0.7f, 0.7f, 0.7f);
                 }
             }
         }

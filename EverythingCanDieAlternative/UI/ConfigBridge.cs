@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using BepInEx;
+using static EverythingCanDieAlternative.Plugin;
 
 namespace EverythingCanDieAlternative.UI
 {
@@ -59,15 +60,12 @@ namespace EverythingCanDieAlternative.UI
                     return result;
                 }
 
-                Plugin.Log.LogInfo($"Found {configuredEnemies.Count} configured enemies in config files");
+                Plugin.LogInfo($"Found {configuredEnemies.Count} configured enemies in config files");
 
                 // Process each configured enemy
                 foreach (var enemyName in configuredEnemies)
                 {
-                    // Log which entries we found for this enemy
-                    LogEnemyEntries(enemyName);
-
-                    // FIXED: Direct lookup in cachedConfigEntries instead of using helper methods
+                    // Direct lookup in cachedConfigEntries instead of using helper methods
                     bool isEnabled = false;
                     bool canDie = true;
                     bool shouldDespawn = true;
@@ -79,21 +77,18 @@ namespace EverythingCanDieAlternative.UI
                         if (entries.TryGetValue(".ENABLED", out var enabledValue) && enabledValue is bool enabledBool)
                         {
                             isEnabled = enabledBool;
-                            Plugin.Log.LogInfo($"  Using enabled={isEnabled} for {enemyName}");
                         }
 
                         // Get Can Die status
                         if (entries.TryGetValue(".UNIMMORTAL", out var unimmortalValue) && unimmortalValue is bool unimmortalBool)
                         {
                             canDie = unimmortalBool;
-                            Plugin.Log.LogInfo($"  Using canDie={canDie} for {enemyName}");
                         }
 
                         // Get Despawn status
                         if (entries.TryGetValue(".DESPAWN", out var despawnValue) && despawnValue is bool despawnBool)
                         {
                             shouldDespawn = despawnBool;
-                            Plugin.Log.LogInfo($"  Using shouldDespawn={shouldDespawn} for {enemyName}");
                         }
 
                         // Get Health value
@@ -102,12 +97,10 @@ namespace EverythingCanDieAlternative.UI
                             if (healthValue is int healthInt)
                             {
                                 health = healthInt;
-                                Plugin.Log.LogInfo($"  Using health={health} for {enemyName}");
                             }
                             else if (healthValue is string healthStr && int.TryParse(healthStr, out int parsedHealth))
                             {
                                 health = parsedHealth;
-                                Plugin.Log.LogInfo($"  Using parsed health={health} for {enemyName}");
                             }
                         }
                     }
@@ -116,7 +109,7 @@ namespace EverythingCanDieAlternative.UI
                     result.Add(new EnemyConfigData(enemyName, isEnabled, canDie, shouldDespawn, health));
                 }
 
-                Plugin.Log.LogInfo($"Loaded {result.Count} enemy configurations successfully");
+                Plugin.LogInfo($"Loaded {result.Count} enemy configurations successfully");
             }
             catch (Exception ex)
             {
@@ -134,27 +127,10 @@ namespace EverythingCanDieAlternative.UI
         private static void LogFileDetails(string path, string description)
         {
             bool exists = File.Exists(path);
-            Plugin.Log.LogInfo($"{description} file {(exists ? "exists" : "DOES NOT EXIST")}: {path}");
 
             if (exists)
             {
                 var fileInfo = new FileInfo(path);
-                Plugin.Log.LogInfo($"  Size: {fileInfo.Length} bytes, Last modified: {fileInfo.LastWriteTime}");
-
-                // Log the first few lines to see the format
-                try
-                {
-                    string[] lines = File.ReadAllLines(path);
-                    Plugin.Log.LogInfo($"  First {Math.Min(5, lines.Length)} lines of {lines.Length} total:");
-                    for (int i = 0; i < Math.Min(5, lines.Length); i++)
-                    {
-                        Plugin.Log.LogInfo($"    {i + 1}: {lines[i]}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError($"  Error reading file: {ex.Message}");
-                }
             }
         }
 
@@ -166,7 +142,7 @@ namespace EverythingCanDieAlternative.UI
             try
             {
                 string[] lines = File.ReadAllLines(path);
-                Plugin.Log.LogInfo($"Reading config file {Path.GetFileName(path)} ({lines.Length} lines)");
+                Plugin.LogInfo($"Reading config file {Path.GetFileName(path)} ({lines.Length} lines)");
 
                 string currentSection = "";
                 int entriesFound = 0;
@@ -204,7 +180,7 @@ namespace EverythingCanDieAlternative.UI
                     }
                 }
 
-                Plugin.Log.LogInfo($"Found {entriesFound} entries in section [{targetSection}]");
+                Plugin.LogInfo($"Found {entriesFound} entries in section [{targetSection}]");
             }
             catch (Exception ex)
             {
@@ -215,8 +191,6 @@ namespace EverythingCanDieAlternative.UI
         // Process a config entry
         private static void ProcessConfigEntry(string section, string key, string value)
         {
-            Plugin.Log.LogInfo($"  Found entry: [{section}] {key} = {value}");
-
             // Try to extract enemy name and setting
             string enemyName = null;
             string setting = null;
@@ -230,8 +204,6 @@ namespace EverythingCanDieAlternative.UI
                 {
                     enemyName = key.Substring(0, dotPos).ToUpper();
                     setting = key.Substring(dotPos).ToUpper();
-
-                    Plugin.Log.LogInfo($"    Parsed as enemy: {enemyName}, setting: {setting}");
                 }
             }
             else if (section == "Enemies")
@@ -242,8 +214,6 @@ namespace EverythingCanDieAlternative.UI
                 {
                     enemyName = key.Substring(0, dotPos).ToUpper();
                     setting = key.Substring(dotPos).ToUpper();
-
-                    Plugin.Log.LogInfo($"    Parsed as enemy: {enemyName}, setting: {setting}");
                 }
             }
 
@@ -273,27 +243,13 @@ namespace EverythingCanDieAlternative.UI
                     if (int.TryParse(value, out intValue))
                     {
                         cachedConfigEntries[enemyName][setting] = intValue;
-                        Plugin.Log.LogInfo($"    Parsed health value {value} to {intValue} for {enemyName}");
                     }
                     else
                     {
                         // Store as string if we can't parse as int
                         cachedConfigEntries[enemyName][setting] = value;
-                        Plugin.Log.LogWarning($"    Could not parse health value {value} for {enemyName}");
+                        Plugin.Log.LogWarning($"Could not parse health value {value} for {enemyName}");
                     }
-                }
-            }
-        }
-
-        // Log entries found for a specific enemy
-        private static void LogEnemyEntries(string enemyName)
-        {
-            if (cachedConfigEntries.TryGetValue(enemyName, out var entries))
-            {
-                Plugin.Log.LogInfo($"Enemy {enemyName} has these config entries:");
-                foreach (var entry in entries)
-                {
-                    Plugin.Log.LogInfo($"  - {entry.Key} = {entry.Value}");
                 }
             }
         }
@@ -327,12 +283,10 @@ namespace EverythingCanDieAlternative.UI
                     // Handle both int and string values
                     if (value is int intValue)
                     {
-                        Plugin.Log.LogInfo($"Found integer health for {enemyName}: {intValue}");
                         return intValue;
                     }
                     else if (value is string stringValue && int.TryParse(stringValue, out int parsedValue))
                     {
-                        Plugin.Log.LogInfo($"Found string health for {enemyName}, parsed to: {parsedValue}");
                         return parsedValue;
                     }
                     else
@@ -342,7 +296,6 @@ namespace EverythingCanDieAlternative.UI
                 }
             }
 
-            Plugin.Log.LogInfo($"Using default health for {enemyName}: {defaultValue}");
             return defaultValue;
         }
 
@@ -368,18 +321,27 @@ namespace EverythingCanDieAlternative.UI
                 bool enemyControlFileUpdated = false;
                 bool despawnFileUpdated = false;
 
-                // Update main plugin config file
-                if (cachedConfigEntries[sanitizedName].ContainsKey(".ENABLED") ||
-                    cachedConfigEntries[sanitizedName].ContainsKey(".UNIMMORTAL") ||
+                // Update main plugin config file - BUT ONLY FOR UNIMMORTAL AND HEALTH, NOT ENABLED
+                if (cachedConfigEntries[sanitizedName].ContainsKey(".UNIMMORTAL") ||
                     cachedConfigEntries[sanitizedName].ContainsKey(".HEALTH"))
                 {
+                    // Create a dictionary without the Enabled setting
+                    Dictionary<string, string> mainConfigUpdates = new Dictionary<string, string>();
+
+                    // Only include Unimmortal and Health settings for main config
+                    if (cachedConfigEntries[sanitizedName].ContainsKey(".UNIMMORTAL"))
+                    {
+                        mainConfigUpdates[$"{sanitizedName}.Unimmortal"] = config.CanDie.ToString().ToLower();
+                    }
+
+                    if (cachedConfigEntries[sanitizedName].ContainsKey(".HEALTH"))
+                    {
+                        mainConfigUpdates[$"{sanitizedName}.Health"] = config.Health.ToString();
+                    }
+
+                    // Update main config file without Enabled setting
                     mainFileUpdated = UpdateConfigFileDirectly(
-                        pluginConfigPath, "Mobs",
-                        new Dictionary<string, string> {
-                            { $"{sanitizedName}.Enabled", config.IsEnabled.ToString().ToLower() },
-                            { $"{sanitizedName}.Unimmortal", config.CanDie.ToString().ToLower() },
-                            { $"{sanitizedName}.Health", config.Health.ToString() }
-                        }
+                        pluginConfigPath, "Mobs", mainConfigUpdates
                     );
                 }
 
@@ -389,7 +351,7 @@ namespace EverythingCanDieAlternative.UI
                     enemyControlFileUpdated = UpdateConfigFileDirectly(
                         enemyControlConfigPath, "Enemies",
                         new Dictionary<string, string> {
-                            { $"{sanitizedName}.Enabled", config.IsEnabled.ToString().ToLower() }
+                    { $"{sanitizedName}.Enabled", config.IsEnabled.ToString().ToLower() }
                         }
                     );
                 }
@@ -400,19 +362,16 @@ namespace EverythingCanDieAlternative.UI
                     despawnFileUpdated = UpdateConfigFileDirectly(
                         despawnConfigPath, "Enemies",
                         new Dictionary<string, string> {
-                            { $"{sanitizedName}.Despawn", config.ShouldDespawn.ToString().ToLower() }
+                    { $"{sanitizedName}.Despawn", config.ShouldDespawn.ToString().ToLower() }
                         }
                     );
                 }
 
                 // Update cache
-                cachedConfigEntries[sanitizedName][".Enabled"] = config.IsEnabled;
-                cachedConfigEntries[sanitizedName][".Unimmortal"] = config.CanDie;
-                cachedConfigEntries[sanitizedName][".Health"] = config.Health;
-                cachedConfigEntries[sanitizedName][".Despawn"] = config.ShouldDespawn;
-
-                Plugin.Log.LogInfo($"Saved configuration for {config.Name}: Enabled={config.IsEnabled}, CanDie={config.CanDie}, ShouldDespawn={config.ShouldDespawn}, Health={config.Health}");
-                Plugin.Log.LogInfo($"Files updated: Main={mainFileUpdated}, Control={enemyControlFileUpdated}, Despawn={despawnFileUpdated}");
+                cachedConfigEntries[sanitizedName][".ENABLED"] = config.IsEnabled;
+                cachedConfigEntries[sanitizedName][".UNIMMORTAL"] = config.CanDie;
+                cachedConfigEntries[sanitizedName][".HEALTH"] = config.Health;
+                cachedConfigEntries[sanitizedName][".DESPAWN"] = config.ShouldDespawn;
             }
             catch (Exception ex)
             {
@@ -476,7 +435,6 @@ namespace EverythingCanDieAlternative.UI
                                     updatedKeys[updateKey.ToUpper()] = true;
                                     updatedAny = true;
                                     lineUpdated = true;
-                                    Plugin.Log.LogInfo($"Updated [{section}] {key} to {updates[updateKey]} in {Path.GetFileName(path)}");
                                     break;
                                 }
                             }
@@ -538,7 +496,6 @@ namespace EverythingCanDieAlternative.UI
                             string value = updates[originalKey];
                             newLines.Add($"{originalKey} = {value}");
                             updatedAny = true;
-                            Plugin.Log.LogInfo($"Added [{section}] {originalKey} = {value} to {Path.GetFileName(path)}");
                         }
                     }
                 }
@@ -547,7 +504,6 @@ namespace EverythingCanDieAlternative.UI
                 if (updatedAny)
                 {
                     File.WriteAllLines(path, newLines);
-                    Plugin.Log.LogInfo($"Saved updated config file: {path}");
                 }
 
                 return updatedAny;

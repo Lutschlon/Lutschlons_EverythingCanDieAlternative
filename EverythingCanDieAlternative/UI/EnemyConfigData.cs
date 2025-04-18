@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using static EverythingCanDieAlternative.Plugin;
 
 namespace EverythingCanDieAlternative.UI
 {
@@ -25,7 +26,7 @@ namespace EverythingCanDieAlternative.UI
             Health = health;
 
             // Log the actual values being stored in the config data
-            Plugin.Log.LogInfo($"Created EnemyConfigData for {name}: Enabled={isEnabled}, CanDie={canDie}, ShouldDespawn={shouldDespawn}, Health={health}");
+            Plugin.LogInfo($"Created EnemyConfigData for {name}: Enabled={isEnabled}, CanDie={canDie}, ShouldDespawn={shouldDespawn}, Health={health}");
         }
 
         public Color GetStatusColor()
@@ -51,11 +52,11 @@ namespace EverythingCanDieAlternative.UI
         {
             if (!IsEnabled)
             {
-                return "Disabled";
+                return "ECDA will ignore this enemy, this will preserve their original behavior";
             }
             else if (!CanDie)
             {
-                return "Immortal";
+                return "Immortal to hits, can die to instakill effects, health config is irrelevant";
             }
             else
             {

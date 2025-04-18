@@ -24,10 +24,31 @@ namespace EverythingCanDieAlternative
             _configFile.Bind("Enemies",
                 "_INFO",
                 "Control which enemies are affected by this mod",
-                "This is an Experimental Feature: If you set an enemy's value to 'false', it will not be affected by the EverythingCanDieAlternative mod. The health and hit synconization, and the despawn feature will not take effect for the configured enemy. " +
-                "This can be useful if specific enemies have built-in hit/health/death mechanisms that you want to preserve, but that ECDA overwrites. Now you can preserve them by setting the enemy to false.");
+                new ConfigDescription("This is an Experimental Feature: If you set an enemy's value to 'false', it will not be affected by the EverythingCanDieAlternative mod. The health and hit synconization, and the despawn feature will not take effect for the configured enemy. " +
+                "This can be useful if specific enemies have built-in hit/health/death mechanisms that you want to preserve, but that ECDA overwrites. Now you can preserve them by setting the enemy to false."));
 
-            Plugin.Log.LogInfo($"Enemy control configuration loaded");
+            //Plugin.Log.LogInfo($"Enemy control configuration loaded");
+        }
+
+        /// <summary>
+        /// Reload configuration from disk and clear cache
+        /// </summary>
+        public void ReloadConfig()
+        {
+            try
+            {
+                // Reload the config file from disk
+                _configFile.Reload();
+
+                // Clear cached values to force re-reading from config
+                _enemyModEnabled.Clear();
+
+                Plugin.Log.LogInfo("Enemy control configuration reloaded from disk");
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError($"Error reloading enemy control config: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -50,11 +71,11 @@ namespace EverythingCanDieAlternative
                     if (enemyType == null || string.IsNullOrEmpty(enemyType.enemyName)) continue;
                     string sanitizedName = Plugin.RemoveInvalidCharacters(enemyType.enemyName).ToUpper();
 
-                    // Create config with simple description
+                    // Create config with proper ConfigDescription to ensure correct comment format
                     _configFile.Bind("Enemies",
                         $"{sanitizedName}.Enabled",
                         true,
-                        $"If set to false, {enemyType.enemyName} will not be affected by this mod");
+                        new ConfigDescription($"If set to false, {enemyType.enemyName} will not be affected by this mod"));
                 }
 
                 // Mark as completed
@@ -75,11 +96,11 @@ namespace EverythingCanDieAlternative
 
             try
             {
-                // Load from config with simpler key name
+                // Load from config with proper ConfigDescription
                 var configEntry = _configFile.Bind("Enemies",
                     $"{sanitizedName}.Enabled",
                     true,
-                    $"If set to false, {enemyName} will not be affected by this mod");
+                    new ConfigDescription($"If set to false, {enemyName} will not be affected by this mod"));
 
                 // Cache the result
                 _enemyModEnabled[sanitizedName] = configEntry.Value;
@@ -90,6 +111,15 @@ namespace EverythingCanDieAlternative
                 Plugin.Log.LogError($"Error checking if mod is enabled for {enemyName}: {ex.Message} - defaulting to true");
                 return true; // Default to true in case of error
             }
+        }
+
+        /// <summary>
+        /// Clear cache to force re-reading values from config
+        /// </summary>
+        public void ClearCache()
+        {
+            _enemyModEnabled.Clear();
+            Plugin.Log.LogInfo("Enemy control cache cleared");
         }
     }
 }

@@ -23,7 +23,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
 
         protected override void OnModInitialize()
         {
-            Plugin.Log.LogInfo($"Initializing {ModName} compatibility");
+            //Plugin.LogInfo($"Initializing {ModName} compatibility");
 
             try
             {
@@ -57,7 +57,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                     prefix: new HarmonyMethod(typeof(EnemyVsEnemyCompatibility), nameof(HitEnemyPrefix))
                 );
 
-                Plugin.Log.LogInfo($"Successfully patched EnemyAI.HitEnemy for {ModName}");
+                //Plugin.LogInfo($"Successfully patched EnemyAI.HitEnemy for {ModName}");
             }
             catch (Exception ex)
             {
