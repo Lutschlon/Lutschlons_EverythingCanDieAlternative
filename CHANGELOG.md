@@ -1,7 +1,10 @@
-## Version 1.1.51
-- Added an experimental configuration menu to the games main menu, I dont think this is a good way of doing it, if everyone would do it like this it would be stinky
-- Changed how the Despawn and Control configs are getting generated, they will now have a proper dropdown menu for ture or false
-- Added `nwnt.EverythingCanDieAlternative_UI_Settings.cfg` with options to reduce log spam in general
+## Version 1.1.52
+- Added a configuration menu to the games main menu <details><summary>Click for details</summary>- Can be deactivated inside `nwnt.EverythingCanDieAlternative.cfg` > `EnableConfigMenu` or inside LethalConfig or inside the menu itself.<br>-  Changes inside the menu take effect immediately <br>- Configuration will be updated when starting a lobby now, you dont need to restart your game for the changes inside the UI to take effect</details>
+- Added `EnableInfoLogs` to `nwnt.EverythingCanDieAlternative.cfg` <details><summary>Click for details</summary>- This will supress _some_ of the info logs</details>
+- Changed how the network variable will be created if you start a lobby multiple times without closing the game - needs testing
+  
+##
+###### Version 1.1.51 (unreleased) - First UI-Config implementation
 
 ## Version 1.1.50
 - Fixed that some enemies like `Light Eater` or `SCP682` will not die after their configured HP reach 0 <details><summary>Click for details</summary> - Added a more forceful way of removing enemies that resist the vanilla kill method<p>- This approach should be robust for any future enemies as well</details>
