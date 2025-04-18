@@ -12,8 +12,7 @@ In order to generate the enemy configs: Start the game and host a lobby, quit th
 
 Now you can check out the EverythingCanDieAlt menu or the .cfg files.
 
-![Configuration Menu](https://github.com/Lutschlon/Lutschlons_EverythingCanDieAlternative/blob/1.1.52/images/UI_1.1.52.png)
-
+![](https://i.imgur.com/jMikt8q.png)
 ____
 - The menu can be hidden / shown with `LethalConfig` as well
 ____
