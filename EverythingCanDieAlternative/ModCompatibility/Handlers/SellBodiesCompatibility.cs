@@ -117,7 +117,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             // Check if we've already handled this enemy
             if (_handledEnemies.Contains(instanceId))
             {
-                Plugin.Log.LogInfo($"SellBodies: Already handled enemy {enemy.enemyType.enemyName} (ID: {instanceId}), skipping");
+                Plugin.LogInfo($"SellBodies: Already handled enemy {enemy.enemyType.enemyName} (ID: {instanceId}), skipping");
                 return;
             }
 
@@ -135,7 +135,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             Quaternion enemyRotation = enemy.transform.rotation;
             int powerLevel = _problemEnemyPowerLevels[enemyName];
 
-            Plugin.Log.LogInfo($"SellBodies: Handling problem enemy death for {enemyName} with power level {powerLevel}");
+            Plugin.LogInfo($"SellBodies: Handling problem enemy death for {enemyName} with power level {powerLevel}");
 
             // Start coroutine to spawn loot after delay
             if (StartOfRound.Instance != null)

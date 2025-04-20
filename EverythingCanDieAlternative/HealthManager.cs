@@ -8,6 +8,7 @@ using Unity.Netcode;
 using LethalNetworkAPI;
 using EverythingCanDieAlternative.ModCompatibility;
 using EverythingCanDieAlternative.ModCompatibility.Handlers;
+using static EverythingCanDieAlternative.Plugin;
 
 namespace EverythingCanDieAlternative
 {
@@ -59,6 +60,8 @@ namespace EverythingCanDieAlternative
             }
         }
 
+        private static bool networkMessagesCreated = false;
+
         public static void Initialize()
         {
             // Clear all dictionaries
@@ -68,10 +71,7 @@ namespace EverythingCanDieAlternative
             enemyNetworkIds.Clear();
             enemyNetworkVarNames.Clear();
             enemiesInDespawnProcess.Clear();
-            immortalEnemies.Clear(); // NEW: Clear immortal enemies tracking
-
-            // Reset the counter
-            networkVarCounter = 0;
+            immortalEnemies.Clear();
 
             // Create our hit message IMMEDIATELY at startup - not waiting for network
             CreateNetworkMessages();
@@ -88,7 +88,7 @@ namespace EverythingCanDieAlternative
                     // First param: server receive callback
                     (hitData, clientId) =>
                     {
-                        Plugin.Log.LogInfo($"[HOST] Received hit message from client {clientId}: {hitData}");
+                        Plugin.LogInfo($"[HOST] Received hit message from client {clientId}: {hitData}");
                         if (StartOfRound.Instance.IsHost)
                         {
                             // Try to find the enemy using multiple methods
@@ -116,13 +116,13 @@ namespace EverythingCanDieAlternative
                             EnemyAI enemy = FindEnemyByIndex(enemyIndex);
                             if (enemy != null)
                             {
-                                Plugin.Log.LogInfo($"[CLIENT] Received despawn message for enemy index {enemyIndex}");
+                                Plugin.LogInfo($"[CLIENT] Received despawn message for enemy index {enemyIndex}");
                                 GameObject.Destroy(enemy.gameObject);
                             }
                         }
                     });
 
-                Plugin.Log.LogInfo("Network messages created successfully");
+                Plugin.LogInfo("Network messages created successfully");
             }
             catch (Exception ex)
             {
@@ -153,7 +153,7 @@ namespace EverythingCanDieAlternative
                 {
                     if (enemy.thisEnemyIndex == hitData.EnemyIndex)
                     {
-                        Plugin.Log.LogInfo($"Found enemy by index: {hitData.EnemyIndex}");
+                        Plugin.LogInfo($"Found enemy by index: {hitData.EnemyIndex}");
                         return enemy;
                     }
                 }
@@ -166,7 +166,7 @@ namespace EverythingCanDieAlternative
                 {
                     if (enemy.NetworkObjectId == hitData.EnemyNetworkId)
                     {
-                        Plugin.Log.LogInfo($"Found enemy by NetworkObjectId: {hitData.EnemyNetworkId}");
+                        Plugin.LogInfo($"Found enemy by NetworkObjectId: {hitData.EnemyNetworkId}");
                         return enemy;
                     }
                 }
@@ -179,7 +179,7 @@ namespace EverythingCanDieAlternative
                 {
                     if (enemy.enemyType.enemyName == hitData.EnemyName)
                     {
-                        Plugin.Log.LogInfo($"Found enemy by name: {hitData.EnemyName}");
+                        Plugin.LogInfo($"Found enemy by name: {hitData.EnemyName}");
                         return enemy;
                     }
                 }
@@ -212,7 +212,7 @@ namespace EverythingCanDieAlternative
                 // Check if we've already processed this enemy by instance ID
                 if (processedEnemies.ContainsKey(instanceId) && processedEnemies[instanceId])
                 {
-                    Plugin.Log.LogInfo($"Enemy {enemy.enemyType.enemyName} (ID: {instanceId}) already processed, skipping setup");
+                    Plugin.LogInfo($"Enemy {enemy.enemyType.enemyName} (ID: {instanceId}) already processed, skipping setup");
                     return;
                 }
 
@@ -222,7 +222,7 @@ namespace EverythingCanDieAlternative
                 // Check if mod is enabled for this enemy from the control configuration
                 if (!Plugin.IsModEnabledForEnemy(sanitizedName))
                 {
-                    Plugin.Log.LogInfo($"Mod disabled for enemy {enemyName} via config, using vanilla behavior");
+                    Plugin.LogInfo($"Mod disabled for enemy {enemyName} via config, using vanilla behavior");
                     processedEnemies[instanceId] = true; // Mark as processed to avoid re-checking
                     return;
                 }
@@ -249,7 +249,7 @@ namespace EverythingCanDieAlternative
                     // Store the variable name for this instance ID
                     enemyNetworkVarNames[instanceId] = varName;
 
-                    Plugin.Log.LogInfo($"Creating network variable {varName} for enemy {enemyName} (ID: {instanceId})");
+                    Plugin.LogInfo($"Creating network variable {varName} for enemy {enemyName} (ID: {instanceId})");
 
                     // Create the health variable
                     LNetworkVariable<int> healthVar;
@@ -271,7 +271,7 @@ namespace EverythingCanDieAlternative
 
                             // Try with a different name if there was a duplicate
                             varName = $"ECD_Health_{enemy.thisEnemyIndex}_{networkVarCounter++}_Retry";
-                            Plugin.Log.LogInfo($"Retrying with new variable name: {varName}");
+                            Plugin.LogInfo($"Retrying with new variable name: {varName}");
 
                             // Store the new variable name
                             enemyNetworkVarNames[instanceId] = varName;
@@ -285,7 +285,7 @@ namespace EverythingCanDieAlternative
                     else
                     {
                         healthVar = enemyHealthVars[instanceId];
-                        Plugin.Log.LogInfo($"Using existing health variable for enemy {enemyName} (ID: {instanceId})");
+                        Plugin.LogInfo($"Using existing health variable for enemy {enemyName} (ID: {instanceId})");
                     }
 
                     // Store max health
@@ -304,12 +304,12 @@ namespace EverythingCanDieAlternative
                     // Not immortal
                     immortalEnemies[instanceId] = false;
 
-                    Plugin.Log.LogInfo($"Setup enemy {enemyName} (ID: {instanceId}, NetID: {enemy.NetworkObjectId}, Index: {enemy.thisEnemyIndex}) with {configHealth} networked health");
+                    Plugin.LogInfo($"Setup enemy {enemyName} (ID: {instanceId}, NetID: {enemy.NetworkObjectId}, Index: {enemy.thisEnemyIndex}) with {configHealth} networked health");
                 }
                 else
                 {
-                    // NEW CODE: Handle immortal-but-enabled enemies
-                    Plugin.Log.LogInfo($"Enemy {enemyName} is configured as immortal (Unimmortal=false, Enabled=true)");
+                    // Handle immortal-but-enabled enemies
+                    Plugin.LogInfo($"Enemy {enemyName} is configured as immortal (Unimmortal=false, Enabled=true)");
 
                     // Set high HP value to make them effectively immortal
                     enemy.enemyHP = 999;
@@ -320,7 +320,7 @@ namespace EverythingCanDieAlternative
                     // Mark as processed
                     processedEnemies[instanceId] = true;
 
-                    Plugin.Log.LogInfo($"Set enemy {enemyName} (ID: {instanceId}) to be immortal with 999 HP");
+                    Plugin.LogInfo($"Set enemy {enemyName} (ID: {instanceId}) to be immortal with 999 HP");
                 }
             }
             catch (Exception ex)
@@ -337,7 +337,7 @@ namespace EverythingCanDieAlternative
             EnemyAI enemy = FindEnemyById(instanceId);
             if (enemy == null) return;
 
-            Plugin.Log.LogInfo($"Health changed for enemy {enemy.enemyType.enemyName} (ID: {instanceId}): new health = {newHealth}");
+            Plugin.LogInfo($"Health changed for enemy {enemy.enemyType.enemyName} (ID: {instanceId}): new health = {newHealth}");
 
             // If health reached zero, kill the enemy (only on host)
             if (newHealth <= 0 && !enemy.isEnemyDead && StartOfRound.Instance.IsHost)
@@ -376,7 +376,7 @@ namespace EverythingCanDieAlternative
             string sanitizedName = Plugin.RemoveInvalidCharacters(enemy.enemyType.enemyName).ToUpper();
             if (!Plugin.IsModEnabledForEnemy(sanitizedName))
             {
-                Plugin.Log.LogInfo($"Mod disabled for enemy {enemy.enemyType.enemyName}, not processing hit");
+                Plugin.LogInfo($"Mod disabled for enemy {enemy.enemyType.enemyName}, not processing hit");
                 return; // Skip processing hit for disabled enemies
             }
 
@@ -394,7 +394,7 @@ namespace EverythingCanDieAlternative
             if (lethalHandsHandler != null && lethalHandsHandler.IsInstalled && damage == -22)
             {
                 damage = lethalHandsHandler.ConvertPunchForceToDamage(damage);
-                Plugin.Log.LogInfo($"Converted LethalHands punch to damage: {damage}");
+                Plugin.LogInfo($"Converted LethalHands punch to damage: {damage}");
             }
             else if (damage < 0)
             {
@@ -409,7 +409,7 @@ namespace EverythingCanDieAlternative
             // If we're the host, process damage directly
             if (StartOfRound.Instance.IsHost)
             {
-                Plugin.Log.LogInfo($"Processing hit locally as host: Enemy {enemy.enemyType.enemyName}, Damage {damage}");
+                Plugin.LogInfo($"Processing hit locally as host: Enemy {enemy.enemyType.enemyName}, Damage {damage}");
                 ProcessDamageDirectly(enemy, damage);
             }
             else
@@ -435,7 +435,7 @@ namespace EverythingCanDieAlternative
 
                     // Send the message to the server
                     hitMessage.SendServer(hitData);
-                    Plugin.Log.LogInfo($"Sent hit message to server: Enemy {enemy.enemyType.enemyName}, Damage {damage}, Index {enemy.thisEnemyIndex}");
+                    Plugin.LogInfo($"Sent hit message to server: Enemy {enemy.enemyType.enemyName}, Damage {damage}, Index {enemy.thisEnemyIndex}");
                 }
                 catch (Exception ex)
                 {
@@ -455,7 +455,7 @@ namespace EverythingCanDieAlternative
             string sanitizedName = Plugin.RemoveInvalidCharacters(enemy.enemyType.enemyName).ToUpper();
             if (!Plugin.IsModEnabledForEnemy(sanitizedName))
             {
-                Plugin.Log.LogInfo($"Mod disabled for enemy {enemy.enemyType.enemyName}, not processing damage");
+                Plugin.LogInfo($"Mod disabled for enemy {enemy.enemyType.enemyName}, not processing damage");
                 return; // Skip processing damage for disabled enemies
             }
 
@@ -464,7 +464,7 @@ namespace EverythingCanDieAlternative
             {
                 // For immortal enemies, just refresh their HP to 999 and don't process damage
                 enemy.enemyHP = 999;
-                Plugin.Log.LogInfo($"Refreshed immortal enemy {enemy.enemyType.enemyName} HP to 999");
+                Plugin.LogInfo($"Refreshed immortal enemy {enemy.enemyType.enemyName} HP to 999");
                 return;
             }
 
@@ -505,7 +505,7 @@ namespace EverythingCanDieAlternative
         {
             if (enemy == null || enemy.isEnemyDead) return;
 
-            Plugin.Log.LogInfo($"Killing enemy {enemy.enemyType.enemyName}");
+            Plugin.LogInfo($"Killing enemy {enemy.enemyType.enemyName}");
 
             // Check for special handling for problematic enemies with SellBodies
             var sellBodiesHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.SellBodiesCompatibility>("Entity378.sellbodies");
@@ -519,7 +519,7 @@ namespace EverythingCanDieAlternative
             // Force ownership back to host before killing
             if (!enemy.IsOwner)
             {
-                Plugin.Log.LogInfo($"Attempting to take ownership of {enemy.enemyType.enemyName} to kill it");
+                Plugin.LogInfo($"Attempting to take ownership of {enemy.enemyType.enemyName} to kill it");
                 ulong hostId = StartOfRound.Instance.allPlayerScripts[0].actualClientId;
                 enemy.ChangeOwnershipOfEnemy(hostId);
             }
@@ -542,7 +542,7 @@ namespace EverythingCanDieAlternative
                 // For problematic enemies like Spring, try again with destroy=true as fallback
                 if (enemy.enemyType.enemyName.Contains("Spring"))
                 {
-                    Plugin.Log.LogInfo($"Using fallback kill method for {enemy.enemyType.enemyName}");
+                    Plugin.LogInfo($"Using fallback kill method for {enemy.enemyType.enemyName}");
                     enemy.KillEnemyOnOwnerClient(true);
                 }
             }
@@ -571,7 +571,7 @@ namespace EverythingCanDieAlternative
             // Mark as in despawn process
             enemiesInDespawnProcess[instanceId] = true;
 
-            Plugin.Log.LogInfo($"Starting despawn process for {enemy.enemyType.enemyName} (Index: {enemy.thisEnemyIndex})");
+            Plugin.LogInfo($"Starting despawn process for {enemy.enemyType.enemyName} (Index: {enemy.thisEnemyIndex})");
 
             // Start a coroutine to check for animation completion and despawn the enemy
             if (StartOfRound.Instance != null)
@@ -596,7 +596,7 @@ namespace EverythingCanDieAlternative
             if (sellBodiesHandler != null && sellBodiesHandler.IsInstalled)
             {
                 waitTime = sellBodiesHandler.GetDespawnDelay();
-                Plugin.Log.LogInfo($"Using SellBodies compatibility despawn delay: {waitTime}s for {enemy.enemyType.enemyName}");
+                Plugin.LogInfo($"Using SellBodies compatibility despawn delay: {waitTime}s for {enemy.enemyType.enemyName}");
             }
 
             yield return new WaitForSeconds(waitTime);

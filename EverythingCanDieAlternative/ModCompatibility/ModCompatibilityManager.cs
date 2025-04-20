@@ -25,25 +25,37 @@ namespace EverythingCanDieAlternative.ModCompatibility
         /// </summary>
         public void Initialize()
         {
-            Plugin.Log.LogInfo("Initializing mod compatibility framework...");
-
-            // Register handlers manually - more reliable than auto-discovery
-            RegisterKnownHandlers();
-
-            // Initialize all registered handlers
-            foreach (var handler in _handlers.Values)
+            try
             {
-                try
-                {
-                    handler.Initialize();
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError($"Error initializing compatibility for {handler.ModName}: {ex.Message}");
-                }
-            }
+                //Plugin.LogInfo("Initializing mod compatibility framework...");
 
-            Plugin.Log.LogInfo($"Mod compatibility framework initialized with {_handlers.Count} handlers");
+                // Register handlers manually - more reliable than auto-discovery
+                RegisterKnownHandlers();
+
+                // Initialize all registered handlers - with additional error handling
+                foreach (var handler in _handlers.Values)
+                {
+                    try
+                    {
+                        //Plugin.LogInfo($"Initializing {handler.ModName} compatibility handler...");
+                        handler.Initialize();
+                        Plugin.LogInfo($"Successfully initialized {handler.ModName} compatibility handler");
+                    }
+                    catch (Exception ex)
+                    {
+                        // More detailed error logging
+                        Plugin.Log.LogError($"Error initializing compatibility for {handler.ModName}: {ex.Message}");
+                        Plugin.Log.LogError($"Stack trace: {ex.StackTrace}");
+                    }
+                }
+
+                //Plugin.LogInfo($"Mod compatibility framework initialized with {_handlers.Count} handlers");
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError($"Fatal error in compatibility framework initialization: {ex.Message}");
+                Plugin.Log.LogError($"Stack trace: {ex.StackTrace}");
+            }
         }
 
         /// <summary>
@@ -53,18 +65,34 @@ namespace EverythingCanDieAlternative.ModCompatibility
         {
             try
             {
-                RegisterHandler(new Handlers.SellBodiesCompatibility());
-                RegisterHandler(new Handlers.LethalHandsCompatibility());
-                RegisterHandler(new Handlers.BrutalCompanyMinusCompatibility());
-                RegisterHandler(new Handlers.EnemyVsEnemyCompatibility());
-                RegisterHandler(new Handlers.LastResortKillerCompatibility());
+                // Register each handler individually with try/catch to isolate issues
+                SafeRegisterHandler(() => new Handlers.SellBodiesCompatibility(), "SellBodies");
+                SafeRegisterHandler(() => new Handlers.LethalHandsCompatibility(), "LethalHands");
+                SafeRegisterHandler(() => new Handlers.BrutalCompanyMinusCompatibility(), "BrutalCompanyMinus");
+                SafeRegisterHandler(() => new Handlers.EnemyVsEnemyCompatibility(), "EnemyVsEnemy");
+                SafeRegisterHandler(() => new Handlers.LastResortKillerCompatibility(), "LastResortKiller");
 
-                // Add other handlers here as you create them
-                // RegisterHandler(new Handlers.OtherModCompatibility());
             }
             catch (Exception ex)
             {
                 Plugin.Log.LogError($"Error registering known handlers: {ex.Message}");
+                Plugin.Log.LogError($"Stack trace: {ex.StackTrace}");
+            }
+        }
+
+        /// <summary>
+        /// Safely register a compatibility handler with error handling
+        /// </summary>
+        private void SafeRegisterHandler(Func<IModCompatibility> handlerFactory, string handlerName)
+        {
+            try
+            {
+                var handler = handlerFactory();
+                RegisterHandler(handler);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError($"Error creating compatibility handler for {handlerName}: {ex.Message}");
             }
         }
 
@@ -73,14 +101,21 @@ namespace EverythingCanDieAlternative.ModCompatibility
         /// </summary>
         public void RegisterHandler(IModCompatibility handler)
         {
-            if (!_handlers.ContainsKey(handler.ModId))
+            try
             {
-                _handlers.Add(handler.ModId, handler);
-                Plugin.Log.LogInfo($"Registered compatibility handler for {handler.ModName}");
+                if (!_handlers.ContainsKey(handler.ModId))
+                {
+                    _handlers.Add(handler.ModId, handler);
+                    //Plugin.LogInfo($"Registered compatibility handler for {handler.ModName}");
+                }
+                else
+                {
+                    Plugin.Log.LogWarning($"Compatibility handler for {handler.ModName} already registered");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Plugin.Log.LogWarning($"Compatibility handler for {handler.ModName} already registered");
+                Plugin.Log.LogError($"Error registering handler for {handler.ModName}: {ex.Message}");
             }
         }
 
@@ -89,7 +124,15 @@ namespace EverythingCanDieAlternative.ModCompatibility
         /// </summary>
         public bool IsModInstalled(string modId)
         {
-            return _handlers.TryGetValue(modId, out var handler) && handler.IsInstalled;
+            try
+            {
+                return _handlers.TryGetValue(modId, out var handler) && handler.IsInstalled;
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError($"Error checking if mod {modId} is installed: {ex.Message}");
+                return false;
+            }
         }
 
         /// <summary>
@@ -97,11 +140,19 @@ namespace EverythingCanDieAlternative.ModCompatibility
         /// </summary>
         public T GetHandler<T>(string modId) where T : class, IModCompatibility
         {
-            if (_handlers.TryGetValue(modId, out var handler) && handler is T typedHandler)
+            try
             {
-                return typedHandler;
+                if (_handlers.TryGetValue(modId, out var handler) && handler is T typedHandler)
+                {
+                    return typedHandler;
+                }
+                return null;
             }
-            return null;
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError($"Error getting handler for {modId}: {ex.Message}");
+                return null;
+            }
         }
 
         /// <summary>

@@ -53,17 +53,45 @@ namespace EverythingCanDieAlternative
             string configPath = Path.Combine(Paths.ConfigPath, "nwnt.EverythingCanDieAlternative_Despawn_Rules.cfg");
             _configFile = new ConfigFile(configPath, true);
 
-            // Load global settings
+            // Load global settings with proper ConfigDescription
             EnableDespawnFeature = _configFile.Bind("General",
                 "EnableDespawnFeature",
                 true,
-                "If true, dead enemies can despawn based on other settings");
+                new ConfigDescription("If true, dead enemies can despawn based on other settings"));
 
             // Pre-create entries for all known enemies
             PreCreateEnemyConfigEntries();
 
-            Plugin.Log.LogInfo($"Despawn configuration loaded");
+            //Plugin.Log.LogInfo($"Despawn configuration loaded");
         }
+
+        /// <summary>
+        /// Reload configuration from disk and clear cache
+        /// </summary>
+        public void ReloadConfig()
+        {
+            try
+            {
+                // Reload the config file from disk
+                _configFile.Reload();
+
+                // Clear cached values to force re-reading from config
+                _enemyDespawnEnabled.Clear();
+
+                // Reload the global setting
+                EnableDespawnFeature = _configFile.Bind("General",
+                    "EnableDespawnFeature",
+                    true,
+                    new ConfigDescription("If true, dead enemies can despawn based on other settings"));
+
+                Plugin.Log.LogInfo("Despawn configuration reloaded from disk");
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError($"Error reloading despawn config: {ex.Message}");
+            }
+        }
+
         private void PreCreateEnemyConfigEntries()
         {
             // First, get all enemy types from your mod
@@ -76,10 +104,11 @@ namespace EverythingCanDieAlternative
                     // Check if this enemy should default to not despawning
                     bool defaultValue = !_enemiesWithProperDeathAnimations.Contains(sanitizedName);
 
+                    // Use proper ConfigDescription to ensure correct comment format
                     _configFile.Bind("Enemies",
                         $"{sanitizedName}.Despawn",
                         defaultValue,
-                        $"If true, {enemyType.enemyName} will despawn after death");
+                        new ConfigDescription($"If true, {enemyType.enemyName} will despawn after death"));
                 }
             }
         }
@@ -107,15 +136,25 @@ namespace EverythingCanDieAlternative
                 }
             }
 
+            // Use proper ConfigDescription to ensure correct comment format
             var configEntry = _configFile.Bind("Enemies",
                 $"{sanitizedName}.Despawn",
                 defaultValue,
-                $"If true, {enemyName} will despawn after death");
+                new ConfigDescription($"If true, {enemyName} will despawn after death"));
 
             // Cache the result
             _enemyDespawnEnabled[sanitizedName] = configEntry.Value;
 
             return configEntry.Value;
+        }
+
+        /// <summary>
+        /// Clear cache to force re-reading values from config
+        /// </summary>
+        public void ClearCache()
+        {
+            _enemyDespawnEnabled.Clear();
+            Plugin.Log.LogInfo("Despawn cache cleared");
         }
     }
 }

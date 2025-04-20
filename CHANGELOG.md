@@ -1,3 +1,10 @@
+## Version 1.1.52
+- Added a configuration menu to the games main menu <details><summary>Click for details</summary>- Can be deactivated inside `nwnt.EverythingCanDieAlternative.cfg` > `EnableConfigMenu` or inside LethalConfig or inside the menu itself.<br>-  Changes inside the menu take effect immediately <br>- Configuration will be updated when starting a lobby now, you dont need to restart your game for the changes inside the UI to take effect</details>
+- Added `EnableInfoLogs` to `nwnt.EverythingCanDieAlternative.cfg` <details><summary>Click for details</summary>- This will supress _some_ of the info logs</details>
+  
+##
+###### Version 1.1.51 (unreleased) - First UI-Config implementation
+
 ## Version 1.1.50
 - Fixed that some enemies like `Light Eater` or `SCP682` will not die after their configured HP reach 0 <details><summary>Click for details</summary> - Added a more forceful way of removing enemies that resist the vanilla kill method<p>- This approach should be robust for any future enemies as well</details>
 - Updated how `.Unimmortal = false` effects gameplay - it will now give enemies 999 vanilla HP, this wont save them from instakills<details><summary>Click for details</summary>Hitting such an enemy will not trigger the EverythingCanDieAlternative hit processing, this is unchanged from earlier patches <p> Before this patch, enemies would revert to vanilla HP values, you can make enemies use vanilla values by setting `.Enable = false`</details>

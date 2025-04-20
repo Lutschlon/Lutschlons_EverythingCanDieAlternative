@@ -26,7 +26,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
 
         protected override void OnModInitialize()
         {
-            Plugin.Log.LogInfo($"{ModName} compatibility initialized");
+            //Plugin.Log.LogInfo($"{ModName} compatibility initialized");
             enemyKillAttempts.Clear();
         }
 
@@ -61,7 +61,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             if (attempts == 1)
             {
                 // First attempt: Standard kill without destroy (lets death animations play)
-                Plugin.Log.LogInfo($"Standard kill attempt for {enemy.enemyType.enemyName}");
+                Plugin.LogInfo($"Standard kill attempt for {enemy.enemyType.enemyName}");
                 enemy.KillEnemyOnOwnerClient(false);
                 ScheduleKillCheck(enemy);
                 return true;
@@ -69,13 +69,13 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             else if (attempts == 2)
             {
                 // Second attempt: Kill with destroy flag + notify clients to despawn (if allowed)
-                Plugin.Log.LogInfo($"Destroy-enabled kill attempt for {enemy.enemyType.enemyName}");
+                Plugin.LogInfo($"Destroy-enabled kill attempt for {enemy.enemyType.enemyName}");
                 enemy.KillEnemyOnOwnerClient(true);
 
                 // Only notify clients to destroy if despawning is allowed by config
                 if (allowDespawn && enemy.thisEnemyIndex >= 0)
                 {
-                    Plugin.Log.LogInfo($"Notifying clients to despawn enemy {enemy.enemyType.enemyName}");
+                    Plugin.LogInfo($"Notifying clients to despawn enemy {enemy.enemyType.enemyName}");
                     NetworkedHealthManager.NotifyClientsOfDestroy(enemy.thisEnemyIndex);
                 }
 
@@ -99,12 +99,12 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                         try
                         {
                             // This is a very aggressive approach that might cause issues
-                            Plugin.Log.LogInfo($"Forcing network despawn for {enemy.enemyType.enemyName}");
+                            Plugin.LogInfo($"Forcing network despawn for {enemy.enemyType.enemyName}");
                             enemy.NetworkObject.Despawn();
                         }
                         catch (Exception ex)
                         {
-                            Plugin.Log.LogError($"Failed to force despawn: {ex.Message}");
+                            Plugin.LogError($"Failed to force despawn: {ex.Message}");
                         }
                     }
 
@@ -121,12 +121,12 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             else
             {
                 // Final attempt: Destroy the GameObject entirely - most drastic solution
-                Plugin.Log.LogInfo($"Final solution: Destroying game object for {enemy.enemyType.enemyName}");
+                Plugin.LogInfo($"Final solution: Destroying game object for {enemy.enemyType.enemyName}");
 
                 // Only notify clients to destroy if despawning is allowed by config
                 if (allowDespawn && enemy.thisEnemyIndex >= 0)
                 {
-                    Plugin.Log.LogInfo($"Informing clients to destroy {enemy.enemyType.enemyName}");
+                    Plugin.LogInfo($"Informing clients to destroy {enemy.enemyType.enemyName}");
                     NetworkedHealthManager.NotifyClientsOfDestroy(enemy.thisEnemyIndex);
                 }
 

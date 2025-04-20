@@ -4,6 +4,7 @@ using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static EverythingCanDieAlternative.Plugin;
 
 namespace EverythingCanDieAlternative
 {
@@ -13,36 +14,49 @@ namespace EverythingCanDieAlternative
         {
             try
             {
+                //Plugin.Log.LogInfo("Applying Harmony patches...");
+
                 // Patch StartOfRound.Start to initialize our system
                 var startOfRoundStartMethod = AccessTools.Method(typeof(StartOfRound), "Start");
+                if (startOfRoundStartMethod == null)
+                {
+                    Plugin.Log.LogError("Could not find StartOfRound.Start method - patches failed!");
+                    return;
+                }
                 var startOfRoundPostfix = AccessTools.Method(typeof(Patches), nameof(StartOfRoundPostfix));
                 harmony.Patch(startOfRoundStartMethod, null, new HarmonyMethod(startOfRoundPostfix));
+                //Plugin.Log.LogInfo("StartOfRound.Start patched successfully");
 
                 // Patch EnemyAI.Start to catch newly spawned enemies
                 var enemyAIStartMethod = AccessTools.Method(typeof(EnemyAI), "Start");
                 var enemyAIStartPostfix = AccessTools.Method(typeof(Patches), nameof(EnemyAIStartPostfix));
                 harmony.Patch(enemyAIStartMethod, null, new HarmonyMethod(enemyAIStartPostfix));
+                //Plugin.Log.LogInfo("EnemyAI.Start patched successfully");
 
                 // Only patch HitEnemyOnLocalClient
                 var hitLocalMethod = AccessTools.Method(typeof(EnemyAI), "HitEnemyOnLocalClient");
                 var hitLocalPrefix = AccessTools.Method(typeof(Patches), nameof(HitEnemyOnLocalClientPrefix));
                 harmony.Patch(hitLocalMethod, new HarmonyMethod(hitLocalPrefix));
+                //Plugin.Log.LogInfo("EnemyAI.HitEnemyOnLocalClient patched successfully");
 
-                // NEW: Patch HitEnemy to ensure vanilla hits are also captured for immortal enemies
+                // Patch HitEnemy to ensure vanilla hits are also captured for immortal enemies
                 var hitEnemyMethod = AccessTools.Method(typeof(EnemyAI), "HitEnemy");
                 var hitEnemyPrefix = AccessTools.Method(typeof(Patches), nameof(HitEnemyPrefix));
                 harmony.Patch(hitEnemyMethod, new HarmonyMethod(hitEnemyPrefix));
+                //Plugin.Log.LogInfo("EnemyAI.HitEnemy patched successfully");
 
                 // Patch RoundManager.FinishGeneratingLevel to refresh BrutalCompanyMinus compatibility
                 var finishGeneratingLevelMethod = AccessTools.Method(typeof(RoundManager), "FinishGeneratingLevel");
                 var finishGeneratingLevelPostfix = AccessTools.Method(typeof(Patches), nameof(FinishGeneratingLevelPostfix));
                 harmony.Patch(finishGeneratingLevelMethod, null, new HarmonyMethod(finishGeneratingLevelPostfix));
+                //Plugin.Log.LogInfo("RoundManager.FinishGeneratingLevel patched successfully");
 
-                Plugin.Log.LogInfo("Harmony patches applied successfully");
+                Plugin.Log.LogInfo("All Harmony patches applied successfully");
             }
             catch (Exception ex)
             {
-                Plugin.Log.LogError($"Error applying Harmony patches: {ex}");
+                Plugin.Log.LogError($"Error applying Harmony patches: {ex.Message}");
+                Plugin.Log.LogError($"Stack trace: {ex.StackTrace}");
             }
         }
 
@@ -52,12 +66,18 @@ namespace EverythingCanDieAlternative
             {
                 Plugin.Log.LogInfo("Game starting, initializing networked enemy health system...");
 
+                // Reload ALL config files
+                Plugin.Instance.Config.Reload();
+                EnemyControlConfiguration.Instance.ReloadConfig();
+                DespawnConfiguration.Instance.ReloadConfig();
+                Plugin.Log.LogInfo("All configurations reloaded from files");
+
                 // Initialize our network health system
                 NetworkedHealthManager.Initialize();
 
                 // Find all available enemy types in the game
                 Plugin.enemies = new List<EnemyType>(Resources.FindObjectsOfTypeAll<EnemyType>());
-                Plugin.Log.LogInfo($"Found {Plugin.enemies.Count} enemy types");
+                Plugin.LogInfo($"Found {Plugin.enemies.Count} enemy types");
 
                 // Maximum HP when a new config gets generated
                 const int CAPPED_DEFAULT_HP = 30;
@@ -65,7 +85,14 @@ namespace EverythingCanDieAlternative
                 // Load config for all enemy types
                 foreach (var enemyType in Plugin.enemies)
                 {
+                    if (enemyType == null || string.IsNullOrEmpty(enemyType.enemyName))
+                    {
+                        Plugin.Log.LogWarning("Found null or invalid enemy type, skipping");
+                        continue;
+                    }
+
                     string sanitizedName = Plugin.RemoveInvalidCharacters(enemyType.enemyName).ToUpper();
+                    Plugin.LogInfo($"Processing enemy type: {enemyType.enemyName}");
                     Plugin.CanMob(".Unimmortal", sanitizedName); // This will create config if it doesn't exist
 
                     // Get vanilla HP value from prefab if available
@@ -79,7 +106,7 @@ namespace EverythingCanDieAlternative
                             if (enemyAI.enemyHP <= 0)
                             {
                                 defaultHealth = 1;
-                                Plugin.Log.LogInfo($"Detected 0 or negative HP for {enemyType.enemyName}, setting default to 1");
+                                Plugin.LogInfo($"Detected 0 or negative HP for {enemyType.enemyName}, setting default to 1");
                             }
                             else
                             {
@@ -88,11 +115,11 @@ namespace EverythingCanDieAlternative
 
                                 if (enemyAI.enemyHP > CAPPED_DEFAULT_HP)
                                 {
-                                    Plugin.Log.LogInfo($"Capped HP for {enemyType.enemyName} from {enemyAI.enemyHP} to {defaultHealth}");
+                                    Plugin.LogInfo($"Capped HP for {enemyType.enemyName} from {enemyAI.enemyHP} to {defaultHealth}");
                                 }
                                 else
                                 {
-                                    Plugin.Log.LogInfo($"Found vanilla HP value for {enemyType.enemyName}: {defaultHealth}");
+                                    //Plugin.LogInfo($"Found vanilla HP value for {enemyType.enemyName}: {defaultHealth}");
                                 }
                             }
                         }
@@ -107,10 +134,13 @@ namespace EverythingCanDieAlternative
 
                 // Process existing enemies in the scene
                 ProcessExistingEnemies();
+
+                Plugin.LogInfo("StartOfRoundPostfix completed successfully");
             }
             catch (Exception ex)
             {
-                Plugin.Log.LogError($"Error in StartOfRoundPostfix: {ex}");
+                Plugin.Log.LogError($"Error in StartOfRoundPostfix: {ex.Message}");
+                Plugin.Log.LogError($"Stack trace: {ex.StackTrace}");
             }
         }
 
@@ -119,17 +149,19 @@ namespace EverythingCanDieAlternative
             try
             {
                 var enemies = UnityEngine.Object.FindObjectsOfType<EnemyAI>();
-                Plugin.Log.LogInfo($"Found {enemies.Length} active enemies");
+                Plugin.LogInfo($"Found {enemies.Length} active enemies");
 
                 foreach (var enemy in enemies)
                 {
                     if (enemy?.enemyType == null) continue;
+                    Plugin.LogInfo($"Setting up enemy: {enemy.enemyType.enemyName}");
                     NetworkedHealthManager.SetupEnemy(enemy);
                 }
             }
             catch (Exception ex)
             {
-                Plugin.Log.LogError($"Error processing existing enemies: {ex}");
+                Plugin.Log.LogError($"Error processing existing enemies: {ex.Message}");
+                Plugin.Log.LogError($"Stack trace: {ex.StackTrace}");
             }
         }
 
@@ -144,8 +176,9 @@ namespace EverythingCanDieAlternative
             }
             catch (Exception ex)
             {
-                Plugin.Log.LogError($"Error in EnemyAIStartPostfix: {ex}");
+                Plugin.Log.LogError($"Error in EnemyAIStartPostfix: {ex.Message}");
             }
+
         }
 
         // This is the only hit interception point we need
@@ -182,7 +215,7 @@ namespace EverythingCanDieAlternative
             }
             catch (Exception ex)
             {
-                Plugin.Log.LogError($"Error in HitEnemyOnLocalClientPrefix: {ex}");
+                Plugin.Log.LogError($"Error in HitEnemyOnLocalClientPrefix: {ex.Message}");
                 return true;
             }
         }
@@ -213,7 +246,7 @@ namespace EverythingCanDieAlternative
             }
             catch (Exception ex)
             {
-                Plugin.Log.LogError($"Error in HitEnemyPrefix: {ex}");
+                Plugin.Log.LogError($"Error in HitEnemyPrefix: {ex.Message}");
                 return true;
             }
         }
@@ -233,8 +266,9 @@ namespace EverythingCanDieAlternative
             }
             catch (Exception ex)
             {
-                Plugin.Log.LogError($"Error in FinishGeneratingLevelPostfix: {ex}");
+                Plugin.Log.LogError($"Error in FinishGeneratingLevelPostfix: {ex.Message}");
             }
         }
+
     }
 }

@@ -85,7 +85,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
 
         protected override void OnModInitialize()
         {
-            Plugin.Log.LogInfo("LethalHands compatibility initialized");
+            //Plugin.LogInfo("LethalHands compatibility initialized");
 
             // Try to find and cache the punch damage value from LethalHands
             TryGetPunchDamageValue();
@@ -100,7 +100,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                 return _punchDamage.Value;
 
             // Default value if we can't get the actual value
-            return 0.5f;
+            return 1;
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                                 if (float.TryParse(valueStr, out float configValue))
                                 {
                                     _punchDamage = configValue;
-                                    Plugin.Log.LogInfo($"Found LethalHands punch damage from config: {_punchDamage}");
+                                    Plugin.LogInfo($"Found LethalHands punch damage from config: {_punchDamage}");
                                     return;
                                 }
                             }
@@ -173,7 +173,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                                             if (damageValue != null)
                                             {
                                                 _punchDamage = Convert.ToSingle(damageValue);
-                                                Plugin.Log.LogInfo($"Found LethalHands punch damage: {_punchDamage}");
+                                                Plugin.LogInfo($"Found LethalHands punch damage: {_punchDamage}");
                                                 return;
                                             }
                                         }
@@ -201,7 +201,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                                         if (damageValue != null)
                                         {
                                             _punchDamage = Convert.ToSingle(damageValue);
-                                            Plugin.Log.LogInfo($"Found LethalHands punch damage from config: {_punchDamage}");
+                                            Plugin.LogInfo($"Found LethalHands punch damage from config: {_punchDamage}");
                                             return;
                                         }
                                     }
@@ -217,13 +217,13 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                 }
 
                 // If we couldn't get the value through reflection or config, use the default
-                _punchDamage = 0.5f;
+                _punchDamage = 1f;
                 Plugin.Log.LogInfo($"Using default LethalHands punch damage: {_punchDamage}");
             }
             catch (Exception ex)
             {
                 Plugin.Log.LogError($"Error getting LethalHands punch damage: {ex.Message}");
-                _punchDamage = 0.5f;
+                _punchDamage = 1f;
             }
         }
 
