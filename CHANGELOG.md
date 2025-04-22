@@ -1,3 +1,6 @@
+## Version 1.1.53
+- Added beta compatibility for https://thunderstore.io/c/lethal-company/p/Zehs/Hitmarker/ Hitmarker by Zehs
+
 ## Version 1.1.52
 - Added a configuration menu to the games main menu <details><summary>Click for details</summary>- Can be deactivated inside `nwnt.EverythingCanDieAlternative.cfg` > `EnableConfigMenu` or inside LethalConfig or inside the menu itself.<br>-  Changes inside the menu take effect immediately <br>- Configuration will be updated when starting a lobby now, you dont need to restart your game for the changes inside the UI to take effect</details>
 - Added `EnableInfoLogs` to `nwnt.EverythingCanDieAlternative.cfg` <details><summary>Click for details</summary>- This will supress _some_ of the info logs</details>
