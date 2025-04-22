@@ -71,6 +71,7 @@ namespace EverythingCanDieAlternative.ModCompatibility
                 SafeRegisterHandler(() => new Handlers.BrutalCompanyMinusCompatibility(), "BrutalCompanyMinus");
                 SafeRegisterHandler(() => new Handlers.EnemyVsEnemyCompatibility(), "EnemyVsEnemy");
                 SafeRegisterHandler(() => new Handlers.LastResortKillerCompatibility(), "LastResortKiller");
+                SafeRegisterHandler(() => new Handlers.HitmarkerCompatibility(), "Hitmarker");
 
             }
             catch (Exception ex)
