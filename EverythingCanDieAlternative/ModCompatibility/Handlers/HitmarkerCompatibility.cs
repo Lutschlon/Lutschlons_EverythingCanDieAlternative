@@ -59,23 +59,23 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                 if (IsInstalled)
                 {
                     _lastDamageSources = new Dictionary<int, PlayerControllerB>();
-                    Plugin.LogInfo($"Initializing damage tracking for {ModName} compatibility");
+                    //Plugin.LogInfo($"Initializing damage tracking for {ModName} compatibility");
                 }
                 else
                 {
-                    Plugin.LogInfo($"{ModName} mod not detected, skipping compatibility initialization");
+                    //Plugin.LogInfo($"{ModName} mod not detected, skipping compatibility initialization");
                     return;
                 }
 
                 // Find all loaded assemblies for debugging
-                Plugin.LogInfo("Looking for Hitmarker in loaded assemblies:");
-                foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    if (assembly.GetName().Name.Contains("Hitmarker"))
-                    {
-                        Plugin.LogInfo($"Found assembly: {assembly.GetName().Name}, {assembly.GetName().Version}");
-                    }
-                }
+                //Plugin.LogInfo("Looking for Hitmarker in loaded assemblies:");
+                //foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+                //{
+                  //  if (assembly.GetName().Name.Contains("Hitmarker"))
+                  //  {
+                        //Plugin.LogInfo($"Found assembly: {assembly.GetName().Name}, {assembly.GetName().Version}");
+                   // }
+               //}
 
                 // Search for the HitmarkerCanvasBehaviour type using a more robust approach
                 foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -112,8 +112,8 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                     _instanceField = _hitmarkerCanvasBehaviourType.GetField("Instance",
                         BindingFlags.Public | BindingFlags.Static);
 
-                    if (_instanceField != null)
-                        Plugin.LogInfo("Found Instance field");
+                    if (_instanceField != null) ;
+                    //Plugin.LogInfo("Found Instance field");
                     else
                     {
                         Plugin.Log.LogWarning("Could not find Instance field, looking for fields:");
@@ -127,16 +127,16 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                     _showHitmarkerMethod = _hitmarkerCanvasBehaviourType.GetMethod("ShowHitmarker",
                         BindingFlags.Public | BindingFlags.Instance);
 
-                    if (_showHitmarkerMethod != null)
-                        Plugin.LogInfo("Found ShowHitmarker method");
+                    if (_showHitmarkerMethod != null);
+                    //Plugin.LogInfo("Found ShowHitmarker method");
                     else
                         Plugin.Log.LogWarning("Could not find ShowHitmarker method");
 
                     _showKillMessageMethod = _hitmarkerCanvasBehaviourType.GetMethod("ShowKillMessage",
                         BindingFlags.Public | BindingFlags.Instance);
 
-                    if (_showKillMessageMethod != null)
-                        Plugin.LogInfo("Found ShowKillMessage method");
+                    if (_showKillMessageMethod != null);
+                    //Plugin.LogInfo("Found ShowKillMessage method");
                     else
                         Plugin.Log.LogWarning("Could not find ShowKillMessage method");
 
@@ -144,7 +144,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                     if (_instanceField != null && _showHitmarkerMethod != null && _showKillMessageMethod != null)
                     {
                         _initialized = true;
-                        Plugin.LogInfo($"Successfully initialized {ModName} compatibility");
+                        //Plugin.LogInfo($"Successfully initialized {ModName} compatibility");
                     }
                     else
                     {
@@ -174,7 +174,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             try
             {
                 _lastDamageSources[enemyInstanceId] = playerWhoHit;
-                Plugin.LogInfo($"Tracked damage source for enemy ID {enemyInstanceId}: {playerWhoHit.playerUsername}");
+                //Plugin.LogInfo($"Tracked damage source for enemy ID {enemyInstanceId}: {playerWhoHit.playerUsername}");
             }
             catch (Exception ex)
             {
@@ -192,11 +192,11 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
 
             if (_lastDamageSources.TryGetValue(enemyInstanceId, out PlayerControllerB player))
             {
-                Plugin.LogInfo($"Found last damage source for enemy ID {enemyInstanceId}: {player.playerUsername}");
+                //Plugin.LogInfo($"Found last damage source for enemy ID {enemyInstanceId}: {player.playerUsername}");
                 return player;
             }
 
-            Plugin.LogInfo($"No damage source found for enemy ID {enemyInstanceId}");
+            //Plugin.LogInfo($"No damage source found for enemy ID {enemyInstanceId}");
             return null;
         }
 
@@ -208,7 +208,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             if (_lastDamageSources != null)
             {
                 _lastDamageSources.Clear();
-                Plugin.LogInfo("Cleared Hitmarker damage tracking data");
+                //Plugin.LogInfo("Cleared Hitmarker damage tracking data");
             }
         }
 
