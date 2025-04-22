@@ -53,10 +53,11 @@ namespace EverythingCanDieAlternative
             public int EnemyIndex;           // Enemy index (more stable across network)
             public string EnemyName;         // Enemy name (for better logging)
             public int Damage;
+            public ulong PlayerClientId;     // Store the client ID of the player who hit the enemy
 
             public override string ToString()
             {
-                return $"HitData(EnemyId={EnemyInstanceId}, NetworkId={EnemyNetworkId}, Index={EnemyIndex}, Name={EnemyName}, Damage={Damage})";
+                return $"HitData(EnemyId={EnemyInstanceId}, NetworkId={EnemyNetworkId}, Index={EnemyIndex}, Name={EnemyName}, Damage={Damage}, PlayerClientId={PlayerClientId})";
             }
         }
 
@@ -94,9 +95,24 @@ namespace EverythingCanDieAlternative
                             // Try to find the enemy using multiple methods
                             EnemyAI enemy = FindEnemyMultiMethod(hitData);
 
+                            // Find the player who hit the enemy
+                            PlayerControllerB playerWhoHit = null;
+                            if (hitData.PlayerClientId != 0UL)
+                            {
+                                foreach (var player in StartOfRound.Instance.allPlayerScripts)
+                                {
+                                    if (player.actualClientId == hitData.PlayerClientId)
+                                    {
+                                        playerWhoHit = player;
+                                        break;
+                                    }
+                                }
+                            }
+
                             if (enemy != null && !enemy.isEnemyDead)
                             {
-                                ProcessDamageDirectly(enemy, hitData.Damage);
+                                // Pass the player information to ProcessDamageDirectly
+                                ProcessDamageDirectly(enemy, hitData.Damage, playerWhoHit);
                             }
                             else
                             {
@@ -342,6 +358,17 @@ namespace EverythingCanDieAlternative
             // If health reached zero, kill the enemy (only on host)
             if (newHealth <= 0 && !enemy.isEnemyDead && StartOfRound.Instance.IsHost)
             {
+                // Check for Hitmarker compatibility and notify it of the kill
+                var hitmarkerHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.HitmarkerCompatibility>("com.github.zehsteam.Hitmarker");
+                if (hitmarkerHandler != null && hitmarkerHandler.IsInstalled)
+                {
+                    // Get the player who caused the last damage
+                    PlayerControllerB lastDamageSource = hitmarkerHandler.GetLastDamageSource(instanceId);
+
+                    // Notify the Hitmarker mod
+                    hitmarkerHandler.NotifyEnemyKilled(enemy, lastDamageSource);
+                }
+
                 // Plugin.Log.LogInfo($"Found enemy with name: {enemy.enemyType.enemyName}");
                 KillEnemy(enemy);
             }
@@ -410,7 +437,7 @@ namespace EverythingCanDieAlternative
             if (StartOfRound.Instance.IsHost)
             {
                 Plugin.LogInfo($"Processing hit locally as host: Enemy {enemy.enemyType.enemyName}, Damage {damage}");
-                ProcessDamageDirectly(enemy, damage);
+                ProcessDamageDirectly(enemy, damage, playerWhoHit);
             }
             else
             {
@@ -421,7 +448,8 @@ namespace EverythingCanDieAlternative
                     EnemyNetworkId = enemy.NetworkObjectId,
                     EnemyIndex = enemy.thisEnemyIndex,
                     EnemyName = enemy.enemyType.enemyName,
-                    Damage = damage
+                    Damage = damage,
+                    PlayerClientId = playerWhoHit != null ? playerWhoHit.actualClientId : 0UL
                 };
 
                 try
@@ -435,7 +463,7 @@ namespace EverythingCanDieAlternative
 
                     // Send the message to the server
                     hitMessage.SendServer(hitData);
-                    Plugin.LogInfo($"Sent hit message to server: Enemy {enemy.enemyType.enemyName}, Damage {damage}, Index {enemy.thisEnemyIndex}");
+                    Plugin.LogInfo($"Sent hit message to server: Enemy {enemy.enemyType.enemyName}, Damage {damage}, Index {enemy.thisEnemyIndex}, PlayerClientId {hitData.PlayerClientId}");
                 }
                 catch (Exception ex)
                 {
@@ -445,7 +473,7 @@ namespace EverythingCanDieAlternative
         }
 
         // Process damage directly (only called on host)
-        private static void ProcessDamageDirectly(EnemyAI enemy, int damage)
+        private static void ProcessDamageDirectly(EnemyAI enemy, int damage, PlayerControllerB playerWhoHit = null)
         {
             if (enemy == null || enemy.isEnemyDead) return;
 
@@ -457,6 +485,16 @@ namespace EverythingCanDieAlternative
             {
                 Plugin.LogInfo($"Mod disabled for enemy {enemy.enemyType.enemyName}, not processing damage");
                 return; // Skip processing damage for disabled enemies
+            }
+
+            // Check for Hitmarker compatibility and track the player who caused this damage
+            if (playerWhoHit != null)
+            {
+                var hitmarkerHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.HitmarkerCompatibility>("com.github.zehsteam.Hitmarker");
+                if (hitmarkerHandler != null && hitmarkerHandler.IsInstalled)
+                {
+                    hitmarkerHandler.TrackDamageSource(instanceId, playerWhoHit);
+                }
             }
 
             // NEW CODE: Check if this is an immortal enemy (Enabled=true, Unimmortal=false)
