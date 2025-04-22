@@ -1,5 +1,5 @@
 ## Version 1.1.53
-- Added beta compatibility for https://thunderstore.io/c/lethal-company/p/Zehs/Hitmarker/ Hitmarker by Zehs
+- Added beta compatibility for [Hitmarker](https://thunderstore.io/c/lethal-company/p/Zehs/Hitmarker/) by Zehs
 
 ## Version 1.1.52
 - Added a configuration menu to the games main menu <details><summary>Click for details</summary>- Can be deactivated inside `nwnt.EverythingCanDieAlternative.cfg` > `EnableConfigMenu` or inside LethalConfig or inside the menu itself.<br>-  Changes inside the menu take effect immediately <br>- Configuration will be updated when starting a lobby now, you dont need to restart your game for the changes inside the UI to take effect</details>
@@ -34,13 +34,13 @@
 ###### Hotfix 1.1.34 - Added SoftDependency for BrutalCompanyMinusExtraReborn
 
 ## Version 1.1.33
-- Added beta compatibility for BrutalCompanyMinusExtraReborn by SoftDiamond
+- Added beta compatibility for [BrutalCompanyMinusExtraReborn](https://thunderstore.io/c/lethal-company/p/SoftDiamond/BrutalCompanyMinusExtraReborn/) by SoftDiamond
 - Updated default health configuration, enemies like Baldi will have 1 hp instead of 0 hp now
 - Updated ReadMe to better communicate mod compatibilities
 
 ## Version 1.1.32
 - Updated the framework for mod compatibilities
-- Added beta compatibility for LethalHands by SlapItNow
+- Added beta compatibility for [LethalHands](https://thunderstore.io/c/lethal-company/p/SlapItNow/LethalHands/) by SlapItNow
 - Updated ReadMe with correct shotgun damage<details>Thanks to `ToastIsToasty` for reporting it on Discord!</details>
 
 ###### Hotfix 1.1.31 - Uploaded the correct files
@@ -61,7 +61,7 @@
 
 ## Version 1.1.00
 
-- Fixed an issue that counted one hit two times<details><summary>Click for technical notes:</summary><p>The mod now uses the LethalNetworkAPI to bypass the vanilla games hit and health system. May this lead to unforeseen problems? Perhaps, i keep an eye on it.<p>Vanilla Enemy health gets set to 999 for every enemy to not to worry about. <p>This mod now uses its own health tracking system based on the network id of the enemy. When a client hits an enemy the hit gets networked to the host. The host is the only source of truth and keeps track of enemy health. This means clients will no longer see how much health an enemy has inside the log as this information gets not transmitted back. When an enemy reaches 0 hp of our own health tracking the host simply calls the base games methods for killing it. Some modded enemies dont seem to despawn properly, SellBodiesFixed fixes this. <p>With the 1.0.1 approach i also ran into issues with killing some vanilla enemies at 1 hp instead of zero. This is now fixed too.</details>
+- Fixed an issue that counted one hit two times<details><summary>Click for technical notes:</summary><p>The mod now uses the LethalNetworkAPI to bypass the vanilla games hit and health system. May this lead to unforeseen problems? Perhaps, i keep an eye on it.<p>Vanilla Enemy health gets set to 999 for every enemy to not to worry about. <p>This mod now uses its own health tracking system based on the network id of the enemy. When a client hits an enemy the hit gets networked to the host. The host is the only source of truth and keeps track of enemy health. This means clients will no longer see how much health an enemy has inside the log as this information gets not transmitted back. When an enemy reaches 0 hp of the own health tracking the host simply calls the base games methods for killing it. Some modded enemies dont seem to despawn properly, SellBodiesFixed fixes this. <p>With the 1.0.1 approach i also ran into issues with killing some vanilla enemies at 1 hp instead of zero. This is now fixed too.</details>
 
 ---
 <details><summary> Click for Older Versions</summary>
