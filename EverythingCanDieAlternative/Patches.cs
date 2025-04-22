@@ -54,7 +54,7 @@ namespace EverythingCanDieAlternative
                 var shipLeaveMethod = AccessTools.Method(typeof(StartOfRound), "ShipLeave");
                 var shipLeavePostfix = AccessTools.Method(typeof(Patches), nameof(ShipLeavePostfix));
                 harmony.Patch(shipLeaveMethod, null, new HarmonyMethod(shipLeavePostfix));
-                Plugin.LogInfo("StartOfRound.ShipLeave patched successfully");
+                //Plugin.LogInfo("StartOfRound.ShipLeave patched successfully");
 
                 Plugin.Log.LogInfo("All Harmony patches applied successfully");
             }
