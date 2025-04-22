@@ -51,6 +51,11 @@ namespace EverythingCanDieAlternative
                 harmony.Patch(finishGeneratingLevelMethod, null, new HarmonyMethod(finishGeneratingLevelPostfix));
                 //Plugin.Log.LogInfo("RoundManager.FinishGeneratingLevel patched successfully");
 
+                var shipLeaveMethod = AccessTools.Method(typeof(StartOfRound), "ShipLeave");
+                var shipLeavePostfix = AccessTools.Method(typeof(Patches), nameof(ShipLeavePostfix));
+                harmony.Patch(shipLeaveMethod, null, new HarmonyMethod(shipLeavePostfix));
+                Plugin.LogInfo("StartOfRound.ShipLeave patched successfully");
+
                 Plugin.Log.LogInfo("All Harmony patches applied successfully");
             }
             catch (Exception ex)
@@ -220,7 +225,7 @@ namespace EverythingCanDieAlternative
             }
         }
 
-        // NEW: Patch for EnemyAI.HitEnemy to handle immortal enemies
+        // Patch for EnemyAI.HitEnemy to handle immortal enemies
         public static bool HitEnemyPrefix(EnemyAI __instance, int force, PlayerControllerB playerWhoHit)
         {
             try
@@ -252,6 +257,24 @@ namespace EverythingCanDieAlternative
         }
 
         [HarmonyPostfix]
+
+        public static void ShipLeavePostfix()
+        {
+            try
+            {
+                // Clear Hitmarker compatibility tracking data
+                var hitmarkerHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.HitmarkerCompatibility>("com.github.zehsteam.Hitmarker");
+                if (hitmarkerHandler != null && hitmarkerHandler.IsInstalled)
+                {
+                    Plugin.LogInfo("Clearing Hitmarker compatibility data on level unload");
+                    hitmarkerHandler.ClearTracking();
+                }
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError($"Error in ShipLeavePostfix: {ex.Message}");
+            }
+        }
         public static void FinishGeneratingLevelPostfix()
         {
             try

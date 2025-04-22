@@ -1,4 +1,4 @@
-# EverythingCanDieAlternative 1.1.52
+# EverythingCanDieAlternative 1.1.53
 
 This mod aims to make every enemy in the game killable with configurable hp. It aims to work with any modded weapon and any modded enemy.
 - You can of course also leave enemies immortal in the config to hit the right balance.
@@ -36,9 +36,10 @@ _Help for the .cfg files_
 Iam working on compatibilities for a few requested mods. Let me know if you have any issues with said mods, as testing all of them is not possible for me alone. Mods with known issues might be fixed later.
 | List of implemented compatibility patches|Mods that seem to work out of the box| Mods with known issues|
 | ------- | ------- | ------- |
-| [SellBodiesFixed](https://thunderstore.io/c/lethal-company/p/Entity378/SellBodiesFixed/)|[Enhanced Monsters](https://thunderstore.io/c/lethal-company/p/VELD/Enhanced_Monsters/)|[Hitmarker](https://thunderstore.io/c/lethal-company/p/Zehs/Hitmarker/) - death hitmarker doesnt work|
-| [LethalHands](https://thunderstore.io/c/lethal-company/p/SlapItNow/LethalHands/)|[MoreCounterplay](https://thunderstore.io/c/lethal-company/p/BaronDrakula/MoreCounterplay/)|[EnemyHealthBars](https://thunderstore.io/c/lethal-company/p/NotezyTeam/EnemyHealthBars/) - HealthBar doesnt work|
+| [SellBodiesFixed](https://thunderstore.io/c/lethal-company/p/Entity378/SellBodiesFixed/)|[Enhanced Monsters](https://thunderstore.io/c/lethal-company/p/VELD/Enhanced_Monsters/)|[EnemyHealthBars](https://thunderstore.io/c/lethal-company/p/NotezyTeam/EnemyHealthBars/) - HealthBar doesnt work|
+| [LethalHands](https://thunderstore.io/c/lethal-company/p/SlapItNow/LethalHands/)|[MoreCounterplay](https://thunderstore.io/c/lethal-company/p/BaronDrakula/MoreCounterplay/)||
 | [BrutalCompanyMinusExtraReborn](https://thunderstore.io/c/lethal-company/p/SoftDiamond/BrutalCompanyMinusExtraReborn/)|||
+|[Hitmarker](https://thunderstore.io/c/lethal-company/p/Zehs/Hitmarker/)|||
 
 ## Known Issues
 - Currently none
