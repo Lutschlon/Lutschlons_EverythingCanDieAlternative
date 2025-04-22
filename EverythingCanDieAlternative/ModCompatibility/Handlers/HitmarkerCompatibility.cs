@@ -90,7 +90,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                                 if (type.Name == "HitmarkerCanvasBehaviour")
                                 {
                                     _hitmarkerCanvasBehaviourType = type;
-                                    Plugin.LogInfo($"Found HitmarkerCanvasBehaviour in assembly {assembly.GetName().Name}");
+                                    //Plugin.LogInfo($"Found HitmarkerCanvasBehaviour in assembly {assembly.GetName().Name}");
                                     break;
                                 }
                             }
