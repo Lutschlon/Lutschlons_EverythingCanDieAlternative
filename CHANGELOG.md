@@ -1,3 +1,6 @@
+##
+###### Version 1.1.54 - Fixed Hitmarker compatibility being detected when using SellMyScrap from Zehs
+
 ## Version 1.1.53
 - Added beta compatibility for [Hitmarker](https://thunderstore.io/c/lethal-company/p/Zehs/Hitmarker/) by Zehs, not tested in a multiplayer session, let me know if you encounter any problems<details><summary>Click for details</summary>- The death hitmarker will now be displayed correctly</details>
 
