@@ -27,29 +27,46 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
         // Track initialization status
         private bool _initialized = false;
 
-        // Override IsInstalled to use a more robust detection method
+        // Override IsInstalled to use only the precise GUID-based detection
         public override bool IsInstalled
         {
             get
             {
                 try
                 {
-                    // First check using base implementation
-                    if (base.IsInstalled)
-                        return true;
+                    // Find the assembly with the exact name
+                    var assembly = AppDomain.CurrentDomain.GetAssemblies()
+                        .FirstOrDefault(a => a.GetName().Name == "com.github.zehsteam.Hitmarker");
 
-                    // Then check for specific assembly
-                    return AppDomain.CurrentDomain.GetAssemblies()
-                        .Any(a => a.GetName().Name == "com.github.zehsteam.Hitmarker" ||
-                              a.GetName().Name.Contains("Hitmarker"));
+                    if (assembly == null)
+                    {
+                        // Assembly not found
+                        return false;
+                    }
+
+                    // Check for the BepInPlugin attribute with the correct GUID
+                    bool foundPlugin = assembly.GetTypes().Any(t =>
+                        t.GetCustomAttributes(typeof(BepInEx.BepInPlugin), false)
+                            .Cast<BepInEx.BepInPlugin>()
+                            .Any(attr => attr.GUID == "com.github.zehsteam.Hitmarker")
+                    );
+
+                    if (foundPlugin)
+                    {
+                        Plugin.LogInfo("Confirmed Hitmarker mod via plugin GUID");
+                        return true;
+                    }
+
+                    return false;
                 }
                 catch (Exception ex)
                 {
-                    Plugin.Log.LogError($"Error detecting {ModName}: {ex.Message}");
+                    Plugin.Log.LogError($"Error during Hitmarker mod detection: {ex.Message}");
                     return false;
                 }
             }
         }
+
 
         protected override void OnModInitialize()
         {
