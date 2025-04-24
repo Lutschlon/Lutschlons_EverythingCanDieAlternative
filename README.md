@@ -9,9 +9,8 @@ This mod makes every enemy in the game killable with configurable hp. It works w
 > <details><summary> Differences from Original Mod</summary>- No separate shotgun/melee weapon settings<br>- No Explosion Effects: Enemies simply despawn or play their death animation if allowed to by the despawn config<br>- An alternative version of the EverythingCanDie mod from TheFluff as it did not work for me with a few modded enemies</details>
 
 ## Configuration
-In order to generate the enemy configs: Start the game and host a lobby, quit the lobby.
-
-Now you can check out the EverythingCanDieAlt menu or the .cfg files.
+In order to generate the enemy configs: 
+Start the game > host a lobby > quit the lobby > check out the EverythingCanDieAlt menu or the .cfg files
 
 ![](https://i.imgur.com/jMikt8q.png)
 ____
