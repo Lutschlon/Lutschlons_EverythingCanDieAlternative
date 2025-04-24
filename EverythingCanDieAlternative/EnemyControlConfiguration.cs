@@ -43,7 +43,7 @@ namespace EverythingCanDieAlternative
                 // Clear cached values to force re-reading from config
                 _enemyModEnabled.Clear();
 
-                Plugin.Log.LogInfo("Enemy control configuration reloaded from disk");
+                Plugin.LogInfo("Enemy control configuration reloaded from disk");
             }
             catch (Exception ex)
             {
@@ -64,7 +64,7 @@ namespace EverythingCanDieAlternative
 
             if (Plugin.enemies != null && Plugin.enemies.Count > 0)
             {
-                Plugin.Log.LogInfo($"Creating control entries for {Plugin.enemies.Count} enemy types");
+                Plugin.LogInfo($"Creating control entries for {Plugin.enemies.Count} enemy types");
 
                 foreach (var enemyType in Plugin.enemies)
                 {
@@ -119,7 +119,7 @@ namespace EverythingCanDieAlternative
         public void ClearCache()
         {
             _enemyModEnabled.Clear();
-            Plugin.Log.LogInfo("Enemy control cache cleared");
+            Plugin.LogInfo("Enemy control cache cleared");
         }
     }
 }

@@ -41,42 +41,42 @@ namespace EverythingCanDieAlternative
             try
             {
                 // DIRECT LOGGING - never suppressed
-                //Log.LogInfo($"Initializing {PluginInfo.PLUGIN_NAME} v{PluginInfo.PLUGIN_VERSION}...");
+                //Plugin.LogInfo($"Initializing {PluginInfo.PLUGIN_NAME} v{PluginInfo.PLUGIN_VERSION}...");
 
                 // Initialize the UI configuration first
-               //Log.LogInfo("Initializing UIConfiguration...");
+               //Plugin.LogInfo("Initializing UIConfiguration...");
                 _ = UIConfiguration.Instance;
 
                 // Now we can safely check if info logs should be enabled
                 if (UIConfiguration.Instance != null && UIConfiguration.Instance.IsInitialized)
                 {
                     _infoLogsEnabled = UIConfiguration.Instance.ShouldLogInfo();
-                    //Log.LogInfo($"UI configuration loaded, info logging is {(_infoLogsEnabled ? "enabled" : "disabled")}");
+                    //Plugin.LogInfo($"UI configuration loaded, info logging is {(_infoLogsEnabled ? "enabled" : "disabled")}");
                 }
 
                 // Initialize the configuration systems
-               //Log.LogInfo("Initializing DespawnConfiguration...");
+               //Plugin.LogInfo("Initializing DespawnConfiguration...");
                 _ = DespawnConfiguration.Instance;
 
-                //Log.LogInfo("Initializing EnemyControlConfiguration...");
+                //Plugin.LogInfo("Initializing EnemyControlConfiguration...");
                 _ = EnemyControlConfiguration.Instance;
 
                 ModCompatibilityManager.Instance.Initialize();
 
                 // Apply our patches
-                //Log.LogInfo("Applying patches...");
+                //Plugin.LogInfo("Applying patches...");
                 Patches.Initialize(Harmony);
 
                 // Initialize the configuration menu if enabled
                 if (UIConfiguration.Instance.IsConfigMenuEnabled())
                 {
-                    //Log.LogInfo("Initializing config menu...");
+                    //Plugin.LogInfo("Initializing config menu...");
                     ConfigMenuPatch.Initialize(Harmony);
-                    LogInfo($"{PluginInfo.PLUGIN_NAME} v{PluginInfo.PLUGIN_VERSION} is loaded with network support and configuration menu!");
+                    Log.LogInfo($"{PluginInfo.PLUGIN_NAME} v{PluginInfo.PLUGIN_VERSION} is loaded with network support and configuration menu!");
                 }
                 else
                 {
-                    LogInfo($"{PluginInfo.PLUGIN_NAME} v{PluginInfo.PLUGIN_VERSION} is loaded with network support (configuration menu disabled)");
+                    Log.LogInfo($"{PluginInfo.PLUGIN_NAME} v{PluginInfo.PLUGIN_VERSION} is loaded with network support (configuration menu disabled)");
                 }
             }
             catch (Exception ex)
@@ -116,7 +116,7 @@ namespace EverythingCanDieAlternative
             return string.Join("", sb.ToString().Split(default(string[]), StringSplitOptions.RemoveEmptyEntries));
         }
 
-        // New conditional logging methods - SAFER version
+        // Conditional logging methods
         public static void LogInfo(string message)
         {
             // Check the simple flag first instead of accessing UIConfiguration directly
@@ -137,7 +137,6 @@ namespace EverythingCanDieAlternative
             Log.LogWarning(message);
         }
 
-        // Check if an enemy is killable based on config
         // Check if an enemy is killable based on config
         public static bool CanMob(string identifier, string mobName)
         {
@@ -182,7 +181,7 @@ namespace EverythingCanDieAlternative
                 if (defaultHealth <= 0)
                 {
                     defaultHealth = 1;
-                    Log.LogInfo($"Enforcing minimum health of 1 for {mobName}");
+                    Plugin.LogInfo($"Enforcing minimum health of 1 for {mobName}");
                 }
 
                 string mob = RemoveInvalidCharacters(mobName).ToUpper();
@@ -203,20 +202,20 @@ namespace EverythingCanDieAlternative
                         if (health <= 0)
                         {
                             health = 1;
-                            Log.LogInfo($"Enforcing minimum configured health of 1 for {mobName}");
+                            Plugin.LogInfo($"Enforcing minimum configured health of 1 for {mobName}");
 
                             // Update the config value to 1
                             configEntry.Value = 1;
                         }
 
-                        Log.LogInfo($"Enemy {mobName} health from config: {health}");
+                        Plugin.LogInfo($"Enemy {mobName} health from config: {health}");
                         return health;
                     }
                 }
 
                 // If config doesn't exist yet, create it
                 configEntry = Instance.Config.Bind("Mobs", mob + ".Health", defaultHealth, $"Health for {mobName}");
-                Log.LogInfo($"Using config for {mobName} health: {configEntry.Value}");
+                Plugin.LogInfo($"Using config for {mobName} health: {configEntry.Value}");
                 return configEntry.Value;
             }
             catch (Exception e)
@@ -237,6 +236,6 @@ namespace EverythingCanDieAlternative
     {
         public const string PLUGIN_GUID = "nwnt.EverythingCanDieAlternative";
         public const string PLUGIN_NAME = "EverythingCanDieAlternative";
-        public const string PLUGIN_VERSION = "1.1.54";
+        public const string PLUGIN_VERSION = "1.1.55";
     }
 }

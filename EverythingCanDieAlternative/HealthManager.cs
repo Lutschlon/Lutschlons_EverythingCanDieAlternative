@@ -12,7 +12,7 @@ using static EverythingCanDieAlternative.Plugin;
 
 namespace EverythingCanDieAlternative
 {
-    public static class NetworkedHealthManager
+    public static class HealthManager
     {
         // Add a counter to ensure unique network variable names
         private static int networkVarCounter = 0;
@@ -61,8 +61,6 @@ namespace EverythingCanDieAlternative
             }
         }
 
-        private static bool networkMessagesCreated = false;
-
         public static void Initialize()
         {
             // Clear all dictionaries
@@ -73,11 +71,18 @@ namespace EverythingCanDieAlternative
             enemyNetworkVarNames.Clear();
             enemiesInDespawnProcess.Clear();
             immortalEnemies.Clear();
-
-            // Create our hit message IMMEDIATELY at startup - not waiting for network
+            InitializeCompatibilityHandlerCache();
             CreateNetworkMessages();
 
-            Plugin.Log.LogInfo("Networked Health Manager initialized");
+            Plugin.LogInfo("Networked Health Manager initialized");
+
+        }
+
+        private static void InitializeCompatibilityHandlerCache()
+        {
+            cachedLethalHandsHandler = ModCompatibilityManager.Instance.GetHandler<LethalHandsCompatibility>("SlapitNow.LethalHands");
+            cachedHitmarkerHandler = ModCompatibilityManager.Instance.GetHandler<HitmarkerCompatibility>("com.github.zehsteam.Hitmarker");
+            cachedBrutalCompanyHandler = ModCompatibilityManager.Instance.GetHandler<BrutalCompanyMinusCompatibility>("SoftDiamond.BrutalCompanyMinusExtraReborn");
         }
 
         private static void CreateNetworkMessages()
@@ -86,40 +91,51 @@ namespace EverythingCanDieAlternative
             {
                 // Create the hit message
                 hitMessage = LNetworkMessage<HitData>.Create("ECD_HitMessage",
-                    // First param: server receive callback
-                    (hitData, clientId) =>
+                // First param: server receive callback
+                (hitData, clientId) =>
+                {
+                    Plugin.LogInfo($"[HOST] Received hit message from client {clientId}: {hitData}");
+                    if (StartOfRound.Instance.IsHost)
                     {
-                        Plugin.LogInfo($"[HOST] Received hit message from client {clientId}: {hitData}");
-                        if (StartOfRound.Instance.IsHost)
-                        {
-                            // Try to find the enemy using multiple methods
-                            EnemyAI enemy = FindEnemyMultiMethod(hitData);
+                        // Try to find the enemy using multiple methods
+                        EnemyAI enemy = FindEnemyMultiMethod(hitData);
 
-                            // Find the player who hit the enemy
-                            PlayerControllerB playerWhoHit = null;
-                            if (hitData.PlayerClientId != 0UL)
+                        // Find the player who hit the enemy
+                        PlayerControllerB playerWhoHit = null;
+                        if (hitData.PlayerClientId != 0UL)
+                        {
+                            foreach (var player in StartOfRound.Instance.allPlayerScripts)
                             {
-                                foreach (var player in StartOfRound.Instance.allPlayerScripts)
+                                if (player.actualClientId == hitData.PlayerClientId)
                                 {
-                                    if (player.actualClientId == hitData.PlayerClientId)
-                                    {
-                                        playerWhoHit = player;
-                                        break;
-                                    }
+                                    playerWhoHit = player;
+                                    break;
                                 }
                             }
-
-                            if (enemy != null && !enemy.isEnemyDead)
-                            {
-                                // Pass the player information to ProcessDamageDirectly
-                                ProcessDamageDirectly(enemy, hitData.Damage, playerWhoHit);
-                            }
-                            else
-                            {
-                                Plugin.Log.LogWarning($"Could not find enemy: {hitData.EnemyName} (NetworkID: {hitData.EnemyNetworkId}, Index: {hitData.EnemyIndex})");
-                            }
                         }
-                    });
+
+                        if (enemy != null && !enemy.isEnemyDead)
+                        {
+                            // Get the instance ID
+                            int instanceId = enemy.GetInstanceID();
+
+                            // Get or create the sanitized name
+                            string sanitizedName;
+                            if (!cachedSanitizedNames.TryGetValue(instanceId, out sanitizedName))
+                            {
+                                sanitizedName = Plugin.RemoveInvalidCharacters(enemy.enemyType.enemyName).ToUpper();
+                                cachedSanitizedNames[instanceId] = sanitizedName;
+                            }
+
+                            // Pass all parameters to ProcessDamageDirectly
+                            ProcessDamageDirectly(enemy, hitData.Damage, playerWhoHit, instanceId, sanitizedName);
+                        }
+                        else
+                        {
+                            Plugin.Log.LogWarning($"Could not find enemy: {hitData.EnemyName} (NetworkID: {hitData.EnemyNetworkId}, Index: {hitData.EnemyIndex})");
+                        }
+                    }
+                });
 
                 // Create the despawn message (server to clients)
                 despawnMessage = LNetworkMessage<int>.Create("ECD_DespawnMessage",
@@ -211,6 +227,17 @@ namespace EverythingCanDieAlternative
             return null;
         }
 
+        // Cache sanitized enemy names
+        private static readonly Dictionary<int, string> cachedSanitizedNames = new Dictionary<int, string>();
+
+        // Cache mod enabled status for enemies
+        private static readonly Dictionary<string, bool> cachedModEnabled = new Dictionary<string, bool>();
+
+        // Cache compatibility handlers that are used frequently
+        private static LethalHandsCompatibility cachedLethalHandsHandler;
+        private static HitmarkerCompatibility cachedHitmarkerHandler;
+        private static BrutalCompanyMinusCompatibility cachedBrutalCompanyHandler;
+
         public static void SetupEnemy(EnemyAI enemy)
         {
             if (enemy == null || enemy.enemyType == null) return;
@@ -219,130 +246,108 @@ namespace EverythingCanDieAlternative
             {
                 int instanceId = enemy.GetInstanceID();
 
-                // Store network object ID for later lookup
+                // Fast path for already processed enemies
+                if (processedEnemies.TryGetValue(instanceId, out bool processed) && processed)
+                {
+                    return;
+                }
+
+                // Store network ID for lookup - less important, do this once
                 if (enemy.NetworkObject != null)
                 {
                     enemyNetworkIds[instanceId] = enemy.NetworkObjectId;
                 }
 
-                // Check if we've already processed this enemy by instance ID
-                if (processedEnemies.ContainsKey(instanceId) && processedEnemies[instanceId])
+                string enemyName = enemy.enemyType.enemyName;
+
+                // Get or create cached sanitized name
+                string sanitizedName;
+                if (!cachedSanitizedNames.TryGetValue(instanceId, out sanitizedName))
                 {
-                    Plugin.LogInfo($"Enemy {enemy.enemyType.enemyName} (ID: {instanceId}) already processed, skipping setup");
-                    return;
+                    sanitizedName = Plugin.RemoveInvalidCharacters(enemyName).ToUpper();
+                    cachedSanitizedNames[instanceId] = sanitizedName;
                 }
 
-                string enemyName = enemy.enemyType.enemyName;
-                string sanitizedName = Plugin.RemoveInvalidCharacters(enemyName).ToUpper();
-
-                // Check if mod is enabled for this enemy from the control configuration
-                if (!Plugin.IsModEnabledForEnemy(sanitizedName))
+                // Check mod enabled status with caching
+                bool modEnabled;
+                if (!cachedModEnabled.TryGetValue(sanitizedName, out modEnabled))
                 {
-                    Plugin.LogInfo($"Mod disabled for enemy {enemyName} via config, using vanilla behavior");
-                    processedEnemies[instanceId] = true; // Mark as processed to avoid re-checking
+                    modEnabled = Plugin.IsModEnabledForEnemy(sanitizedName);
+                    cachedModEnabled[sanitizedName] = modEnabled;
+                }
+
+                // Skip processing for disabled enemies
+                if (!modEnabled)
+                {
+                    processedEnemies[instanceId] = true;
                     return;
                 }
 
                 bool canDamage = Plugin.CanMob(".Unimmortal", sanitizedName);
 
-                // MODIFIED: Handle both damageable and immortal-but-enabled enemies differently
                 if (canDamage)
                 {
-                    // Get configured health
-                    int configHealth = Plugin.GetMobHealth(sanitizedName, enemy.enemyHP);
-
-                    // Apply bonus health from BrutalCompanyMinus if installed
-                    var brutalCompanyHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.BrutalCompanyMinusCompatibility>("SoftDiamond.BrutalCompanyMinusExtraReborn");
-                    if (brutalCompanyHandler != null && brutalCompanyHandler.IsInstalled)
-                    {
-                        configHealth = brutalCompanyHandler.ApplyBonusHp(configHealth);
-                    }
-
-                    // Create a unique identifier for this enemy's health
-                    // Add a counter to ensure uniqueness over multiple moons
-                    string varName = $"ECD_Health_{enemy.thisEnemyIndex}_{networkVarCounter++}";
-
-                    // Store the variable name for this instance ID
-                    enemyNetworkVarNames[instanceId] = varName;
-
-                    Plugin.LogInfo($"Creating network variable {varName} for enemy {enemyName} (ID: {instanceId})");
-
-                    // Create the health variable
-                    LNetworkVariable<int> healthVar;
+                    // Create network variable only if not already created
                     if (!enemyHealthVars.ContainsKey(instanceId))
                     {
+                        // Get health from config once
+                        int configHealth = Plugin.GetMobHealth(sanitizedName, enemy.enemyHP);
+
+                        // Apply bonus health only if needed
+                        if (cachedBrutalCompanyHandler != null && cachedBrutalCompanyHandler.IsInstalled)
+                        {
+                            configHealth = cachedBrutalCompanyHandler.ApplyBonusHp(configHealth);
+                        }
+
+                        // Create network variable - more efficient variable naming
+                        string varName = $"ECD_H_{enemy.thisEnemyIndex}_{networkVarCounter++}";
+
                         try
                         {
-                            // Create a new NetworkVariable
-                            healthVar = LNetworkVariable<int>.Create(varName, configHealth);
-
-                            // Subscribe to value changes
+                            // Create and store in one operation
+                            var healthVar = LNetworkVariable<int>.Create(varName, configHealth);
                             healthVar.OnValueChanged += (oldHealth, newHealth) => HandleHealthChange(instanceId, newHealth);
-
                             enemyHealthVars[instanceId] = healthVar;
-                        }
-                        catch (Exception ex)
-                        {
-                            Plugin.Log.LogError($"Failed to create network variable {varName}: {ex.Message}");
-
-                            // Try with a different name if there was a duplicate
-                            varName = $"ECD_Health_{enemy.thisEnemyIndex}_{networkVarCounter++}_Retry";
-                            Plugin.LogInfo($"Retrying with new variable name: {varName}");
-
-                            // Store the new variable name
                             enemyNetworkVarNames[instanceId] = varName;
 
-                            // Create the variable with the new name
-                            healthVar = LNetworkVariable<int>.Create(varName, configHealth);
+                            // Store additional data in single operations
+                            enemyMaxHealth[instanceId] = configHealth;
+                            immortalEnemies[instanceId] = false;
+                        }
+                        catch (Exception)
+                        {
+                            // Simplified retry - only if first attempt failed
+                            string retryVarName = $"ECD_H_{enemy.thisEnemyIndex}_{networkVarCounter++}_R";
+                            var healthVar = LNetworkVariable<int>.Create(retryVarName, configHealth);
                             healthVar.OnValueChanged += (oldHealth, newHealth) => HandleHealthChange(instanceId, newHealth);
                             enemyHealthVars[instanceId] = healthVar;
+                            enemyNetworkVarNames[instanceId] = retryVarName;
+
+                            enemyMaxHealth[instanceId] = configHealth;
+                            immortalEnemies[instanceId] = false;
+
+                            Plugin.Log.LogWarning($"Retried network variable creation for {enemyName}");
                         }
                     }
-                    else
-                    {
-                        healthVar = enemyHealthVars[instanceId];
-                        Plugin.LogInfo($"Using existing health variable for enemy {enemyName} (ID: {instanceId})");
-                    }
 
-                    // Store max health
-                    enemyMaxHealth[instanceId] = configHealth;
-
-                    // Make enemy killable in the game system
+                    // One-time enemy property configurations
                     enemy.enemyType.canDie = true;
                     enemy.enemyType.canBeDestroyed = true;
-
-                    // Set high HP value in the original system so our networked system controls when it dies
                     enemy.enemyHP = 999;
-
-                    // Mark as processed
-                    processedEnemies[instanceId] = true;
-
-                    // Not immortal
-                    immortalEnemies[instanceId] = false;
-
-                    Plugin.LogInfo($"Setup enemy {enemyName} (ID: {instanceId}, NetID: {enemy.NetworkObjectId}, Index: {enemy.thisEnemyIndex}) with {configHealth} networked health");
                 }
                 else
                 {
-                    // Handle immortal-but-enabled enemies
-                    Plugin.LogInfo($"Enemy {enemyName} is configured as immortal (Unimmortal=false, Enabled=true)");
-
-                    // Set high HP value to make them effectively immortal
+                    // Simplified immortal enemy setup
                     enemy.enemyHP = 999;
-
-                    // Mark as immortal for hit processing
                     immortalEnemies[instanceId] = true;
-
-                    // Mark as processed
-                    processedEnemies[instanceId] = true;
-
-                    Plugin.LogInfo($"Set enemy {enemyName} (ID: {instanceId}) to be immortal with 999 HP");
                 }
+
+                // Mark as processed - do this only once at the end
+                processedEnemies[instanceId] = true;
             }
             catch (Exception ex)
             {
                 Plugin.Log.LogError($"Error setting up enemy: {ex.Message}");
-                Plugin.Log.LogError($"Stack trace: {ex.StackTrace}");
             }
         }
 
@@ -399,49 +404,53 @@ namespace EverythingCanDieAlternative
 
             int instanceId = enemy.GetInstanceID();
 
-            // Check if mod is enabled for this enemy from the control configuration
-            string sanitizedName = Plugin.RemoveInvalidCharacters(enemy.enemyType.enemyName).ToUpper();
-            if (!Plugin.IsModEnabledForEnemy(sanitizedName))
+            // Get cached sanitized name or create it
+            string sanitizedName;
+            if (!cachedSanitizedNames.TryGetValue(instanceId, out sanitizedName))
             {
-                Plugin.LogInfo($"Mod disabled for enemy {enemy.enemyType.enemyName}, not processing hit");
-                return; // Skip processing hit for disabled enemies
+                sanitizedName = Plugin.RemoveInvalidCharacters(enemy.enemyType.enemyName).ToUpper();
+                cachedSanitizedNames[instanceId] = sanitizedName;
             }
 
-            // NEW CODE: Check if this is an immortal enemy (Enabled=true, Unimmortal=false)
+            // Get cached mod enabled status or check it
+            bool modEnabled;
+            if (!cachedModEnabled.TryGetValue(sanitizedName, out modEnabled))
+            {
+                modEnabled = Plugin.IsModEnabledForEnemy(sanitizedName);
+                cachedModEnabled[sanitizedName] = modEnabled;
+            }
+
+            // Fast return for disabled enemies
+            if (!modEnabled) return;
+
+            // Fast check for immortal enemies
             if (immortalEnemies.TryGetValue(instanceId, out bool isImmortal) && isImmortal)
             {
-                // For immortal enemies, just refresh their HP to 999 and don't process damage
                 enemy.enemyHP = 999;
-                Plugin.Log.LogInfo($"Refreshed immortal enemy {enemy.enemyType.enemyName} HP to 999");
                 return;
             }
 
-            // Check for LethalHands compatibility to handle special punch damage (-22)
-            var lethalHandsHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.LethalHandsCompatibility>("SlapitNow.LethalHands");
-            if (lethalHandsHandler != null && lethalHandsHandler.IsInstalled && damage == -22)
+            // Handle LethalHands special case
+            if (damage == -22 && cachedLethalHandsHandler != null && cachedLethalHandsHandler.IsInstalled)
             {
-                damage = lethalHandsHandler.ConvertPunchForceToDamage(damage);
-                Plugin.LogInfo($"Converted LethalHands punch to damage: {damage}");
+                damage = cachedLethalHandsHandler.ConvertPunchForceToDamage(damage);
             }
             else if (damage < 0)
             {
-                // Prevent negative damage from other sources
-                Plugin.Log.LogWarning($"Received negative damage value: {damage}, setting to 0");
                 damage = 0;
             }
 
-            // Skip processing if damage is zero (prevents wasting network traffic)
+            // Skip processing if no actual damage
             if (damage <= 0) return;
 
-            // If we're the host, process damage directly
+            // Process damage either locally or via network
             if (StartOfRound.Instance.IsHost)
             {
-                Plugin.LogInfo($"Processing hit locally as host: Enemy {enemy.enemyType.enemyName}, Damage {damage}");
-                ProcessDamageDirectly(enemy, damage, playerWhoHit);
+                ProcessDamageDirectly(enemy, damage, playerWhoHit, instanceId, sanitizedName);
             }
             else
             {
-                // Otherwise send a message to the host with ALL identifiers
+                // Only create HitData if actually sending
                 HitData hitData = new HitData
                 {
                     EnemyInstanceId = instanceId,
@@ -454,16 +463,13 @@ namespace EverythingCanDieAlternative
 
                 try
                 {
-                    // Make sure the message exists
+                    // Ensure hit message exists - this should rarely happen
                     if (hitMessage == null)
                     {
-                        Plugin.Log.LogWarning("Hit message is null, recreating it");
                         CreateNetworkMessages();
                     }
 
-                    // Send the message to the server
                     hitMessage.SendServer(hitData);
-                    Plugin.LogInfo($"Sent hit message to server: Enemy {enemy.enemyType.enemyName}, Damage {damage}, Index {enemy.thisEnemyIndex}, PlayerClientId {hitData.PlayerClientId}");
                 }
                 catch (Exception ex)
                 {
@@ -472,61 +478,34 @@ namespace EverythingCanDieAlternative
             }
         }
 
-        // Process damage directly (only called on host)
-        private static void ProcessDamageDirectly(EnemyAI enemy, int damage, PlayerControllerB playerWhoHit = null)
+        private static void ProcessDamageDirectly(EnemyAI enemy, int damage, PlayerControllerB playerWhoHit,
+                                         int instanceId, string sanitizedName)
         {
             if (enemy == null || enemy.isEnemyDead) return;
 
-            int instanceId = enemy.GetInstanceID();
-
-            // Check if mod is enabled for this enemy from the control configuration
-            string sanitizedName = Plugin.RemoveInvalidCharacters(enemy.enemyType.enemyName).ToUpper();
-            if (!Plugin.IsModEnabledForEnemy(sanitizedName))
+            // Track damage source for hitmarker if installed
+            if (playerWhoHit != null && cachedHitmarkerHandler != null && cachedHitmarkerHandler.IsInstalled)
             {
-                Plugin.LogInfo($"Mod disabled for enemy {enemy.enemyType.enemyName}, not processing damage");
-                return; // Skip processing damage for disabled enemies
+                cachedHitmarkerHandler.TrackDamageSource(instanceId, playerWhoHit);
             }
 
-            // Check for Hitmarker compatibility and track the player who caused this damage
-            if (playerWhoHit != null)
-            {
-                var hitmarkerHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.HitmarkerCompatibility>("com.github.zehsteam.Hitmarker");
-                if (hitmarkerHandler != null && hitmarkerHandler.IsInstalled)
-                {
-                    hitmarkerHandler.TrackDamageSource(instanceId, playerWhoHit);
-                }
-            }
-
-            // NEW CODE: Check if this is an immortal enemy (Enabled=true, Unimmortal=false)
-            if (immortalEnemies.TryGetValue(instanceId, out bool isImmortal) && isImmortal)
-            {
-                // For immortal enemies, just refresh their HP to 999 and don't process damage
-                enemy.enemyHP = 999;
-                Plugin.LogInfo($"Refreshed immortal enemy {enemy.enemyType.enemyName} HP to 999");
-                return;
-            }
-
-            // Ensure enemy is set up
+            // Fast setup check - only do setup if needed (rare case)
             if (!processedEnemies.ContainsKey(instanceId) || !processedEnemies[instanceId])
             {
                 SetupEnemy(enemy);
             }
 
-            // Get the health variable
+            // Get and update health (most common path)
             if (enemyHealthVars.TryGetValue(instanceId, out var healthVar))
             {
-                // Calculate new health
                 int currentHealth = healthVar.Value;
                 int newHealth = Mathf.Max(0, currentHealth - damage);
 
-                Plugin.Log.LogInfo($"Enemy {enemy.enemyType.enemyName} damaged for {damage}: {currentHealth} -> {newHealth}");
-
-                // Update the NetworkVariable (this will sync to all clients)
-                healthVar.Value = newHealth;
-            }
-            else
-            {
-                Plugin.Log.LogWarning($"No health variable found for enemy {enemy.enemyType.enemyName} (ID: {instanceId})");
+                // Only update network if health actually changed
+                if (newHealth != currentHealth)
+                {
+                    healthVar.Value = newHealth;
+                }
             }
         }
 

@@ -53,7 +53,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             }
 
             int attempts = enemyKillAttempts[instanceId];
-            Plugin.Log.LogInfo($"Kill attempt #{attempts} for {enemy.enemyType.enemyName} (Despawn allowed: {allowDespawn})");
+            Plugin.LogInfo($"Kill attempt #{attempts} for {enemy.enemyType.enemyName} (Despawn allowed: {allowDespawn})");
 
             // No need to call HandleSellBodiesCompatibility here - it's already handled in NetworkedHealthManager.KillEnemy
 
@@ -76,7 +76,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                 if (allowDespawn && enemy.thisEnemyIndex >= 0)
                 {
                     Plugin.LogInfo($"Notifying clients to despawn enemy {enemy.enemyType.enemyName}");
-                    NetworkedHealthManager.NotifyClientsOfDestroy(enemy.thisEnemyIndex);
+                    HealthManager.NotifyClientsOfDestroy(enemy.thisEnemyIndex);
                 }
 
                 ScheduleKillCheck(enemy);
@@ -85,7 +85,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             else if (attempts == 3)
             {
                 // Third attempt: Force-set internal states + aggressive component disabling
-                //Plugin.Log.LogInfo($"Aggressive force-state and component disabling for {enemy.enemyType.enemyName}");
+                //Plugin.LogInfo($"Aggressive force-state and component disabling for {enemy.enemyType.enemyName}");
                 ForceDeadState(enemy);
 
                 // More forceful approach - disable all MonoBehaviours except the main EnemyAI
@@ -111,7 +111,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                     // Also notify clients to destroy this enemy
                     if (enemy.thisEnemyIndex >= 0)
                     {
-                        NetworkedHealthManager.NotifyClientsOfDestroy(enemy.thisEnemyIndex);
+                        HealthManager.NotifyClientsOfDestroy(enemy.thisEnemyIndex);
                     }
                 }
 
@@ -127,7 +127,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                 if (allowDespawn && enemy.thisEnemyIndex >= 0)
                 {
                     Plugin.LogInfo($"Informing clients to destroy {enemy.enemyType.enemyName}");
-                    NetworkedHealthManager.NotifyClientsOfDestroy(enemy.thisEnemyIndex);
+                    HealthManager.NotifyClientsOfDestroy(enemy.thisEnemyIndex);
                 }
 
                 GameObject.Destroy(enemy.gameObject);
@@ -172,7 +172,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                 if (instanceId != 0 && enemyKillAttempts.ContainsKey(instanceId))
                 {
                     enemyKillAttempts.Remove(instanceId);
-                    Plugin.Log.LogInfo($"Enemy {(enemy != null ? enemy.enemyType.enemyName : "unknown")} successfully killed");
+                    Plugin.LogInfo($"Enemy {(enemy != null ? enemy.enemyType.enemyName : "unknown")} successfully killed");
                 }
             }
         }

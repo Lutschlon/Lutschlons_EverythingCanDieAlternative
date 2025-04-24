@@ -20,7 +20,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
         protected override void OnModInitialize()
         {
             // Add initialization code specific to this mod
-            Plugin.Log.LogInfo($"{ModName} compatibility initialized");
+            Plugin.LogInfo($"{ModName} compatibility initialized");
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             if (enemy == null) return;
             
             // Add mod-specific enemy processing
-            Plugin.Log.LogInfo($"Processing {enemy.enemyType.enemyName} for {ModName} compatibility");
+            Plugin.LogInfo($"Processing {enemy.enemyType.enemyName} for {ModName} compatibility");
         }
     }
 }

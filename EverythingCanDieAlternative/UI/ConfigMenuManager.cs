@@ -38,10 +38,6 @@ namespace EverythingCanDieAlternative.UI
         private TMP_InputField searchInputField;
         private string lastSearchText = "";
 
-        // Add references to the UI controls for Hide Menu and Less Logs
-        private UIHelper.StateHolder hideMenuToggle;
-        private UIHelper.StateHolder lessLogsToggle;
-
         // Add a helper method to clear search
         private void ClearSearch()
         {

@@ -78,10 +78,10 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                 // When playerWhoHit is null, this is likely enemy-vs-enemy damage
                 if (playerWhoHit == null)
                 {
-                    Plugin.Log.LogInfo($"Enemy vs enemy hit detected on {__instance.enemyType.enemyName} with force {force}");
+                    Plugin.LogInfo($"Enemy vs enemy hit detected on {__instance.enemyType.enemyName} with force {force}");
 
                     // Process the hit with our networked health system
-                    NetworkedHealthManager.ProcessHit(__instance, force, null);
+                    HealthManager.ProcessHit(__instance, force, null);
 
                     // Let vanilla method run for sound effects, but we've already handled damage
                     return true;

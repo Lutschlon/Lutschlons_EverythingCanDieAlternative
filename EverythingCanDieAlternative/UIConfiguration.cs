@@ -110,7 +110,7 @@ namespace EverythingCanDieAlternative.UI
                 EnemyControlConfiguration.Instance.ReloadConfig();
                 DespawnConfiguration.Instance.ReloadConfig();
 
-                Plugin.Log.LogInfo("All UI settings saved and reloaded");
+                Plugin.LogInfo("All UI settings saved and reloaded");
             }
             catch (Exception ex)
             {
@@ -130,7 +130,7 @@ namespace EverythingCanDieAlternative.UI
                 EnemyControlConfiguration.Instance.ReloadConfig();
                 DespawnConfiguration.Instance.ReloadConfig();
 
-                Plugin.Log.LogInfo("All configs reloaded from files");
+                Plugin.LogInfo("All configs reloaded from files");
             }
             catch (Exception ex)
             {

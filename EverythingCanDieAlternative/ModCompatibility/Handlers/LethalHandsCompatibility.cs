@@ -218,7 +218,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
 
                 // If we couldn't get the value through reflection or config, use the default
                 _punchDamage = 1f;
-                Plugin.Log.LogInfo($"Using default LethalHands punch damage: {_punchDamage}");
+                Plugin.LogInfo($"Using default LethalHands punch damage: {_punchDamage}");
             }
             catch (Exception ex)
             {
