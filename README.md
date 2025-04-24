@@ -1,7 +1,7 @@
 # EverythingCanDieAlternative 1.1.55
 
 This mod makes every enemy in the game killable with configurable hp. It works with any modded weapon and any modded enemy.
-- Easly configurable
+- Easly configurable via UI
 - You can of course leave enemies immortal in the config to hit the right balance, you can also disable my mod for enemies if you want to 100% preserve their original behaviour
 - This mod despawns dead enemies by itself (configurable)
 - This mod is compatible with see [Mod Compatibilities Table](#Mod-Compatibilities) below
