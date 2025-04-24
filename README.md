@@ -1,11 +1,12 @@
-# EverythingCanDieAlternative 1.1.54
+# EverythingCanDieAlternative 1.1.55
 
-This mod aims to make every enemy in the game killable with configurable hp. It aims to work with any modded weapon and any modded enemy.
-- You can of course also leave enemies immortal in the config to hit the right balance.
+This mod makes every enemy in the game killable with configurable hp. It works with any modded weapon and any modded enemy.
+- Easly configurable
+- You can of course leave enemies immortal in the config to hit the right balance, you can also disable my mod for enemies if you want to 100% preserve their original behaviour
 - This mod despawns dead enemies by itself (configurable)
 - This mod is compatible with see [Mod Compatibilities Table](#Mod-Compatibilities) below
 
-> <details><summary> Differences from Original Mod</summary>- No separate shotgun/melee weapon settings<br>- No Explosion Effects: Enemies simply despawn or play their death animation if allowed to by the despawn config<br>- An alternative version of the EverythingCanDie mod from TheFluff as it did not work for me with a few modded enemies.</details>
+> <details><summary> Differences from Original Mod</summary>- No separate shotgun/melee weapon settings<br>- No Explosion Effects: Enemies simply despawn or play their death animation if allowed to by the despawn config<br>- An alternative version of the EverythingCanDie mod from TheFluff as it did not work for me with a few modded enemies</details>
 
 ## Configuration
 In order to generate the enemy configs: Start the game and host a lobby, quit the lobby.
