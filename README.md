@@ -14,24 +14,45 @@ Start the game > host a lobby > quit the lobby > check out the EverythingCanDieA
 If you add more enemies to your modpack you will need to host a game once more to generate their configs
 
 ![](https://i.imgur.com/jMikt8q.png)
-____
+
 - The menu can be hidden / shown with `LethalConfig` as well
 ____
-_Help for the .cfg files_
-<br>For each enemy, you can configure:
-> nwnt.EverythingCanDieAlternative.cfg
-- `.Unimmortal` - Toggle if the enemy can be damaged (true/false) - Default is every enemy is killable
-- `.Health` - You configure the enemy's health value completely to your liking
-  - For reference: the shovel deals 1 damage, the vanilla shotgun either 1/3/5 based on distance, modded weapons work as well with their own stats
+<details>
+  <summary>Help for the .cfg files</summary>
+  <p>For each enemy, you can configure:</p>
+  
+  <blockquote>
+    <p>nwnt.EverythingCanDieAlternative.cfg</p>
+  </blockquote>
+  <ul>
+    <li><code>.Unimmortal</code> - Toggle if the enemy can be damaged (true/false) - Default is every enemy is killable</li>
+    <li><code>.Health</code> - You configure the enemy's health value completely to your liking
+      <ul>
+        <li>For reference: the shovel deals 1 damage, the vanilla shotgun either 1/3/5 based on distance, modded weapons work as well with their own stats</li>
+      </ul>
+      <li><code>EnableConfigMenu</code> - Toggle if the configuration ui should be shown in the main menu</li>
+      <li><code>EnableInfoLogs</code> - Toggle if info logs should be logged in the console, setting to false might improve performance when enemies spawn or getting hit</li>
+    </li>
+  </ul>
 
-> nwnt.EverythingCanDieAlternative_Despawn_Rules.cfg<br>
-- `.Despawn` - Toggle if the model of the enemy should get forced to despawn after its death
-- `EnableDespawnFeature` - Master Switch to enable or disable the despawn functionality as a whole
+  <blockquote>
+    <p>nwnt.EverythingCanDieAlternative_Despawn_Rules.cfg</p>
+  </blockquote>
+  <ul>
+    <li><code>.Despawn</code> - Toggle if the model of the enemy should get forced to despawn after its death</li>
+    <li><code>EnableDespawnFeature</code> - Master Switch to enable or disable the despawn functionality as a whole</li>
+  </ul>
 
-> nwnt.EverythingCanDieAlternative_Enemy_Control.cfg<br>
-- `.Enable` - Set to false to deactivate this mod for specific enemies to preserve their original health/hit behavior
+  <blockquote>
+    <p>nwnt.EverythingCanDieAlternative_Enemy_Control.cfg</p>
+  </blockquote>
+  <ul>
+    <li><code>.Enable</code> - Set to false to deactivate this mod for specific enemies to preserve their original health/hit behavior</li>
+  </ul>
+  <hr>
+</details>
 
-<br>Everyone needs to have this mod installed for it to work. Everyone should have the same config.
+Everyone needs to have this mod installed for it to work. Everyone should have the same config.
 
 ## Mod Compatibilities
 Iam working on compatibilities for a few requested mods. Let me know if you have any issues with said mods, as testing all of them is not possible for me alone. Mods with known issues might be fixed later.
