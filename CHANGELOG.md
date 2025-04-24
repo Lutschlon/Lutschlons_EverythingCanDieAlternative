@@ -1,3 +1,7 @@
+## Version 1.1.55
+- Updated hit detection and creation of network variables for better performance - need testing before release
+- Updated more log entries to be hidden when `EnableInfoLogs` is deactivated
+
 ##
 ###### Version 1.1.54 - Fixed Hitmarker compatibility being detected when using SellMyScrap from Zehs
 
@@ -6,7 +10,7 @@
 
 ## Version 1.1.52
 - Added a configuration menu to the games main menu <details><summary>Click for details</summary>- Can be deactivated inside `nwnt.EverythingCanDieAlternative.cfg` > `EnableConfigMenu` or inside LethalConfig or inside the menu itself.<br>-  Changes inside the menu take effect immediately <br>- Configuration will be updated when starting a lobby now, you dont need to restart your game for the changes inside the UI to take effect</details>
-- Added `EnableInfoLogs` to `nwnt.EverythingCanDieAlternative.cfg` <details><summary>Click for details</summary>- This will supress _some_ of the info logs</details>
+- Added `EnableInfoLogs` to `nwnt.EverythingCanDieAlternative.cfg` <details><summary>Click for details</summary>- This will supress nearly all of the info logs as of 1.1.55, may help against lag spikes</details>
   
 ##
 ###### Version 1.1.51 (unreleased) - First UI-Config implementation
