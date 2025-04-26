@@ -1,5 +1,5 @@
 ## Version 1.1.55
-- Updated general hit detection and creation of network variables (when an enemy spawns) for better performance - need testing before release
+- Updated general hit detection and creation of network variables (when an enemy spawns) for maybe better performance
 - Updated nearly all info log entries to be hidden when `EnableInfoLogs` is deactivated
 
 ##
