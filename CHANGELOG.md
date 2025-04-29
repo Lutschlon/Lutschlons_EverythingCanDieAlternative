@@ -2,7 +2,7 @@
 - Updated nearly all info log entries to be hidden when `EnableInfoLogs` is deactivated
 
 ##
-###### Version 1.1.55 (unreleased) - cleared a few code warnings and unused stuff
+###### Version 1.1.55 (unreleased) - cleared a few code warnings and unused stuff, updated ReadMe
 ###### Version 1.1.54 - Fixed Hitmarker compatibility being detected when using SellMyScrap from Zehs
 
 ## Version 1.1.53
