@@ -85,7 +85,7 @@ namespace EverythingCanDieAlternative
             try
             {
                 // Create the hit message
-                hitMessage = LNetworkMessage<HitData>.Create("ECD_HitMessage",
+                hitMessage = LNetworkMessage<HitData>.Create("ECDA_HitMessage",
                     // First param: server receive callback
                     (hitData, clientId) =>
                     {
@@ -122,7 +122,7 @@ namespace EverythingCanDieAlternative
                     });
 
                 // Create the despawn message (server to clients)
-                despawnMessage = LNetworkMessage<int>.Create("ECD_DespawnMessage",
+                despawnMessage = LNetworkMessage<int>.Create("ECDA_DespawnMessage",
                     // This is the client-side receiver
                     (enemyIndex, clientId) =>
                     {
@@ -260,7 +260,7 @@ namespace EverythingCanDieAlternative
 
                     // Create a unique identifier for this enemy's health
                     // Add a counter to ensure uniqueness over multiple moons
-                    string varName = $"ECD_Health_{enemy.thisEnemyIndex}_{networkVarCounter++}";
+                    string varName = $"ECDA_Health_{enemy.thisEnemyIndex}_{networkVarCounter++}";
 
                     // Store the variable name for this instance ID
                     enemyNetworkVarNames[instanceId] = varName;
@@ -286,7 +286,7 @@ namespace EverythingCanDieAlternative
                             Plugin.Log.LogError($"Failed to create network variable {varName}: {ex.Message}");
 
                             // Try with a different name if there was a duplicate
-                            varName = $"ECD_Health_{enemy.thisEnemyIndex}_{networkVarCounter++}_Retry";
+                            varName = $"ECDA_Health_{enemy.thisEnemyIndex}_{networkVarCounter++}_Retry";
                             Plugin.LogInfo($"Retrying with new variable name: {varName}");
 
                             // Store the new variable name
