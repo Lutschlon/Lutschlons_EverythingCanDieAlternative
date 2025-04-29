@@ -1,4 +1,4 @@
-# EverythingCanDieAlternative 1.1.55
+# EverythingCanDieAlternative 1.1.56
 
 This mod makes every enemy in the game killable with configurable hp. It works with any modded weapon and any modded enemy.
 - Easly configurable via UI
@@ -18,7 +18,7 @@ If you add more enemies to your modpack you will need to host a game once more t
 - The menu can be hidden / shown with `LethalConfig` as well
 ____
 <details>
-  <summary>Help for the .cfg files</summary>
+  <summary>Click for help for the .cfg files</summary>
   <p>For each enemy, you can configure:</p>
   
   <blockquote>
