@@ -1,8 +1,8 @@
-## Version 1.1.55
-- Updated general hit detection and creation of network variables (when an enemy spawns) for maybe better performance
+## Version 1.1.56
 - Updated nearly all info log entries to be hidden when `EnableInfoLogs` is deactivated
 
 ##
+###### Version 1.1.55 (unreleased) - cleared a few code warnings and unused stuff
 ###### Version 1.1.54 - Fixed Hitmarker compatibility being detected when using SellMyScrap from Zehs
 
 ## Version 1.1.53
