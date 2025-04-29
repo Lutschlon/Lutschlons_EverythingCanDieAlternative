@@ -31,7 +31,7 @@ ____
         <li>For reference: the shovel deals 1 damage, the vanilla shotgun either 1/3/5 based on distance, modded weapons work as well with their own stats</li>
       </ul>
       <li><code>EnableConfigMenu</code> - Toggle if the configuration ui should be shown in the main menu</li>
-      <li><code>EnableInfoLogs</code> - Toggle if info logs should be logged in the console, setting to false might improve performance when enemies spawn or getting hit</li>
+      <li><code>EnableInfoLogs</code> - Toggle if info logs should be logged in the console</li>
     </li>
   </ul>
 
@@ -40,7 +40,7 @@ ____
   </blockquote>
   <ul>
     <li><code>.Despawn</code> - Toggle if the model of the enemy should get forced to despawn after its death</li>
-    <li><code>EnableDespawnFeature</code> - Master Switch to enable or disable the despawn functionality as a whole</li>
+    <li><code>EnableDespawnFeature</code> - Master Switch to disable the despawn functionality as a whole if you encounter any problems with it</li>
   </ul>
 
   <blockquote>
