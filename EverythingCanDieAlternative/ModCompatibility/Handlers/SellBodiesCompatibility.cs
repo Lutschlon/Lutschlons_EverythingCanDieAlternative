@@ -181,7 +181,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                 {
                    // Plugin.Log.LogInfo($"SellBodies: Attempting to spawn network object");
                     networkObj.Spawn(true);
-                    Plugin.Log.LogInfo($"SellBodies: Successfully spawned SellBodies loot for {enemyName}");
+                    Plugin.LogInfo($"SellBodies: Successfully spawned SellBodies loot for {enemyName}");
                 }
                 else
                 {

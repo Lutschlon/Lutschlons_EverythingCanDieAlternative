@@ -20,7 +20,6 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
 
         // Field references obtained via reflection
         private FieldInfo _bonusEnemyHpField = null;
-        private object _managerInstance = null;
         private bool _fieldsInitialized = false;
 
         // Override to use more reliable detection methods
@@ -153,7 +152,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                     if (bonusHp != null)
                     {
                         _cachedBonusHp = Convert.ToInt32(bonusHp);
-                        Plugin.Log.LogInfo($"Retrieved BrutalCompanyMinus bonus HP: {_cachedBonusHp}");
+                        Plugin.LogInfo($"Retrieved BrutalCompanyMinus bonus HP: {_cachedBonusHp}");
                         return _cachedBonusHp.Value;
                     }
                 }
@@ -208,7 +207,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                                             {
                                                 // StrongEnemies event is active, try to get the actual value
                                                 // From the code we see it adds a random amount between Min and Max HP
-                                                Plugin.Log.LogInfo("BrutalCompanyMinus StrongEnemies event is active");
+                                                Plugin.LogInfo("BrutalCompanyMinus StrongEnemies event is active");
                                                 return 3; // Average of typically 1-6 range as fallback
                                             }
                                         }
@@ -247,7 +246,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
         {
             InvalidateCache();
             int bonusHp = GetBonusHp();
-            Plugin.Log.LogInfo($"Refreshed BrutalCompanyMinus bonus HP: {bonusHp}");
+            Plugin.LogInfo($"Refreshed BrutalCompanyMinus bonus HP: {bonusHp}");
         }
 
         /// <summary>
@@ -258,7 +257,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             int bonusHp = GetBonusHp();
             if (bonusHp > 0)
             {
-                Plugin.Log.LogInfo($"Applying BrutalCompanyMinus bonus HP: +{bonusHp} to base health {baseHealth}");
+                Plugin.LogInfo($"Applying BrutalCompanyMinus bonus HP: +{bonusHp} to base health {baseHealth}");
                 return baseHealth + bonusHp;
             }
             return baseHealth;

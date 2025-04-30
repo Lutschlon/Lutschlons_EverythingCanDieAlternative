@@ -1,4 +1,8 @@
+## Version 1.1.56
+- Updated nearly all info log entries to be hidden when `EnableInfoLogs` is deactivated
+
 ##
+###### Version 1.1.55 (unreleased) - backend stuff, updated ReadMe, network messages are now prefixed with ECDA instead of ECD
 ###### Version 1.1.54 - Fixed Hitmarker compatibility being detected when using SellMyScrap from Zehs
 
 ## Version 1.1.53
@@ -6,7 +10,7 @@
 
 ## Version 1.1.52
 - Added a configuration menu to the games main menu <details><summary>Click for details</summary>- Can be deactivated inside `nwnt.EverythingCanDieAlternative.cfg` > `EnableConfigMenu` or inside LethalConfig or inside the menu itself.<br>-  Changes inside the menu take effect immediately <br>- Configuration will be updated when starting a lobby now, you dont need to restart your game for the changes inside the UI to take effect</details>
-- Added `EnableInfoLogs` to `nwnt.EverythingCanDieAlternative.cfg` <details><summary>Click for details</summary>- This will supress _some_ of the info logs</details>
+- Added `EnableInfoLogs` to `nwnt.EverythingCanDieAlternative.cfg` <details><summary>Click for details</summary>- This will supress nearly all of the info logs as of 1.1.55, may help against lag spikes</details>
   
 ##
 ###### Version 1.1.51 (unreleased) - First UI-Config implementation
@@ -46,10 +50,10 @@
 - Added beta compatibility for [LethalHands](https://thunderstore.io/c/lethal-company/p/SlapItNow/LethalHands/) by SlapItNow
 - Updated ReadMe with correct shotgun damage<details>Thanks to `ToastIsToasty` for reporting it on Discord!</details>
 
+##
 ###### Hotfix 1.1.31 - Uploaded the correct files
 
 ## Version 1.1.30
-##
 
 - Fixed the creation of health configs, for not referencing original enemy hp but instead always defaulting to 3 hp <details><summary>Click for details</summary><p> Thanks to `pxntxrez` for reporting it on discord!<p>This fix only takes effect when you delete your existing `nwnt.EverythingCanDieAlternative.cfg` file or during a fresh installation in a new modpack.<p>Before this fix, enemies like Forest Giant would default to 3 hp, now they default to 38 hp like in the vanilla game. You can of course still configure them back to 3 hp or whatever you like to. <p>The default configuration caps enemy hp at 38. You can still manually configure hp to be higher. Why is it limited? The enemy "The Fiend" is configured with 1000 hp, i dont think having an hitable enemy with 1000 hp is what someone expects when installing my mod. 38 is already way to much for the shovel or shotgun but eh, might change the hp cap later.</details>
 

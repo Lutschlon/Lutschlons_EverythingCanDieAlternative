@@ -84,7 +84,7 @@ namespace EverythingCanDieAlternative
                     true,
                     new ConfigDescription("If true, dead enemies can despawn based on other settings"));
 
-                Plugin.Log.LogInfo("Despawn configuration reloaded from disk");
+                Plugin.LogInfo("Despawn configuration reloaded from disk");
             }
             catch (Exception ex)
             {

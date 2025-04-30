@@ -53,7 +53,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
 
                     if (foundPlugin)
                     {
-                        Plugin.LogInfo("Confirmed Hitmarker mod via plugin GUID");
+                        //Plugin.LogInfo("Confirmed Hitmarker mod via plugin GUID");
                         return true;
                     }
 
@@ -129,8 +129,10 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                     _instanceField = _hitmarkerCanvasBehaviourType.GetField("Instance",
                         BindingFlags.Public | BindingFlags.Static);
 
-                    if (_instanceField != null) ;
+                    if (_instanceField != null)
+                    { 
                     //Plugin.LogInfo("Found Instance field");
+                    }
                     else
                     {
                         Plugin.Log.LogWarning("Could not find Instance field, looking for fields:");
@@ -144,16 +146,20 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                     _showHitmarkerMethod = _hitmarkerCanvasBehaviourType.GetMethod("ShowHitmarker",
                         BindingFlags.Public | BindingFlags.Instance);
 
-                    if (_showHitmarkerMethod != null);
-                    //Plugin.LogInfo("Found ShowHitmarker method");
+                    if (_showHitmarkerMethod != null)
+                    {
+                        //Plugin.LogInfo("Found ShowHitmarker method");
+                    }
                     else
                         Plugin.Log.LogWarning("Could not find ShowHitmarker method");
 
                     _showKillMessageMethod = _hitmarkerCanvasBehaviourType.GetMethod("ShowKillMessage",
                         BindingFlags.Public | BindingFlags.Instance);
 
-                    if (_showKillMessageMethod != null);
-                    //Plugin.LogInfo("Found ShowKillMessage method");
+                    if (_showKillMessageMethod != null)
+                    {
+                        //Plugin.LogInfo("Found ShowKillMessage method");
+                    }
                     else
                         Plugin.Log.LogWarning("Could not find ShowKillMessage method");
 

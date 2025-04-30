@@ -12,7 +12,7 @@ using static EverythingCanDieAlternative.Plugin;
 
 namespace EverythingCanDieAlternative
 {
-    public static class NetworkedHealthManager
+    public static class HealthManager
     {
         // Add a counter to ensure unique network variable names
         private static int networkVarCounter = 0;
@@ -77,7 +77,7 @@ namespace EverythingCanDieAlternative
             // Create our hit message IMMEDIATELY at startup - not waiting for network
             CreateNetworkMessages();
 
-            Plugin.Log.LogInfo("Networked Health Manager initialized");
+            Plugin.LogInfo("Networked Health Manager initialized");
         }
 
         private static void CreateNetworkMessages()
@@ -85,7 +85,7 @@ namespace EverythingCanDieAlternative
             try
             {
                 // Create the hit message
-                hitMessage = LNetworkMessage<HitData>.Create("ECD_HitMessage",
+                hitMessage = LNetworkMessage<HitData>.Create("ECDA_HitMessage",
                     // First param: server receive callback
                     (hitData, clientId) =>
                     {
@@ -122,7 +122,7 @@ namespace EverythingCanDieAlternative
                     });
 
                 // Create the despawn message (server to clients)
-                despawnMessage = LNetworkMessage<int>.Create("ECD_DespawnMessage",
+                despawnMessage = LNetworkMessage<int>.Create("ECDA_DespawnMessage",
                     // This is the client-side receiver
                     (enemyIndex, clientId) =>
                     {
@@ -260,7 +260,7 @@ namespace EverythingCanDieAlternative
 
                     // Create a unique identifier for this enemy's health
                     // Add a counter to ensure uniqueness over multiple moons
-                    string varName = $"ECD_Health_{enemy.thisEnemyIndex}_{networkVarCounter++}";
+                    string varName = $"ECDA_Health_{enemy.thisEnemyIndex}_{networkVarCounter++}";
 
                     // Store the variable name for this instance ID
                     enemyNetworkVarNames[instanceId] = varName;
@@ -286,7 +286,7 @@ namespace EverythingCanDieAlternative
                             Plugin.Log.LogError($"Failed to create network variable {varName}: {ex.Message}");
 
                             // Try with a different name if there was a duplicate
-                            varName = $"ECD_Health_{enemy.thisEnemyIndex}_{networkVarCounter++}_Retry";
+                            varName = $"ECDA_Health_{enemy.thisEnemyIndex}_{networkVarCounter++}_Retry";
                             Plugin.LogInfo($"Retrying with new variable name: {varName}");
 
                             // Store the new variable name
@@ -412,7 +412,7 @@ namespace EverythingCanDieAlternative
             {
                 // For immortal enemies, just refresh their HP to 999 and don't process damage
                 enemy.enemyHP = 999;
-                Plugin.Log.LogInfo($"Refreshed immortal enemy {enemy.enemyType.enemyName} HP to 999");
+                Plugin.LogInfo($"Refreshed immortal enemy {enemy.enemyType.enemyName} HP to 999");
                 return;
             }
 
@@ -519,7 +519,7 @@ namespace EverythingCanDieAlternative
                 int currentHealth = healthVar.Value;
                 int newHealth = Mathf.Max(0, currentHealth - damage);
 
-                Plugin.Log.LogInfo($"Enemy {enemy.enemyType.enemyName} damaged for {damage}: {currentHealth} -> {newHealth}");
+                Plugin.LogInfo($"Enemy {enemy.enemyType.enemyName} damaged for {damage}: {currentHealth} -> {newHealth}");
 
                 // Update the NetworkVariable (this will sync to all clients)
                 healthVar.Value = newHealth;

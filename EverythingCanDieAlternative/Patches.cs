@@ -75,10 +75,10 @@ namespace EverythingCanDieAlternative
                 Plugin.Instance.Config.Reload();
                 EnemyControlConfiguration.Instance.ReloadConfig();
                 DespawnConfiguration.Instance.ReloadConfig();
-                Plugin.Log.LogInfo("All configurations reloaded from files");
+                Plugin.LogInfo("All configurations reloaded from files");
 
                 // Initialize our network health system
-                NetworkedHealthManager.Initialize();
+                HealthManager.Initialize();
 
                 // Find all available enemy types in the game
                 Plugin.enemies = new List<EnemyType>(Resources.FindObjectsOfTypeAll<EnemyType>());
@@ -140,7 +140,7 @@ namespace EverythingCanDieAlternative
                 // Process existing enemies in the scene
                 ProcessExistingEnemies();
 
-                Plugin.LogInfo("StartOfRoundPostfix completed successfully");
+                Log.LogInfo("StartOfRoundPostfix completed successfully");
             }
             catch (Exception ex)
             {
@@ -160,7 +160,7 @@ namespace EverythingCanDieAlternative
                 {
                     if (enemy?.enemyType == null) continue;
                     Plugin.LogInfo($"Setting up enemy: {enemy.enemyType.enemyName}");
-                    NetworkedHealthManager.SetupEnemy(enemy);
+                    HealthManager.SetupEnemy(enemy);
                 }
             }
             catch (Exception ex)
@@ -177,7 +177,7 @@ namespace EverythingCanDieAlternative
                 if (__instance?.enemyType == null) return;
 
                 // When a new enemy spawns, set it up in our system
-                NetworkedHealthManager.SetupEnemy(__instance);
+                HealthManager.SetupEnemy(__instance);
             }
             catch (Exception ex)
             {
@@ -193,7 +193,7 @@ namespace EverythingCanDieAlternative
             {
                 if (__instance == null || __instance.isEnemyDead) return true;
 
-                Plugin.Log.LogInfo($"Local hit detected on {__instance.enemyType.enemyName} from {(playerWhoHit?.playerUsername ?? "unknown")} with force {force}");
+                Plugin.LogInfo($"Local hit detected on {__instance.enemyType.enemyName} from {(playerWhoHit?.playerUsername ?? "unknown")} with force {force}");
 
                 // Check for LethalHands compatibility
                 var lethalHandsHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.LethalHandsCompatibility>("SlapitNow.LethalHands");
@@ -201,11 +201,11 @@ namespace EverythingCanDieAlternative
 
                 if (isLethalHandsPunch)
                 {
-                    Plugin.Log.LogInfo($"Detected LethalHands punch with force {force}");
+                    Plugin.LogInfo($"Detected LethalHands punch with force {force}");
                 }
 
                 // Process with our health system
-                NetworkedHealthManager.ProcessHit(__instance, force, playerWhoHit);
+                HealthManager.ProcessHit(__instance, force, playerWhoHit);
 
                 // For LethalHands punches, we need special handling
                 if (isLethalHandsPunch)
@@ -240,7 +240,7 @@ namespace EverythingCanDieAlternative
                 {
                     // Reset HP to 999 to ensure immortality
                     __instance.enemyHP = 999;
-                    Plugin.Log.LogInfo($"HitEnemyPrefix: Refreshed immortal enemy {enemyName} HP to 999");
+                    Plugin.LogInfo($"HitEnemyPrefix: Refreshed immortal enemy {enemyName} HP to 999");
 
                     // Still let the vanilla method run for sound effects and animations
                     return true;
@@ -283,7 +283,7 @@ namespace EverythingCanDieAlternative
                 var brutalCompanyHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.BrutalCompanyMinusCompatibility>("SoftDiamond.BrutalCompanyMinusExtraReborn");
                 if (brutalCompanyHandler != null && brutalCompanyHandler.IsInstalled)
                 {
-                    Plugin.Log.LogInfo("Refreshing BrutalCompanyMinus compatibility data after level generation");
+                    Plugin.LogInfo("Refreshing BrutalCompanyMinus compatibility data after level generation");
                     brutalCompanyHandler.RefreshBonusHp();
                 }
             }
