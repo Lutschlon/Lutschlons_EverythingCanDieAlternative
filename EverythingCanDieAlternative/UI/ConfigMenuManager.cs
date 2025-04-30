@@ -19,7 +19,6 @@ namespace EverythingCanDieAlternative.UI
         private GameObject menuPanel;
         private RectTransform enemyListContent;
         private GameObject enemyConfigPanel;
-        private TMP_Dropdown categoryDropdown;
 
         // Configuration data
         private List<EnemyConfigData> enemyConfigs = new List<EnemyConfigData>();
@@ -34,7 +33,7 @@ namespace EverythingCanDieAlternative.UI
         // Flag to prevent duplicate refresh
         private static bool refreshScheduled = false;
 
-        // Add these to the ConfigMenuManager class fields
+        // Search field
         private TMP_InputField searchInputField;
         private string lastSearchText = "";
 
@@ -45,8 +44,7 @@ namespace EverythingCanDieAlternative.UI
             {
                 searchInputField.text = "";
                 lastSearchText = "";
-                // Reapply category filter without search
-                FilterEnemyList(categoryDropdown.value);
+                FilterEnemyList(lastSearchText);
             }
         }
 
@@ -87,7 +85,7 @@ namespace EverythingCanDieAlternative.UI
             }
 
             // Apply initial filter with last search text
-            FilterEnemyList(categoryDropdown.value, lastSearchText);
+            FilterEnemyList(lastSearchText);
 
             // Clear selection
             selectedEnemyName = null;
@@ -144,7 +142,6 @@ namespace EverythingCanDieAlternative.UI
                 menuManager.ScheduleRefresh();
             }
         }
-
 
         private IEnumerator DelayedRefresh()
         {
@@ -208,29 +205,6 @@ namespace EverythingCanDieAlternative.UI
                 {
                     panelImage.color = new Color(0.1f, 0.1f, 0.1f, 0.95f);
                 }
-
-                // Remove or comment out the title since it overlaps with buttons
-                /* 
-                var titleObj = UIHelper.CreateText(mainPanelObj.transform, "Title", "ENEMY CONFIGURATION");
-                if (titleObj != null)
-                {
-                    var titleRectTransform = titleObj.GetComponent<RectTransform>();
-                    titleRectTransform.anchorMin = new Vector2(0, 1);
-                    titleRectTransform.anchorMax = new Vector2(1, 1);
-                    titleRectTransform.pivot = new Vector2(0.5f, 1);
-                    titleRectTransform.sizeDelta = new Vector2(0, 50);
-                    titleRectTransform.anchoredPosition = new Vector2(0, 0);
-
-                    // Style the title text
-                    var titleText = titleObj.GetComponent<TextMeshProUGUI>();
-                    if (titleText != null)
-                    {
-                        titleText.fontSize = 24;
-                        titleText.fontStyle = FontStyles.Bold;
-                        titleText.color = new Color(1f, 0.9f, 0.5f, 1f);
-                    }
-                }
-                */
 
                 // Create close button styled like in-game
                 var closeButtonObj = UIHelper.CreateButton(mainPanelObj.transform, "CloseButton", "X", () => {
@@ -418,38 +392,6 @@ namespace EverythingCanDieAlternative.UI
                     return;
                 }
 
-                // Create category dropdown with LC style
-                var dropdownObj = new GameObject("CategoryDropdown");
-                dropdownObj.transform.SetParent(enemyListPanel.transform, false);
-
-                var dropdownRectTransform = dropdownObj.AddComponent<RectTransform>();
-                dropdownRectTransform.anchorMin = new Vector2(0, 1);
-                dropdownRectTransform.anchorMax = new Vector2(1, 1);
-                dropdownRectTransform.pivot = new Vector2(0.5f, 1);
-                dropdownRectTransform.sizeDelta = new Vector2(-20, 30);
-                dropdownRectTransform.anchoredPosition = new Vector2(0, -35);
-
-                var dropdown = dropdownObj.AddComponent<TMP_Dropdown>();
-                menuManager.categoryDropdown = dropdown;
-
-                // Style the dropdown to match LC
-                var dropdownImage = dropdownObj.GetComponent<Image>();
-                if (dropdownImage != null)
-                {
-                    dropdownImage.color = new Color(0.2f, 0.2f, 0.2f, 1f);
-                }
-
-                // Add dropdown options
-                dropdown.options.Add(new TMP_Dropdown.OptionData("All Enemies"));
-                dropdown.options.Add(new TMP_Dropdown.OptionData("Enabled"));
-                dropdown.options.Add(new TMP_Dropdown.OptionData("Disabled"));
-                dropdown.options.Add(new TMP_Dropdown.OptionData("Killable"));
-                dropdown.options.Add(new TMP_Dropdown.OptionData("Immortal"));
-
-                dropdown.onValueChanged.AddListener((index) => {
-                    menuManager.FilterEnemyList(index);
-                });
-
                 // Create search field for enemies with LC styling
                 var searchContainer = new GameObject("SearchContainer");
                 searchContainer.transform.SetParent(enemyListPanel.transform, false);
@@ -459,7 +401,7 @@ namespace EverythingCanDieAlternative.UI
                 searchContainerRect.anchorMax = new Vector2(1, 1);
                 searchContainerRect.pivot = new Vector2(0.5f, 1);
                 searchContainerRect.sizeDelta = new Vector2(-20, 30);
-                searchContainerRect.anchoredPosition = new Vector2(0, -35);  // Original position below dropdown
+                searchContainerRect.anchoredPosition = new Vector2(0, -35);
 
                 // Create search field background
                 var searchBg = searchContainer.AddComponent<Image>();
@@ -524,10 +466,10 @@ namespace EverythingCanDieAlternative.UI
 
                 // Add event listener for search input
                 searchInput.onValueChanged.AddListener((searchText) => {
-                    menuManager.FilterEnemyList(menuManager.categoryDropdown.value, searchText);
+                    menuManager.FilterEnemyList(searchText);
                 });
 
-                // Use original positioning for scroll view (don't adjust for search field position change)
+                // Use original positioning for scroll view
                 enemyScrollRectTransform.anchoredPosition = new Vector2(0, -45);
                 enemyScrollRectTransform.sizeDelta = new Vector2(240, 430); // Original size
 
@@ -596,7 +538,6 @@ namespace EverythingCanDieAlternative.UI
             }
         }
 
-
         private void CreateEnemyListEntry(EnemyConfigData config)
         {
             // Create stylized list entry
@@ -649,8 +590,8 @@ namespace EverythingCanDieAlternative.UI
             enemyEntries[config.Name] = entryObj;
         }
 
-        // Update the FilterEnemyList method to handle search text
-        private void FilterEnemyList(int filterIndex, string searchText = "")
+        // Simplified FilterEnemyList method that only uses search text
+        private void FilterEnemyList(string searchText = "")
         {
             // Normalize search text for case-insensitive comparison
             searchText = searchText?.ToLower() ?? "";
@@ -663,34 +604,11 @@ namespace EverythingCanDieAlternative.UI
                 var config = enemyConfigs.Find(c => c.Name == entry.Key);
                 if (config == null) continue;
 
-                bool visibleByCategory = false;
-
-                // Check category filter first
-                switch (filterIndex)
-                {
-                    case 0: // All
-                        visibleByCategory = true;
-                        break;
-                    case 1: // Enabled
-                        visibleByCategory = config.IsEnabled;
-                        break;
-                    case 2: // Disabled
-                        visibleByCategory = !config.IsEnabled;
-                        break;
-                    case 3: // Killable
-                        visibleByCategory = config.IsEnabled && config.CanDie;
-                        break;
-                    case 4: // Immortal
-                        visibleByCategory = config.IsEnabled && !config.CanDie;
-                        break;
-                }
-
-                // Now check if the enemy name contains the search text
+                // Show/hide based on search text
                 bool visibleBySearch = string.IsNullOrEmpty(searchText) ||
                                       config.Name.ToLower().Contains(searchText);
 
-                // Enemy is visible only if it passes both filters
-                entry.Value.SetActive(visibleByCategory && visibleBySearch);
+                entry.Value.SetActive(visibleBySearch);
             }
 
             // Update UI to indicate if no results found
@@ -954,8 +872,6 @@ namespace EverythingCanDieAlternative.UI
                 Plugin.LogError($"Error in UpdateConfigPanel: {ex.Message}\nStack trace: {ex.StackTrace}");
             }
         }
-
-        // In the ConfigMenuManager.cs file, update the UpdateSelectorEnablements method:
 
         private void UpdateSelectorEnablements(GameObject controlsPanel, bool isEnabled)
         {
