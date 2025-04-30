@@ -1,5 +1,6 @@
 ## Version 1.1.56
 - Updated nearly all info log entries to be hidden when `EnableInfoLogs` is deactivated
+- WIP UI stuff
 
 ##
 ###### Version 1.1.55 (unreleased) - backend stuff, updated ReadMe, network messages are now prefixed with ECDA instead of ECD
