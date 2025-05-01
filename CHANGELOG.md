@@ -1,5 +1,5 @@
 ## Version 1.1.56
-- Added selected enemy images to the config UI so you can get a grasp of what the enemy looks like. Is toggled off by default, may spoiler you and your friends of how enemis look like so use with caution <details><summary>Click for details</summary>- The preview images are screenshots i made and edited, they are "hardcoded" and if i didnt made a screenshot for that enemy no preview will be shown</details>
+- Added preview images for a few selected enemies to the config UI. Is toggled off by default, may spoiler you and your friends of how enemis look like so use with caution. <details><summary>Click for details</summary>- Should help new users understanding what name refers to what actual enemy. <br>- The preview images are screenshots i made and edited. If i didnt made a screenshot for that enemy no preview will be shown.</details>
 - Updated nearly all info log entries to be hidden when `EnableInfoLogs` is deactivated
 
 ##
