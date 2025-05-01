@@ -48,7 +48,6 @@ namespace EverythingCanDieAlternative.UI
             }
         }
 
-        // Update the Schedule refresh method to also clear search
         private void ScheduleRefresh()
         {
             if (!refreshScheduled)
@@ -223,22 +222,6 @@ namespace EverythingCanDieAlternative.UI
                     closeButtonRectTransform.anchoredPosition = new Vector2(-10, -10);
                 }
 
-                // Create the refresh button directly in the main panel
-                var refreshButtonObj = UIHelper.CreateButton(mainPanelObj.transform, "RefreshButton", "REFRESH", () => {
-                    PlayConfirmSFX();
-                    menuManager.ScheduleRefresh();
-                });
-
-                if (refreshButtonObj != null)
-                {
-                    var refreshButtonRectTransform = refreshButtonObj.GetComponent<RectTransform>();
-                    refreshButtonRectTransform.anchorMin = new Vector2(0, 1);
-                    refreshButtonRectTransform.anchorMax = new Vector2(0, 1);
-                    refreshButtonRectTransform.pivot = new Vector2(0, 1);
-                    refreshButtonRectTransform.sizeDelta = new Vector2(100, 40);
-                    refreshButtonRectTransform.anchoredPosition = new Vector2(10, -10);
-                }
-
                 // Add the "Hide Menu" Yes/No toggle using the same method as enemy settings
                 var hideMenuSelector = UIHelper.CreateYesNoSelector(
                     mainPanelObj.transform,
@@ -257,14 +240,14 @@ namespace EverythingCanDieAlternative.UI
                     hideMenuRect.anchorMin = new Vector2(0, 1);
                     hideMenuRect.anchorMax = new Vector2(0, 1);
                     hideMenuRect.pivot = new Vector2(0, 1);
-                    hideMenuRect.sizeDelta = new Vector2(160, 30); // Decreased width to tighten spacing
-                    hideMenuRect.anchoredPosition = new Vector2(170, -15);
+                    hideMenuRect.sizeDelta = new Vector2(160, 30);
+                    hideMenuRect.anchoredPosition = new Vector2(40, -15); // Changed from 10 to 40 to move right
 
                     // Fix internal spacing - get the Label component and adjust it
                     var label = hideMenuSelector.transform.Find("Label")?.GetComponent<RectTransform>();
                     if (label != null)
                     {
-                        label.sizeDelta = new Vector2(80, 30); // Smaller width for label
+                        label.sizeDelta = new Vector2(80, 30);
                     }
                 }
 
@@ -286,14 +269,56 @@ namespace EverythingCanDieAlternative.UI
                     lessLogsRect.anchorMin = new Vector2(0, 1);
                     lessLogsRect.anchorMax = new Vector2(0, 1);
                     lessLogsRect.pivot = new Vector2(0, 1);
-                    lessLogsRect.sizeDelta = new Vector2(150, 30); // Decreased width to tighten spacing
-                    lessLogsRect.anchoredPosition = new Vector2(410, -15);
+                    lessLogsRect.sizeDelta = new Vector2(150, 30);
+                    lessLogsRect.anchoredPosition = new Vector2(260, -15);
 
                     // Fix internal spacing - get the Label component and adjust it
                     var label = lessLogsSelector.transform.Find("Label")?.GetComponent<RectTransform>();
                     if (label != null)
                     {
-                        label.sizeDelta = new Vector2(70, 30); // Smaller width for label
+                        label.sizeDelta = new Vector2(70, 30);
+                    }
+                }
+
+                // Add the "Show Images" Yes/No toggle 
+                var showImagesSelector = UIHelper.CreateYesNoSelector(
+                    mainPanelObj.transform,
+                    "ShowImagesSelector",
+                    "Show Images:",
+                    UIConfiguration.Instance.ShouldShowEnemyImages(),
+                    (showImages) => {
+                        PlayConfirmSFX();
+                        UIConfiguration.Instance.SetShowEnemyImages(showImages);
+                        UIConfiguration.Instance.Save();
+
+                        // Update the current enemy display if one is selected
+                        var configManager = menuPrefab.GetComponent<ConfigMenuManager>();
+                        if (configManager != null)
+                        {
+                            if (!string.IsNullOrEmpty(configManager.selectedEnemyName))
+                            {
+                                configManager.UpdateConfigPanel();
+                            }
+
+                            // Also refresh the enemy list to ensure everything is up to date
+                            configManager.ScheduleRefresh();
+                        }
+                    });
+
+                if (showImagesSelector != null)
+                {
+                    var showImagesRect = showImagesSelector.GetComponent<RectTransform>();
+                    showImagesRect.anchorMin = new Vector2(0, 1);
+                    showImagesRect.anchorMax = new Vector2(0, 1);
+                    showImagesRect.pivot = new Vector2(0, 1);
+                    showImagesRect.sizeDelta = new Vector2(170, 30);
+                    showImagesRect.anchoredPosition = new Vector2(470, -15);
+
+                    // Fix internal spacing - get the Label component and adjust it
+                    var label = showImagesSelector.transform.Find("Label")?.GetComponent<RectTransform>();
+                    if (label != null)
+                    {
+                        label.sizeDelta = new Vector2(100, 30);
                     }
                 }
 
@@ -530,6 +555,9 @@ namespace EverythingCanDieAlternative.UI
                     }
                 }
 
+                // Initialize the image loader
+                EnemyImageLoader.Initialize();
+
                 Plugin.LogInfo("Config menu created successfully");
             }
             catch (Exception ex)
@@ -717,13 +745,14 @@ namespace EverythingCanDieAlternative.UI
                 controlsRectTransform.anchorMin = new Vector2(0.5f, 0.5f);
                 controlsRectTransform.anchorMax = new Vector2(0.5f, 0.5f);
                 controlsRectTransform.pivot = new Vector2(0.5f, 0.5f);
-                controlsRectTransform.anchoredPosition = new Vector2(0, -30);
+                controlsRectTransform.anchoredPosition = new Vector2(0, 30);
+                controlsRectTransform.sizeDelta = new Vector2(480, 380);
 
                 // Style the controls panel
                 var panelImage = controlsPanel.GetComponent<Image>();
                 if (panelImage != null)
                 {
-                    panelImage.color = new Color(0.15f, 0.15f, 0.15f, 0.95f);
+                    panelImage.color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
                 }
 
                 // Add content layout
@@ -866,6 +895,9 @@ namespace EverythingCanDieAlternative.UI
 
                 // Update selector enablements based on current settings
                 UpdateSelectorEnablements(controlsPanel, config.IsEnabled);
+
+                // Update the enemy image display
+                UpdateEnemyImageVisibility(controlsPanel, config.Name);
             }
             catch (Exception ex)
             {
@@ -923,6 +955,102 @@ namespace EverythingCanDieAlternative.UI
             }
         }
 
+        /// <summary>
+        /// Shows or hides the enemy image based on the configuration setting
+        /// </summary>
+        private void UpdateEnemyImageVisibility(GameObject controlsPanel, string enemyName)
+        {
+            try
+            {
+                // Find the image container if it exists
+                var imageContainer = controlsPanel.transform.Find("ImageContainer")?.gameObject;
+
+                // If it doesn't exist and images are enabled, create it
+                if (imageContainer == null && UIConfiguration.Instance.ShouldShowEnemyImages())
+                {
+                    // Create a container for the image - no background
+                    imageContainer = new GameObject("ImageContainer");
+                    imageContainer.transform.SetParent(controlsPanel.transform, false);
+
+                    // Position the container at the BOTTOM of the layout
+                    imageContainer.transform.SetAsLastSibling();
+
+                    // Set up the rect transform
+                    var imageContainerRect = imageContainer.AddComponent<RectTransform>();
+                    imageContainerRect.sizeDelta = new Vector2(0, 180);
+
+                    // Add layout element for spacing
+                    var layoutElement = imageContainer.AddComponent<LayoutElement>();
+                    layoutElement.minHeight = 180;
+                    layoutElement.preferredHeight = 180;
+                    layoutElement.flexibleHeight = 0;
+                    
+
+                    // Create the image display
+                    var imageObj = new GameObject("EnemyImage");
+                    imageObj.transform.SetParent(imageContainer.transform, false);
+
+                    var imageRect = imageObj.AddComponent<RectTransform>();
+                    imageRect.anchorMin = new Vector2(0.5f, 0.5f);
+                    imageRect.anchorMax = new Vector2(0.5f, 0.5f);
+                    imageRect.pivot = new Vector2(0.5f, 0.5f);
+                    imageRect.sizeDelta = new Vector2(170, 170);
+
+                    // Add the actual image component
+                    var imageComponent = imageObj.AddComponent<Image>();
+                    imageComponent.preserveAspect = true;
+                }
+
+                // Now show/hide the image
+                if (imageContainer != null)
+                {
+                    if (UIConfiguration.Instance.ShouldShowEnemyImages() && !string.IsNullOrEmpty(enemyName))
+                    {
+                        // Try to load the texture first to see if we should show the container
+                        var texture = EnemyImageLoader.GetEnemyTexture(enemyName);
+                        if (texture != null)
+                        {
+                            imageContainer.SetActive(true);
+
+                            // Find the image component
+                            var imageObj = imageContainer.transform.Find("EnemyImage");
+                            if (imageObj != null)
+                            {
+                                var image = imageObj.GetComponent<Image>();
+                                if (image != null)
+                                {
+                                    // Create a sprite from the texture
+                                    var sprite = Sprite.Create(
+                                        texture,
+                                        new Rect(0, 0, texture.width, texture.height),
+                                        new Vector2(0.5f, 0.5f)
+                                    );
+
+                                    // Set the sprite
+                                    image.sprite = sprite;
+                                    image.preserveAspect = true;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // No image available, hide the container
+                            imageContainer.SetActive(false);
+                        }
+                    }
+                    else
+                    {
+                        // Images disabled or no enemy selected, hide the container
+                        imageContainer.SetActive(false);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError($"Error updating enemy image visibility: {ex.Message}");
+            }
+        }
+
         private void SaveCurrentEnemyConfig()
         {
             if (string.IsNullOrEmpty(selectedEnemyName)) return;
@@ -946,6 +1074,12 @@ namespace EverythingCanDieAlternative.UI
                     }
                 }
             }
+        }
+
+        private void OnDisable()
+        {
+            // Clear the image cache when the menu is closed
+            EnemyImageLoader.ClearCache();
         }
     }
 }
