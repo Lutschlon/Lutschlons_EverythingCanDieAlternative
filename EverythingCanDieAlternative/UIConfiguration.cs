@@ -11,6 +11,7 @@ namespace EverythingCanDieAlternative.UI
         // Static config entries that LethalConfig will automatically detect
         public static ConfigEntry<bool> EnableConfigMenu;
         public static ConfigEntry<bool> EnableInfoLogs;
+        public static ConfigEntry<bool> ShowEnemyImages;
 
         // Private instance
         private static UIConfiguration _instance;
@@ -36,6 +37,13 @@ namespace EverythingCanDieAlternative.UI
                     "EnableInfoLogs",
                     true,
                     "If set to false, info logs will be suppressed to reduce console spam"
+                );
+
+                ShowEnemyImages = Plugin.Instance.Config.Bind(
+                    "General",
+                    "ShowEnemyImages",
+                    false,
+                    "If set to true, preview images for enemies will be shown in the config menu if available"
                 );
 
                 //Plugin.Log.LogInfo("UI configuration loaded from plugin config");
@@ -72,6 +80,16 @@ namespace EverythingCanDieAlternative.UI
         }
 
         /// <summary>
+        /// Check if enemy images should be shown
+        /// </summary>
+        public bool ShouldShowEnemyImages()
+        {
+            // In case of initialization error, default to false
+            if (!IsInitialized || ShowEnemyImages == null) return false;
+            return ShowEnemyImages.Value;
+        }
+
+        /// <summary>
         /// Set whether info logs should be shown
         /// </summary>
         public void SetInfoLogsEnabled(bool enabled)
@@ -92,6 +110,18 @@ namespace EverythingCanDieAlternative.UI
             {
                 EnableConfigMenu.Value = enabled;
                 Plugin.Log.LogInfo($"Config menu {(enabled ? "enabled" : "disabled")}");
+            }
+        }
+
+        /// <summary>
+        /// Set whether enemy images should be shown
+        /// </summary>
+        public void SetShowEnemyImages(bool enabled)
+        {
+            if (IsInitialized && ShowEnemyImages != null)
+            {
+                ShowEnemyImages.Value = enabled;
+                Plugin.Log.LogInfo($"Enemy images {(enabled ? "enabled" : "disabled")}");
             }
         }
 
