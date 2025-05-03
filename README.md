@@ -13,11 +13,12 @@ In order to generate the enemy configs: <br>
 Start the game > host a lobby > quit the lobby > check out the EverythingCanDieAlt menu or the .cfg files<br>
 If you add more enemies to your modpack you will need to host a game once more to generate their configs
 <br>
-- In the configuration UI you can make enemies killable, configure their health and despawn behaviour. You can enable preview images for a few selected enemies (may spoiler you!)
+- In the configuration UI you can make enemies killable, configure their health and despawn behaviour, or disable my mod for the specific enemy
+- You can enable preview images for a few selected enemies (may spoiler you!)
 
 ![](https://i.imgur.com/lcxxKto.png)
 
-- The menu can be hidden / shown with `LethalConfig` as well
+- The menu can be hidden / shown with `LethalConfig` or inside the `nwnt.EverythingCanDieAlternative.cfg` under `EnableConfigMenu`
 ____
 <details>
   <summary>Click for help for the .cfg files</summary>
