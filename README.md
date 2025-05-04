@@ -2,20 +2,23 @@
 
 This mod makes every enemy in the game killable with configurable hp. It works with any modded weapon and any modded enemy.
 - Easly configurable via UI
-- You can of course leave enemies immortal in the config to hit the right balance, you can also disable my mod for enemies if you want to 100% preserve their original behaviour
+- You can leave enemies immortal in the config to hit the right balance, you can also disable my mod for enemies if you want to 100% preserve their original behaviour
 - This mod despawns dead enemies by itself (configurable)
 - This mod is compatible with see [Mod Compatibilities Table](#Mod-Compatibilities) below
 
-> <details><summary> Differences from Original Mod</summary>- No separate shotgun/melee weapon settings<br>- No Explosion Effects: Enemies simply despawn or play their death animation if allowed to by the despawn config<br>- An alternative version of the EverythingCanDie mod from TheFluff as it did not work for me with a few modded enemies</details>
+> <details><summary> Differences from Original Mod</summary>- No separate shotgun/melee weapon settings<br>- No Explosion Effects on death<br>- An alternative version of the EverythingCanDie mod from TheFluff as it did not work for me with a few modded enemies</details>
 
 ## Configuration
 In order to generate the enemy configs: <br>
 Start the game > host a lobby > quit the lobby > check out the EverythingCanDieAlt menu or the .cfg files<br>
 If you add more enemies to your modpack you will need to host a game once more to generate their configs
+<br>
+- In the configuration UI you can make enemies killable, configure their health and despawn behaviour, or disable my mod for the specific enemy
+- You can enable preview images for a few selected enemies (may spoiler you!)
 
-![](https://i.imgur.com/jMikt8q.png)
+![](https://i.imgur.com/lcxxKto.png)
 
-- The menu can be hidden / shown with `LethalConfig` as well
+- The menu can be hidden / shown with `LethalConfig` or inside the `nwnt.EverythingCanDieAlternative.cfg` under `EnableConfigMenu`
 ____
 <details>
   <summary>Click for help for the .cfg files</summary>
@@ -32,6 +35,7 @@ ____
       </ul>
       <li><code>EnableConfigMenu</code> - Toggle if the configuration ui should be shown in the main menu</li>
       <li><code>EnableInfoLogs</code> - Toggle if info logs should be logged in the console</li>
+      <li><code>ShowEnemyImages</code> - Toggle if preview images should be shown in the configuration ui</li>
     </li>
   </ul>
 

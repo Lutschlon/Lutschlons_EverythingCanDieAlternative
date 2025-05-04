@@ -19,7 +19,6 @@ namespace EverythingCanDieAlternative.UI
         private GameObject menuPanel;
         private RectTransform enemyListContent;
         private GameObject enemyConfigPanel;
-        private TMP_Dropdown categoryDropdown;
 
         // Configuration data
         private List<EnemyConfigData> enemyConfigs = new List<EnemyConfigData>();
@@ -34,7 +33,7 @@ namespace EverythingCanDieAlternative.UI
         // Flag to prevent duplicate refresh
         private static bool refreshScheduled = false;
 
-        // Add these to the ConfigMenuManager class fields
+        // Search field
         private TMP_InputField searchInputField;
         private string lastSearchText = "";
 
@@ -45,12 +44,10 @@ namespace EverythingCanDieAlternative.UI
             {
                 searchInputField.text = "";
                 lastSearchText = "";
-                // Reapply category filter without search
-                FilterEnemyList(categoryDropdown.value);
+                FilterEnemyList(lastSearchText);
             }
         }
 
-        // Update the Schedule refresh method to also clear search
         private void ScheduleRefresh()
         {
             if (!refreshScheduled)
@@ -87,7 +84,7 @@ namespace EverythingCanDieAlternative.UI
             }
 
             // Apply initial filter with last search text
-            FilterEnemyList(categoryDropdown.value, lastSearchText);
+            FilterEnemyList(lastSearchText);
 
             // Clear selection
             selectedEnemyName = null;
@@ -144,7 +141,6 @@ namespace EverythingCanDieAlternative.UI
                 menuManager.ScheduleRefresh();
             }
         }
-
 
         private IEnumerator DelayedRefresh()
         {
@@ -209,29 +205,6 @@ namespace EverythingCanDieAlternative.UI
                     panelImage.color = new Color(0.1f, 0.1f, 0.1f, 0.95f);
                 }
 
-                // Remove or comment out the title since it overlaps with buttons
-                /* 
-                var titleObj = UIHelper.CreateText(mainPanelObj.transform, "Title", "ENEMY CONFIGURATION");
-                if (titleObj != null)
-                {
-                    var titleRectTransform = titleObj.GetComponent<RectTransform>();
-                    titleRectTransform.anchorMin = new Vector2(0, 1);
-                    titleRectTransform.anchorMax = new Vector2(1, 1);
-                    titleRectTransform.pivot = new Vector2(0.5f, 1);
-                    titleRectTransform.sizeDelta = new Vector2(0, 50);
-                    titleRectTransform.anchoredPosition = new Vector2(0, 0);
-
-                    // Style the title text
-                    var titleText = titleObj.GetComponent<TextMeshProUGUI>();
-                    if (titleText != null)
-                    {
-                        titleText.fontSize = 24;
-                        titleText.fontStyle = FontStyles.Bold;
-                        titleText.color = new Color(1f, 0.9f, 0.5f, 1f);
-                    }
-                }
-                */
-
                 // Create close button styled like in-game
                 var closeButtonObj = UIHelper.CreateButton(mainPanelObj.transform, "CloseButton", "X", () => {
                     // Play cancel sound when closing
@@ -247,22 +220,6 @@ namespace EverythingCanDieAlternative.UI
                     closeButtonRectTransform.pivot = new Vector2(1, 1);
                     closeButtonRectTransform.sizeDelta = new Vector2(40, 40);
                     closeButtonRectTransform.anchoredPosition = new Vector2(-10, -10);
-                }
-
-                // Create the refresh button directly in the main panel
-                var refreshButtonObj = UIHelper.CreateButton(mainPanelObj.transform, "RefreshButton", "REFRESH", () => {
-                    PlayConfirmSFX();
-                    menuManager.ScheduleRefresh();
-                });
-
-                if (refreshButtonObj != null)
-                {
-                    var refreshButtonRectTransform = refreshButtonObj.GetComponent<RectTransform>();
-                    refreshButtonRectTransform.anchorMin = new Vector2(0, 1);
-                    refreshButtonRectTransform.anchorMax = new Vector2(0, 1);
-                    refreshButtonRectTransform.pivot = new Vector2(0, 1);
-                    refreshButtonRectTransform.sizeDelta = new Vector2(100, 40);
-                    refreshButtonRectTransform.anchoredPosition = new Vector2(10, -10);
                 }
 
                 // Add the "Hide Menu" Yes/No toggle using the same method as enemy settings
@@ -283,14 +240,14 @@ namespace EverythingCanDieAlternative.UI
                     hideMenuRect.anchorMin = new Vector2(0, 1);
                     hideMenuRect.anchorMax = new Vector2(0, 1);
                     hideMenuRect.pivot = new Vector2(0, 1);
-                    hideMenuRect.sizeDelta = new Vector2(160, 30); // Decreased width to tighten spacing
-                    hideMenuRect.anchoredPosition = new Vector2(170, -15);
+                    hideMenuRect.sizeDelta = new Vector2(160, 30);
+                    hideMenuRect.anchoredPosition = new Vector2(40, -15); // Changed from 10 to 40 to move right
 
                     // Fix internal spacing - get the Label component and adjust it
                     var label = hideMenuSelector.transform.Find("Label")?.GetComponent<RectTransform>();
                     if (label != null)
                     {
-                        label.sizeDelta = new Vector2(80, 30); // Smaller width for label
+                        label.sizeDelta = new Vector2(80, 30);
                     }
                 }
 
@@ -312,14 +269,53 @@ namespace EverythingCanDieAlternative.UI
                     lessLogsRect.anchorMin = new Vector2(0, 1);
                     lessLogsRect.anchorMax = new Vector2(0, 1);
                     lessLogsRect.pivot = new Vector2(0, 1);
-                    lessLogsRect.sizeDelta = new Vector2(150, 30); // Decreased width to tighten spacing
-                    lessLogsRect.anchoredPosition = new Vector2(410, -15);
+                    lessLogsRect.sizeDelta = new Vector2(150, 30);
+                    lessLogsRect.anchoredPosition = new Vector2(260, -15);
 
                     // Fix internal spacing - get the Label component and adjust it
                     var label = lessLogsSelector.transform.Find("Label")?.GetComponent<RectTransform>();
                     if (label != null)
                     {
-                        label.sizeDelta = new Vector2(70, 30); // Smaller width for label
+                        label.sizeDelta = new Vector2(70, 30);
+                    }
+                }
+
+                // Add the "Show Images" Yes/No toggle 
+                var showImagesSelector = UIHelper.CreateYesNoSelector(
+                    mainPanelObj.transform,
+                    "ShowImagesSelector",
+                    "Show Images:",
+                    UIConfiguration.Instance.ShouldShowEnemyImages(),
+                    (showImages) => {
+                        PlayConfirmSFX();
+                        UIConfiguration.Instance.SetShowEnemyImages(showImages);
+                        UIConfiguration.Instance.Save();
+
+                        // Update the current enemy display if one is selected
+                        var configManager = menuPrefab.GetComponent<ConfigMenuManager>();
+                        if (configManager != null)
+                        {
+                            if (!string.IsNullOrEmpty(configManager.selectedEnemyName))
+                            {
+                                configManager.UpdateConfigPanel();
+                            }
+                        }
+                    });
+
+                if (showImagesSelector != null)
+                {
+                    var showImagesRect = showImagesSelector.GetComponent<RectTransform>();
+                    showImagesRect.anchorMin = new Vector2(0, 1);
+                    showImagesRect.anchorMax = new Vector2(0, 1);
+                    showImagesRect.pivot = new Vector2(0, 1);
+                    showImagesRect.sizeDelta = new Vector2(170, 30);
+                    showImagesRect.anchoredPosition = new Vector2(470, -15);
+
+                    // Fix internal spacing - get the Label component and adjust it
+                    var label = showImagesSelector.transform.Find("Label")?.GetComponent<RectTransform>();
+                    if (label != null)
+                    {
+                        label.sizeDelta = new Vector2(100, 30);
                     }
                 }
 
@@ -418,38 +414,6 @@ namespace EverythingCanDieAlternative.UI
                     return;
                 }
 
-                // Create category dropdown with LC style
-                var dropdownObj = new GameObject("CategoryDropdown");
-                dropdownObj.transform.SetParent(enemyListPanel.transform, false);
-
-                var dropdownRectTransform = dropdownObj.AddComponent<RectTransform>();
-                dropdownRectTransform.anchorMin = new Vector2(0, 1);
-                dropdownRectTransform.anchorMax = new Vector2(1, 1);
-                dropdownRectTransform.pivot = new Vector2(0.5f, 1);
-                dropdownRectTransform.sizeDelta = new Vector2(-20, 30);
-                dropdownRectTransform.anchoredPosition = new Vector2(0, -35);
-
-                var dropdown = dropdownObj.AddComponent<TMP_Dropdown>();
-                menuManager.categoryDropdown = dropdown;
-
-                // Style the dropdown to match LC
-                var dropdownImage = dropdownObj.GetComponent<Image>();
-                if (dropdownImage != null)
-                {
-                    dropdownImage.color = new Color(0.2f, 0.2f, 0.2f, 1f);
-                }
-
-                // Add dropdown options
-                dropdown.options.Add(new TMP_Dropdown.OptionData("All Enemies"));
-                dropdown.options.Add(new TMP_Dropdown.OptionData("Enabled"));
-                dropdown.options.Add(new TMP_Dropdown.OptionData("Disabled"));
-                dropdown.options.Add(new TMP_Dropdown.OptionData("Killable"));
-                dropdown.options.Add(new TMP_Dropdown.OptionData("Immortal"));
-
-                dropdown.onValueChanged.AddListener((index) => {
-                    menuManager.FilterEnemyList(index);
-                });
-
                 // Create search field for enemies with LC styling
                 var searchContainer = new GameObject("SearchContainer");
                 searchContainer.transform.SetParent(enemyListPanel.transform, false);
@@ -459,7 +423,7 @@ namespace EverythingCanDieAlternative.UI
                 searchContainerRect.anchorMax = new Vector2(1, 1);
                 searchContainerRect.pivot = new Vector2(0.5f, 1);
                 searchContainerRect.sizeDelta = new Vector2(-20, 30);
-                searchContainerRect.anchoredPosition = new Vector2(0, -35);  // Original position below dropdown
+                searchContainerRect.anchoredPosition = new Vector2(0, -35);
 
                 // Create search field background
                 var searchBg = searchContainer.AddComponent<Image>();
@@ -524,10 +488,10 @@ namespace EverythingCanDieAlternative.UI
 
                 // Add event listener for search input
                 searchInput.onValueChanged.AddListener((searchText) => {
-                    menuManager.FilterEnemyList(menuManager.categoryDropdown.value, searchText);
+                    menuManager.FilterEnemyList(searchText);
                 });
 
-                // Use original positioning for scroll view (don't adjust for search field position change)
+                // Use original positioning for scroll view
                 enemyScrollRectTransform.anchoredPosition = new Vector2(0, -45);
                 enemyScrollRectTransform.sizeDelta = new Vector2(240, 430); // Original size
 
@@ -588,6 +552,9 @@ namespace EverythingCanDieAlternative.UI
                     }
                 }
 
+                // Initialize the image loader
+                EnemyImageLoader.Initialize();
+
                 Plugin.LogInfo("Config menu created successfully");
             }
             catch (Exception ex)
@@ -595,7 +562,6 @@ namespace EverythingCanDieAlternative.UI
                 Plugin.LogError($"Error creating menu prefab: {ex.Message}\nStack trace: {ex.StackTrace}");
             }
         }
-
 
         private void CreateEnemyListEntry(EnemyConfigData config)
         {
@@ -649,8 +615,8 @@ namespace EverythingCanDieAlternative.UI
             enemyEntries[config.Name] = entryObj;
         }
 
-        // Update the FilterEnemyList method to handle search text
-        private void FilterEnemyList(int filterIndex, string searchText = "")
+        // Simplified FilterEnemyList method that only uses search text
+        private void FilterEnemyList(string searchText = "")
         {
             // Normalize search text for case-insensitive comparison
             searchText = searchText?.ToLower() ?? "";
@@ -663,34 +629,11 @@ namespace EverythingCanDieAlternative.UI
                 var config = enemyConfigs.Find(c => c.Name == entry.Key);
                 if (config == null) continue;
 
-                bool visibleByCategory = false;
-
-                // Check category filter first
-                switch (filterIndex)
-                {
-                    case 0: // All
-                        visibleByCategory = true;
-                        break;
-                    case 1: // Enabled
-                        visibleByCategory = config.IsEnabled;
-                        break;
-                    case 2: // Disabled
-                        visibleByCategory = !config.IsEnabled;
-                        break;
-                    case 3: // Killable
-                        visibleByCategory = config.IsEnabled && config.CanDie;
-                        break;
-                    case 4: // Immortal
-                        visibleByCategory = config.IsEnabled && !config.CanDie;
-                        break;
-                }
-
-                // Now check if the enemy name contains the search text
+                // Show/hide based on search text
                 bool visibleBySearch = string.IsNullOrEmpty(searchText) ||
                                       config.Name.ToLower().Contains(searchText);
 
-                // Enemy is visible only if it passes both filters
-                entry.Value.SetActive(visibleByCategory && visibleBySearch);
+                entry.Value.SetActive(visibleBySearch);
             }
 
             // Update UI to indicate if no results found
@@ -799,13 +742,14 @@ namespace EverythingCanDieAlternative.UI
                 controlsRectTransform.anchorMin = new Vector2(0.5f, 0.5f);
                 controlsRectTransform.anchorMax = new Vector2(0.5f, 0.5f);
                 controlsRectTransform.pivot = new Vector2(0.5f, 0.5f);
-                controlsRectTransform.anchoredPosition = new Vector2(0, -30);
+                controlsRectTransform.anchoredPosition = new Vector2(0, 30);
+                controlsRectTransform.sizeDelta = new Vector2(480, 380);
 
                 // Style the controls panel
                 var panelImage = controlsPanel.GetComponent<Image>();
                 if (panelImage != null)
                 {
-                    panelImage.color = new Color(0.15f, 0.15f, 0.15f, 0.95f);
+                    panelImage.color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
                 }
 
                 // Add content layout
@@ -948,14 +892,15 @@ namespace EverythingCanDieAlternative.UI
 
                 // Update selector enablements based on current settings
                 UpdateSelectorEnablements(controlsPanel, config.IsEnabled);
+
+                // Update the enemy image display
+                UpdateEnemyImageVisibility(controlsPanel, config.Name);
             }
             catch (Exception ex)
             {
                 Plugin.LogError($"Error in UpdateConfigPanel: {ex.Message}\nStack trace: {ex.StackTrace}");
             }
         }
-
-        // In the ConfigMenuManager.cs file, update the UpdateSelectorEnablements method:
 
         private void UpdateSelectorEnablements(GameObject controlsPanel, bool isEnabled)
         {
@@ -1007,6 +952,102 @@ namespace EverythingCanDieAlternative.UI
             }
         }
 
+        /// <summary>
+        /// Shows or hides the enemy image based on the configuration setting
+        /// </summary>
+        private void UpdateEnemyImageVisibility(GameObject controlsPanel, string enemyName)
+        {
+            try
+            {
+                // Find the image container if it exists
+                var imageContainer = controlsPanel.transform.Find("ImageContainer")?.gameObject;
+
+                // If it doesn't exist and images are enabled, create it
+                if (imageContainer == null && UIConfiguration.Instance.ShouldShowEnemyImages())
+                {
+                    // Create a container for the image - no background
+                    imageContainer = new GameObject("ImageContainer");
+                    imageContainer.transform.SetParent(controlsPanel.transform, false);
+
+                    // Position the container at the BOTTOM of the layout
+                    imageContainer.transform.SetAsLastSibling();
+
+                    // Set up the rect transform
+                    var imageContainerRect = imageContainer.AddComponent<RectTransform>();
+                    imageContainerRect.sizeDelta = new Vector2(0, 180);
+
+                    // Add layout element for spacing
+                    var layoutElement = imageContainer.AddComponent<LayoutElement>();
+                    layoutElement.minHeight = 180;
+                    layoutElement.preferredHeight = 180;
+                    layoutElement.flexibleHeight = 0;
+                    
+
+                    // Create the image display
+                    var imageObj = new GameObject("EnemyImage");
+                    imageObj.transform.SetParent(imageContainer.transform, false);
+
+                    var imageRect = imageObj.AddComponent<RectTransform>();
+                    imageRect.anchorMin = new Vector2(0.5f, 0.5f);
+                    imageRect.anchorMax = new Vector2(0.5f, 0.5f);
+                    imageRect.pivot = new Vector2(0.5f, 0.5f);
+                    imageRect.sizeDelta = new Vector2(170, 170);
+
+                    // Add the actual image component
+                    var imageComponent = imageObj.AddComponent<Image>();
+                    imageComponent.preserveAspect = true;
+                }
+
+                // Now show/hide the image
+                if (imageContainer != null)
+                {
+                    if (UIConfiguration.Instance.ShouldShowEnemyImages() && !string.IsNullOrEmpty(enemyName))
+                    {
+                        // Try to load the texture first to see if we should show the container
+                        var texture = EnemyImageLoader.GetEnemyTexture(enemyName);
+                        if (texture != null)
+                        {
+                            imageContainer.SetActive(true);
+
+                            // Find the image component
+                            var imageObj = imageContainer.transform.Find("EnemyImage");
+                            if (imageObj != null)
+                            {
+                                var image = imageObj.GetComponent<Image>();
+                                if (image != null)
+                                {
+                                    // Create a sprite from the texture
+                                    var sprite = Sprite.Create(
+                                        texture,
+                                        new Rect(0, 0, texture.width, texture.height),
+                                        new Vector2(0.5f, 0.5f)
+                                    );
+
+                                    // Set the sprite
+                                    image.sprite = sprite;
+                                    image.preserveAspect = true;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // No image available, hide the container
+                            imageContainer.SetActive(false);
+                        }
+                    }
+                    else
+                    {
+                        // Images disabled or no enemy selected, hide the container
+                        imageContainer.SetActive(false);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError($"Error updating enemy image visibility: {ex.Message}");
+            }
+        }
+
         private void SaveCurrentEnemyConfig()
         {
             if (string.IsNullOrEmpty(selectedEnemyName)) return;
@@ -1030,6 +1071,12 @@ namespace EverythingCanDieAlternative.UI
                     }
                 }
             }
+        }
+
+        private void OnDisable()
+        {
+            // Clear the image cache when the menu is closed
+            EnemyImageLoader.ClearCache();
         }
     }
 }

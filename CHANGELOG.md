@@ -1,4 +1,5 @@
 ## Version 1.1.56
+- Added preview images for a few selected enemies to the config UI. Is toggled off by default, may spoiler you and your friends of how enemies look like so use with caution. <details><summary>Click for details</summary>- Should help users understanding what name refers to what actual enemy. <br>- The preview images are screenshots i made and edited. If i didnt made a screenshot for that enemy no preview will be shown.</details>
 - Updated nearly all info log entries to be hidden when `EnableInfoLogs` is deactivated
 
 ##
@@ -10,7 +11,7 @@
 
 ## Version 1.1.52
 - Added a configuration menu to the games main menu <details><summary>Click for details</summary>- Can be deactivated inside `nwnt.EverythingCanDieAlternative.cfg` > `EnableConfigMenu` or inside LethalConfig or inside the menu itself.<br>-  Changes inside the menu take effect immediately <br>- Configuration will be updated when starting a lobby now, you dont need to restart your game for the changes inside the UI to take effect</details>
-- Added `EnableInfoLogs` to `nwnt.EverythingCanDieAlternative.cfg` <details><summary>Click for details</summary>- This will supress nearly all of the info logs as of 1.1.55, may help against lag spikes</details>
+- Added `EnableInfoLogs` to `nwnt.EverythingCanDieAlternative.cfg` <details><summary>Click for details</summary>- This will supress nearly all of the info logs as of 1.1.56, may help against lag spikes</details>
   
 ##
 ###### Version 1.1.51 (unreleased) - First UI-Config implementation
