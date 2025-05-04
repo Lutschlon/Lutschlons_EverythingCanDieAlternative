@@ -299,9 +299,6 @@ namespace EverythingCanDieAlternative.UI
                             {
                                 configManager.UpdateConfigPanel();
                             }
-
-                            // Also refresh the enemy list to ensure everything is up to date
-                            configManager.ScheduleRefresh();
                         }
                     });
 
