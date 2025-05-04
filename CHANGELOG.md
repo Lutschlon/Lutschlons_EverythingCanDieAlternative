@@ -1,5 +1,4 @@
-##
-###### Version 1.1.55 - Fixed that preview images were in the wrong folder and thus not displayed in the ui
+###### Version 1.1.57 - Fixed that preview images were in the wrong folder and thus not displayed in the ui
 
 ## Version 1.1.56
 - Added preview images for a few selected enemies to the config UI. Is toggled off by default, may spoiler you and your friends of how enemies look like so use with caution. <details><summary>Click for details</summary>- Should help users understanding what name refers to what actual enemy. <br>- The preview images are screenshots i made and edited. If i didnt made a screenshot for that enemy no preview will be shown.</details>
