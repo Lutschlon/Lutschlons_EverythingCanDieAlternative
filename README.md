@@ -1,4 +1,4 @@
-# EverythingCanDieAlternative 1.1.57
+# EverythingCanDieAlternative 1.1.58
 
 This mod makes every enemy in the game killable with configurable hp. It works with any modded weapon and any modded enemy.
 - Easly configurable via UI
@@ -31,7 +31,7 @@ ____
     <li><code>.Unimmortal</code> - Toggle if the enemy can be damaged (true/false) - Default is every enemy is killable</li>
     <li><code>.Health</code> - You configure the enemy's health value completely to your liking
       <ul>
-        <li>For reference: the shovel deals 1 damage, the vanilla shotgun either 1/3/5 based on distance, modded weapons work as well with their own stats</li>
+        <li>For reference: the shovel deals 1 damage, the vanilla shotgun either 1/3/5 based on distance, cruiser deals 12 damage at high speed, modded weapons work as well with their own stats</li>
       </ul>
       <li><code>EnableConfigMenu</code> - Toggle if the configuration ui should be shown in the main menu</li>
       <li><code>EnableInfoLogs</code> - Toggle if info logs should be logged in the console</li>

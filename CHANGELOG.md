@@ -1,3 +1,5 @@
+###### Version 1.1.58 - Mod successfully tested for V71, updated ReadMe
+
 ###### Version 1.1.57 - Fixed that preview images were in the wrong folder and thus not displayed in the ui
 
 ## Version 1.1.56
