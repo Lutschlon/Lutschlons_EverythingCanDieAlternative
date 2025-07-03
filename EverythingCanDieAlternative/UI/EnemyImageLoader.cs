@@ -33,7 +33,7 @@ namespace EverythingCanDieAlternative.UI
                 string pluginDir = Path.GetDirectoryName(typeof(Plugin).Assembly.Location);
 
                 // Set the UI images path
-                uiImagesPath = Path.Combine(pluginDir, "ui_images");
+                uiImagesPath = Path.Combine(pluginDir);
 
                 // Create the directory if it doesn't exist
                 if (!Directory.Exists(uiImagesPath))
