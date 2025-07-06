@@ -29,6 +29,9 @@ namespace EverythingCanDieAlternative
         public static ConfigEntry<bool> PatchCruiserDamage { get; private set; }
         public static ConfigEntry<int> CruiserDamageAtHighSpeeds { get; private set; }
 
+        // Trap configuration
+        public static ConfigEntry<bool> AllowSpikeTrapsToKillEnemies { get; private set; }
+
         // Flag to indicate if logging should be conditionally suppressed
         private static bool _infoLogsEnabled = true;
 
@@ -44,7 +47,7 @@ namespace EverythingCanDieAlternative
                 //Plugin.LogInfo($"Initializing {PluginInfo.PLUGIN_NAME} v{PluginInfo.PLUGIN_VERSION}...");
 
                 // Initialize the UI configuration first
-               //Plugin.LogInfo("Initializing UIConfiguration...");
+                //Plugin.LogInfo("Initializing UIConfiguration...");
                 _ = UIConfiguration.Instance;
 
                 // Now we can safely check if info logs should be enabled
@@ -54,8 +57,14 @@ namespace EverythingCanDieAlternative
                     //Plugin.LogInfo($"UI configuration loaded, info logging is {(_infoLogsEnabled ? "enabled" : "disabled")}");
                 }
 
+                // Initialize trap configuration
+                AllowSpikeTrapsToKillEnemies = Config.Bind("Traps",
+                    "AllowSpikeTrapsToKillEnemies",
+                    true,
+                    "If true, spike roof traps can kill enemies. If false, spike traps will not affect enemies managed by this mod.");
+
                 // Initialize the configuration systems
-               //Plugin.LogInfo("Initializing DespawnConfiguration...");
+                //Plugin.LogInfo("Initializing DespawnConfiguration...");
                 _ = DespawnConfiguration.Instance;
 
                 //Plugin.LogInfo("Initializing EnemyControlConfiguration...");
@@ -236,6 +245,6 @@ namespace EverythingCanDieAlternative
     {
         public const string PLUGIN_GUID = "nwnt.EverythingCanDieAlternative";
         public const string PLUGIN_NAME = "EverythingCanDieAlternative";
-        public const string PLUGIN_VERSION = "1.1.59";
+        public const string PLUGIN_VERSION = "1.1.60";
     }
 }

@@ -2,6 +2,7 @@
 using GameNetcodeStuff;
 using HarmonyLib;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static EverythingCanDieAlternative.Plugin;
@@ -55,6 +56,12 @@ namespace EverythingCanDieAlternative
                 var shipLeavePostfix = AccessTools.Method(typeof(Patches), nameof(ShipLeavePostfix));
                 harmony.Patch(shipLeaveMethod, null, new HarmonyMethod(shipLeavePostfix));
                 //Plugin.LogInfo("StartOfRound.ShipLeave patched successfully");
+
+                // Patch SpikeRoofTrap for trap configuration
+                var spikeRoofTrapMethod = AccessTools.Method(typeof(SpikeRoofTrap), "OnTriggerStay");
+                var spikeRoofTrapPrefix = AccessTools.Method(typeof(Patches), nameof(SpikeRoofTrapPrefix));
+                harmony.Patch(spikeRoofTrapMethod, new HarmonyMethod(spikeRoofTrapPrefix));
+                Plugin.Log.LogInfo("SpikeRoofTrap.OnTriggerStay patched successfully");
 
                 Plugin.Log.LogInfo("All Harmony patches applied successfully");
             }
@@ -256,8 +263,138 @@ namespace EverythingCanDieAlternative
             }
         }
 
-        [HarmonyPostfix]
+        // Spike trap patch for simple trap configuration
+        public static bool SpikeRoofTrapPrefix(SpikeRoofTrap __instance, Collider other)
+        {
+            try
+            {
+                // Only intercept enemy collisions
+                if (!other.CompareTag("Enemy")) return true;
 
+                EnemyAICollisionDetect enemyCollision = other.gameObject.GetComponent<EnemyAICollisionDetect>();
+                if (enemyCollision?.mainScript == null) return true;
+
+                EnemyAI enemy = enemyCollision.mainScript;
+                if (enemy == null || enemy.isEnemyDead) return true;
+
+                string enemyName = enemy.enemyType.enemyName;
+                string sanitizedName = Plugin.RemoveInvalidCharacters(enemyName).ToUpper();
+
+                // Check if this enemy is managed by our mod
+                if (!Plugin.IsModEnabledForEnemy(sanitizedName))
+                {
+                    // Not managed by us, let vanilla handle it
+                    return true;
+                }
+
+                // Check the global spike trap setting
+                if (!Plugin.AllowSpikeTrapsToKillEnemies.Value)
+                {
+                    Plugin.LogInfo($"Spike trap blocked from killing {enemyName} due to global setting");
+                    return false; // Block the spike trap from processing this enemy
+                }
+
+                Plugin.LogInfo($"Spike trap allowed to kill {enemyName}");
+
+                // If we reach here, the spike trap is allowed to kill this enemy
+                // But we still need to handle our cleanup when it dies
+
+                // Check if this enemy should despawn after death and schedule cleanup
+                if (DespawnConfiguration.Instance.ShouldDespawnEnemy(enemyName) && StartOfRound.Instance.IsHost)
+                {
+                    // Schedule cleanup after the kill
+                    __instance.StartCoroutine(HandleSpikeKillCleanup(enemy));
+                }
+
+                return true; // Allow the vanilla spike trap logic to proceed
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError($"Error in SpikeRoofTrapPrefix: {ex.Message}");
+                return true; // Always let vanilla proceed on error
+            }
+        }
+
+        private static IEnumerator HandleSpikeKillCleanup(EnemyAI enemy)
+        {
+            if (enemy == null) yield break;
+
+            string enemyName = enemy.enemyType.enemyName;
+
+            // Wait for the enemy to actually die
+            float timeout = 2f;
+            while (!enemy.isEnemyDead && timeout > 0)
+            {
+                timeout -= Time.deltaTime;
+                yield return null;
+            }
+
+            if (enemy.isEnemyDead)
+            {
+                Plugin.LogInfo($"Cleaning up spike-killed enemy: {enemyName}");
+
+                // Clean up our tracking data
+                HealthManager.CleanupExternallyKilledEnemy(enemy);
+
+                // Handle compatibility (SellBodies, Hitmarker, etc.)
+                int instanceId = enemy.GetInstanceID();
+                HandleKillCompatibility(enemy, instanceId, enemyName);
+
+                // Handle despawn if needed
+                if (DespawnConfiguration.Instance.ShouldDespawnEnemy(enemyName))
+                {
+                    yield return new WaitForSeconds(GetDespawnDelay());
+
+                    if (enemy != null && enemy.isEnemyDead)
+                    {
+                        Plugin.LogInfo($"Despawning spike-killed enemy: {enemyName}");
+
+                        if (enemy.thisEnemyIndex >= 0)
+                        {
+                            HealthManager.NotifyClientsOfDestroy(enemy.thisEnemyIndex);
+                        }
+
+                        UnityEngine.Object.Destroy(enemy.gameObject);
+                    }
+                }
+            }
+        }
+
+        private static float GetDespawnDelay()
+        {
+            // Check for SellBodies compatibility
+            var sellBodiesHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.SellBodiesCompatibility>("Entity378.sellbodies");
+            if (sellBodiesHandler != null && sellBodiesHandler.IsInstalled)
+            {
+                return sellBodiesHandler.GetDespawnDelay();
+            }
+
+            return 0.5f; // Default delay
+        }
+
+        private static void HandleKillCompatibility(EnemyAI enemy, int instanceId, string enemyName)
+        {
+            // SellBodies compatibility
+            var sellBodiesHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.SellBodiesCompatibility>("Entity378.sellbodies");
+            if (sellBodiesHandler != null && sellBodiesHandler.IsInstalled &&
+                sellBodiesHandler.IsProblemEnemy(enemyName))
+            {
+                sellBodiesHandler.HandleProblemEnemyDeath(enemy);
+            }
+
+            // Hitmarker compatibility
+            var hitmarkerHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.HitmarkerCompatibility>("com.github.zehsteam.Hitmarker");
+            if (hitmarkerHandler != null && hitmarkerHandler.IsInstalled)
+            {
+                PlayerControllerB lastDamageSource = hitmarkerHandler.GetLastDamageSource(instanceId);
+                if (lastDamageSource != null)
+                {
+                    hitmarkerHandler.NotifyEnemyKilled(enemy, lastDamageSource);
+                }
+            }
+        }
+
+        [HarmonyPostfix]
         public static void ShipLeavePostfix()
         {
             try
@@ -275,6 +412,7 @@ namespace EverythingCanDieAlternative
                 Plugin.Log.LogError($"Error in ShipLeavePostfix: {ex.Message}");
             }
         }
+
         public static void FinishGeneratingLevelPostfix()
         {
             try
@@ -292,6 +430,5 @@ namespace EverythingCanDieAlternative
                 Plugin.Log.LogError($"Error in FinishGeneratingLevelPostfix: {ex.Message}");
             }
         }
-
     }
 }
