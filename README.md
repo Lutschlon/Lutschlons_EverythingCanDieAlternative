@@ -16,7 +16,7 @@ If you add more enemies to your modpack you will need to host a game once more t
 - In the configuration UI you can make enemies killable, configure their health and despawn behaviour, or disable my mod for the specific enemy
 - You can enable preview images for a few selected enemies (may spoiler you!)
 
-![](https://i.imgur.com/QBq0KbZ.png)
+![](https://i.imgur.com/9ZzjvOu.png)
 
 - The menu can be hidden / shown with `LethalConfig` or inside the `nwnt.EverythingCanDieAlternative.cfg` under `EnableConfigMenu`
 ____
