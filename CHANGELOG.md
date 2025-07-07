@@ -1,6 +1,6 @@
 ## Version 1.1.61
 - Updated how `.Unimmortal = false` effects gameplay - it will now set the games internal `candie` variable for the enemy to false, this will prevent them from getting killed by insta-kill causes
-- Added a global setting that configures, if immortal enemies should be protected from instakill effect
+- Added a global setting that configures, if immortal enemies should be protected from instakill effect <details><summary>Click for details</summary><p>If set to NO, an immortal enemy will be able to die to insta kill effects, if you want to preserve how the mod worked before 1.1.61 you will need to set it to NO</details>
 - Updated ReadMe
   
 ## Version 1.1.60
