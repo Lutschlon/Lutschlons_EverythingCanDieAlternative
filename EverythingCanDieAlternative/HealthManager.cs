@@ -680,5 +680,39 @@ namespace EverythingCanDieAlternative
 
             return 0;
         }
+
+        /// <summary>
+        /// Check if an enemy is being tracked by our health system
+        /// </summary>
+        public static bool IsEnemyTracked(EnemyAI enemy)
+        {
+            if (enemy == null) return false;
+            int instanceId = enemy.GetInstanceID();
+            return enemyHealthVars.ContainsKey(instanceId) || immortalEnemies.ContainsKey(instanceId);
+        }
+
+        /// Clean up tracking data for an externally killed enemy
+        public static void CleanupExternallyKilledEnemy(EnemyAI enemy)
+        {
+            if (enemy == null) return;
+
+            int instanceId = enemy.GetInstanceID();
+
+            // Clean up our tracking dictionaries
+            if (enemyHealthVars.ContainsKey(instanceId))
+                enemyHealthVars.Remove(instanceId);
+            if (enemyMaxHealth.ContainsKey(instanceId))
+                enemyMaxHealth.Remove(instanceId);
+            if (processedEnemies.ContainsKey(instanceId))
+                processedEnemies.Remove(instanceId);
+            if (enemyNetworkIds.ContainsKey(instanceId))
+                enemyNetworkIds.Remove(instanceId);
+            if (enemyNetworkVarNames.ContainsKey(instanceId))
+                enemyNetworkVarNames.Remove(instanceId);
+            if (immortalEnemies.ContainsKey(instanceId))
+                immortalEnemies.Remove(instanceId);
+
+            Plugin.LogInfo($"Cleaned up tracking data for externally killed enemy {enemy.enemyType.enemyName}");
+        }
     }
 }

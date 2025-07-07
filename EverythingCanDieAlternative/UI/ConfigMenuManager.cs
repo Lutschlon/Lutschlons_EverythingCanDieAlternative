@@ -19,6 +19,8 @@ namespace EverythingCanDieAlternative.UI
         private GameObject menuPanel;
         private RectTransform enemyListContent;
         private GameObject enemyConfigPanel;
+        private GameObject globalSettingsButton;
+        private bool isShowingGlobalSettings = false;
 
         // Configuration data
         private List<EnemyConfigData> enemyConfigs = new List<EnemyConfigData>();
@@ -251,7 +253,7 @@ namespace EverythingCanDieAlternative.UI
                     }
                 }
 
-                // Add the "Less Logs" Yes/No toggle using the same method as enemy settings
+                // Add the "Less Logs" Yes/No toggle
                 var lessLogsSelector = UIHelper.CreateYesNoSelector(
                     mainPanelObj.transform,
                     "LessLogsSelector",
@@ -369,6 +371,44 @@ namespace EverythingCanDieAlternative.UI
                     }
                 }
 
+                // CREATE GLOBAL SETTINGS BUTTON
+                var globalSettingsButtonObj = UIHelper.CreateButton(enemyListPanel.transform, "GlobalSettingsButton", "Global Settings", () => {
+                    PlayConfirmSFX();
+                    menuManager.ToggleGlobalSettings(); // Use the menuManager instance
+                });
+
+                if (globalSettingsButtonObj != null)
+                {
+                    menuManager.globalSettingsButton = globalSettingsButtonObj;
+
+                    var globalButtonRect = globalSettingsButtonObj.GetComponent<RectTransform>();
+                    globalButtonRect.anchorMin = new Vector2(0, 1);
+                    globalButtonRect.anchorMax = new Vector2(1, 1);
+                    globalButtonRect.pivot = new Vector2(0.5f, 1);
+                    globalButtonRect.sizeDelta = new Vector2(-20, 35);
+                    globalButtonRect.anchoredPosition = new Vector2(0, -40); // Position below the ENEMIES label
+
+                    // Style the button with LC colors
+                    var buttonComponent = globalSettingsButtonObj.GetComponent<Button>();
+                    if (buttonComponent != null)
+                    {
+                        ColorBlock colors = buttonComponent.colors;
+                        colors.normalColor = new Color(0.3f, 0.3f, 0.3f, 1f);
+                        colors.highlightedColor = new Color(0.4f, 0.4f, 0.4f, 1f);
+                        colors.pressedColor = new Color(0.2f, 0.2f, 0.2f, 1f);
+                        buttonComponent.colors = colors;
+                    }
+
+                    // Style the button text
+                    var buttonText = globalSettingsButtonObj.GetComponentInChildren<TextMeshProUGUI>();
+                    if (buttonText != null)
+                    {
+                        buttonText.fontSize = 14;
+                        buttonText.color = new Color(1f, 0.9f, 0.5f, 1f);
+                        buttonText.fontStyle = FontStyles.Bold;
+                    }
+                }
+
                 // Create enemy list scroll view
                 var enemyScrollView = UIHelper.CreateScrollView(enemyListPanel.transform, "EnemyScrollView", new Vector2(240, 450));
                 if (enemyScrollView == null)
@@ -381,13 +421,13 @@ namespace EverythingCanDieAlternative.UI
                 enemyScrollRectTransform.anchorMin = new Vector2(0.5f, 0.5f);
                 enemyScrollRectTransform.anchorMax = new Vector2(0.5f, 0.5f);
                 enemyScrollRectTransform.pivot = new Vector2(0.5f, 0.5f);
-                enemyScrollRectTransform.anchoredPosition = new Vector2(0, -25);
-                enemyScrollRectTransform.sizeDelta = new Vector2(240, 430);
+                enemyScrollRectTransform.anchoredPosition = new Vector2(0, -90);
+                enemyScrollRectTransform.sizeDelta = new Vector2(240, 385);
 
                 var scrollRect = enemyScrollView.GetComponent<ScrollRect>();
                 if (scrollRect != null)
                 {
-                    scrollRect.scrollSensitivity = 15f; // Increased from default (10-15) - adjust as needed
+                    scrollRect.scrollSensitivity = 15f;
                 }
 
                 // Check if viewport exists
@@ -423,7 +463,7 @@ namespace EverythingCanDieAlternative.UI
                 searchContainerRect.anchorMax = new Vector2(1, 1);
                 searchContainerRect.pivot = new Vector2(0.5f, 1);
                 searchContainerRect.sizeDelta = new Vector2(-20, 30);
-                searchContainerRect.anchoredPosition = new Vector2(0, -35);
+                searchContainerRect.anchoredPosition = new Vector2(0, -80);
 
                 // Create search field background
                 var searchBg = searchContainer.AddComponent<Image>();
@@ -492,8 +532,8 @@ namespace EverythingCanDieAlternative.UI
                 });
 
                 // Use original positioning for scroll view
-                enemyScrollRectTransform.anchoredPosition = new Vector2(0, -45);
-                enemyScrollRectTransform.sizeDelta = new Vector2(240, 430); // Original size
+                enemyScrollRectTransform.anchoredPosition = new Vector2(0, -70);
+                enemyScrollRectTransform.sizeDelta = new Vector2(240, 405);
 
                 // Create config panel (right side)
                 var configPanelObj = UIHelper.CreatePanel(contentPanel.transform, "ConfigPanel", new Vector2(500, 520));
@@ -563,6 +603,184 @@ namespace EverythingCanDieAlternative.UI
             }
         }
 
+        private void ToggleGlobalSettings()
+        {
+            isShowingGlobalSettings = !isShowingGlobalSettings;
+
+            if (isShowingGlobalSettings)
+            {
+                ShowGlobalSettings();
+                UpdateGlobalSettingsButtonStyle(true);
+            }
+            else
+            {
+                // Clear selection and go back to normal view
+                selectedEnemyName = null;
+                UpdateConfigPanel();
+                UpdateGlobalSettingsButtonStyle(false);
+            }
+        }
+
+        private void UpdateGlobalSettingsButtonStyle(bool isActive)
+        {
+            if (globalSettingsButton == null) return;
+
+            var buttonComponent = globalSettingsButton.GetComponent<Button>();
+            var buttonText = globalSettingsButton.GetComponentInChildren<TextMeshProUGUI>();
+
+            if (buttonComponent != null)
+            {
+                ColorBlock colors = buttonComponent.colors;
+                if (isActive)
+                {
+                    // Highlighted style when showing global settings
+                    colors.normalColor = new Color(0.5f, 0.5f, 0.5f, 1f);
+                    colors.highlightedColor = new Color(0.6f, 0.6f, 0.6f, 1f);
+                }
+                else
+                {
+                    // Normal style
+                    colors.normalColor = new Color(0.3f, 0.3f, 0.3f, 1f);
+                    colors.highlightedColor = new Color(0.4f, 0.4f, 0.4f, 1f);
+                }
+                buttonComponent.colors = colors;
+            }
+
+            if (buttonText != null)
+            {
+                buttonText.color = isActive ? Color.white : new Color(1f, 0.9f, 0.5f, 1f);
+            }
+        }
+
+        private void ShowGlobalSettings()
+        {
+            try
+            {
+                // Clear the right panel
+                if (enemyConfigPanel == null) return;
+
+                // Clear existing config controls
+                foreach (Transform child in enemyConfigPanel.transform)
+                {
+                    if (child != null && child.name != "NoSelection")
+                    {
+                        Destroy(child.gameObject);
+                    }
+                }
+
+                // Hide "No Selection" text
+                var noSelectionObj = enemyConfigPanel.transform.Find("NoSelection");
+                if (noSelectionObj != null)
+                {
+                    noSelectionObj.gameObject.SetActive(false);
+                }
+
+                // Create global settings title
+                var titleObj = UIHelper.CreateText(enemyConfigPanel.transform, "Title", "Global Settings");
+                if (titleObj != null)
+                {
+                    var titleRectTransform = titleObj.GetComponent<RectTransform>();
+                    titleRectTransform.anchorMin = new Vector2(0, 1);
+                    titleRectTransform.anchorMax = new Vector2(1, 1);
+                    titleRectTransform.pivot = new Vector2(0.5f, 1);
+                    titleRectTransform.sizeDelta = new Vector2(0, 40);
+
+                    // Style the title like LC headers
+                    var titleText = titleObj.GetComponent<TextMeshProUGUI>();
+                    if (titleText != null)
+                    {
+                        titleText.fontSize = 22;
+                        titleText.color = new Color(1f, 0.9f, 0.5f, 1f);
+                        titleText.fontStyle = FontStyles.Bold;
+                    }
+                }
+
+                // Create main panel for global settings
+                var globalSettingsPanel = UIHelper.CreatePanel(enemyConfigPanel.transform, "GlobalSettingsPanel", new Vector2(480, 400));
+                if (globalSettingsPanel == null) return;
+
+                var globalSettingsRect = globalSettingsPanel.GetComponent<RectTransform>();
+                globalSettingsRect.anchorMin = new Vector2(0.5f, 0.5f);
+                globalSettingsRect.anchorMax = new Vector2(0.5f, 0.5f);
+                globalSettingsRect.pivot = new Vector2(0.5f, 0.5f);
+                globalSettingsRect.anchoredPosition = new Vector2(0, 30);
+                globalSettingsRect.sizeDelta = new Vector2(480, 380);
+
+                // Style the panel
+                var panelImage = globalSettingsPanel.GetComponent<Image>();
+                if (panelImage != null)
+                {
+                    panelImage.color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
+                }
+
+                // Add content layout
+                var layout = globalSettingsPanel.AddComponent<VerticalLayoutGroup>();
+                layout.padding = new RectOffset(20, 20, 20, 20);
+                layout.spacing = 20;
+                layout.childForceExpandWidth = true;
+                layout.childForceExpandHeight = false;
+                layout.childControlWidth = true;
+                layout.childControlHeight = false;
+                layout.childAlignment = TextAnchor.UpperLeft;
+
+                // Section header for traps
+                var trapsHeaderPanel = new GameObject("TrapsHeaderPanel");
+                trapsHeaderPanel.transform.SetParent(globalSettingsPanel.transform, false);
+
+                var trapsHeaderRect = trapsHeaderPanel.AddComponent<RectTransform>();
+                trapsHeaderRect.sizeDelta = new Vector2(0, 30);
+
+                var trapsHeaderText = UIHelper.CreateText(trapsHeaderPanel.transform, "TrapsHeaderText",
+                    "Trap Configuration", TextAlignmentOptions.Left);
+
+                var trapsHeaderTextComp = trapsHeaderText?.GetComponent<TextMeshProUGUI>();
+                if (trapsHeaderTextComp != null)
+                {
+                    trapsHeaderTextComp.fontSize = 18;
+                    trapsHeaderTextComp.fontStyle = FontStyles.Bold;
+                    trapsHeaderTextComp.color = new Color(1f, 0.9f, 0.5f, 1f);
+                }
+
+                // Spike traps setting
+                var spikeTrapsSelector = UIHelper.CreateYesNoSelector(globalSettingsPanel.transform, "SpikeTrapsSelector",
+                    "Allow spike traps to kill enemies:", Plugin.AllowSpikeTrapsToKillEnemies.Value, (allowSpikeTraps) => {
+                        Plugin.AllowSpikeTrapsToKillEnemies.Value = allowSpikeTraps;
+                        Plugin.Instance.Config.Save();
+                        PlayConfirmSFX();
+                        Plugin.LogInfo($"Spike trap kills {(allowSpikeTraps ? "enabled" : "disabled")}");
+                    });
+
+                if (spikeTrapsSelector != null)
+                {
+                    var spikeTrapsRect = spikeTrapsSelector.GetComponent<RectTransform>();
+                    spikeTrapsRect.sizeDelta = new Vector2(0, 30);
+                }
+
+                // Add description text for spike traps
+                var spikeDescPanel = new GameObject("SpikeDescPanel");
+                spikeDescPanel.transform.SetParent(globalSettingsPanel.transform, false);
+
+                var spikeDescRect = spikeDescPanel.AddComponent<RectTransform>();
+                spikeDescRect.sizeDelta = new Vector2(0, 40);
+
+                var spikeDescText = UIHelper.CreateText(spikeDescPanel.transform, "SpikeDescText",
+                    "When disabled, spike roof traps will not be able to kill enemies managed by this mod.", TextAlignmentOptions.Left);
+
+                var spikeDescTextComp = spikeDescText?.GetComponent<TextMeshProUGUI>();
+                if (spikeDescTextComp != null)
+                {
+                    spikeDescTextComp.fontSize = 12;
+                    spikeDescTextComp.color = new Color(0.7f, 0.7f, 0.7f, 1f);
+                    spikeDescTextComp.fontStyle = FontStyles.Italic;
+                }
+
+                Plugin.LogInfo("Global settings panel created successfully");
+            }
+            catch (Exception ex)
+            {
+                Plugin.LogError($"Error creating global settings panel: {ex.Message}");
+            }
+        }
         private void CreateEnemyListEntry(EnemyConfigData config)
         {
             // Create stylized list entry
@@ -672,6 +890,14 @@ namespace EverythingCanDieAlternative.UI
         {
             PlayConfirmSFX();
             selectedEnemyName = enemyName;
+
+            // If we were showing global settings, turn that off
+            if (isShowingGlobalSettings)
+            {
+                isShowingGlobalSettings = false;
+                UpdateGlobalSettingsButtonStyle(false);
+            }
+
             UpdateConfigPanel();
         }
 
