@@ -330,6 +330,20 @@ namespace EverythingCanDieAlternative
                     // Set high HP value to make them effectively immortal
                     enemy.enemyHP = 999;
 
+                    // Check if we should protect immortal enemies from insta-kill effects
+                    if (Plugin.ProtectImmortalEnemiesFromInstaKill.Value)
+                    {
+                        // Set canDie to false to protect from insta-kill effects like spike traps
+                        enemy.enemyType.canDie = false;
+                        Plugin.LogInfo($"Protected immortal enemy {enemyName} from insta-kill effects (canDie = false)");
+                    }
+                    else
+                    {
+                        // Keep canDie as true, allowing insta-kill effects
+                        enemy.enemyType.canDie = true;
+                        Plugin.LogInfo($"Immortal enemy {enemyName} can still be killed by insta-kill effects (canDie = true)");
+                    }
+
                     // Mark as immortal for hit processing
                     immortalEnemies[instanceId] = true;
 
