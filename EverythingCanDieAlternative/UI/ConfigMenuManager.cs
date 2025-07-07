@@ -758,7 +758,7 @@ namespace EverythingCanDieAlternative.UI
 
                 // Immortal enemy protection setting
                 var immortalProtectionSelector = UIHelper.CreateYesNoSelector(globalSettingsPanel.transform, "ImmortalProtectionSelector",
-                    "Should immortal enemies be protected from insta kill effects:", Plugin.ProtectImmortalEnemiesFromInstaKill.Value, (protectImmortals) => {
+                    "Should immortal enemies be protected from insta-kill effects:", Plugin.ProtectImmortalEnemiesFromInstaKill.Value, (protectImmortals) => {
                         Plugin.ProtectImmortalEnemiesFromInstaKill.Value = protectImmortals;
                         Plugin.Instance.Config.Save();
                         PlayConfirmSFX();
@@ -779,7 +779,7 @@ namespace EverythingCanDieAlternative.UI
                 immortalDescRect.sizeDelta = new Vector2(0, 40);
 
                 var immortalDescText = UIHelper.CreateText(immortalDescPanel.transform, "ImmortalDescText",
-                    "When disabled, enemies can still be killed by insta-kill effects like the spike traps. Other mods that cause insta kill effects might bypass this setting.", TextAlignmentOptions.Left);
+                    "When disabled, immortal enemies can still be killed by insta-kill effects like the spike traps. Other mods that cause insta-kill effects might bypass this setting.", TextAlignmentOptions.Left);
 
                 var immortalDescTextComp = immortalDescText?.GetComponent<TextMeshProUGUI>();
                 if (immortalDescTextComp != null)
@@ -1027,7 +1027,7 @@ namespace EverythingCanDieAlternative.UI
                 autoSavePanelRect.sizeDelta = new Vector2(0, 25);
 
                 var autoSaveText = UIHelper.CreateText(autoSavePanel.transform, "AutoSaveText",
-                    "All changes are saved immediately", TextAlignmentOptions.Left);
+                    "All changes are saved immediately - you dont need to restart the game", TextAlignmentOptions.Left);
 
                 var autoSaveTextComp = autoSaveText?.GetComponent<TextMeshProUGUI>();
                 if (autoSaveTextComp != null)
