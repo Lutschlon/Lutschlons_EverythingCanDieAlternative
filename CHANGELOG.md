@@ -6,7 +6,7 @@
 ## Version 1.1.60
 - Fixed that some enemies dont despawn after getting killed by a spike trap <details><summary>Click for details</summary><p> Thanks to `Tomatobird8` for reporting it on Discord!</details>
 - Added a "Global Settings" button to the configuration ui for settings that affect all enemies
-- Added a global setting `Allow spike traps to kill enemies` that configures, if enemies should get killed by spike traps
+- Added a global setting `Allow spike traps to kill enemies`
 ##
 
 ###### Version 1.1.59 - Fixed that preview images were not displayed in the ui... again
