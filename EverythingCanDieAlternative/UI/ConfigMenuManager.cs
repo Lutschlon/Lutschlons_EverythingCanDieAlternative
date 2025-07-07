@@ -723,24 +723,6 @@ namespace EverythingCanDieAlternative.UI
                 layout.childControlHeight = false;
                 layout.childAlignment = TextAnchor.UpperLeft;
 
-                // Section header for traps
-                var trapsHeaderPanel = new GameObject("TrapsHeaderPanel");
-                trapsHeaderPanel.transform.SetParent(globalSettingsPanel.transform, false);
-
-                var trapsHeaderRect = trapsHeaderPanel.AddComponent<RectTransform>();
-                trapsHeaderRect.sizeDelta = new Vector2(0, 30);
-
-                var trapsHeaderText = UIHelper.CreateText(trapsHeaderPanel.transform, "TrapsHeaderText",
-                    "Trap Configuration", TextAlignmentOptions.Left);
-
-                var trapsHeaderTextComp = trapsHeaderText?.GetComponent<TextMeshProUGUI>();
-                if (trapsHeaderTextComp != null)
-                {
-                    trapsHeaderTextComp.fontSize = 18;
-                    trapsHeaderTextComp.fontStyle = FontStyles.Bold;
-                    trapsHeaderTextComp.color = new Color(1f, 0.9f, 0.5f, 1f);
-                }
-
                 // Spike traps setting
                 var spikeTrapsSelector = UIHelper.CreateYesNoSelector(globalSettingsPanel.transform, "SpikeTrapsSelector",
                     "Allow spike traps to kill enemies:", Plugin.AllowSpikeTrapsToKillEnemies.Value, (allowSpikeTraps) => {
@@ -772,6 +754,39 @@ namespace EverythingCanDieAlternative.UI
                     spikeDescTextComp.fontSize = 12;
                     spikeDescTextComp.color = new Color(0.7f, 0.7f, 0.7f, 1f);
                     spikeDescTextComp.fontStyle = FontStyles.Italic;
+                }
+
+                // Immortal enemy protection setting
+                var immortalProtectionSelector = UIHelper.CreateYesNoSelector(globalSettingsPanel.transform, "ImmortalProtectionSelector",
+                    "Should immortal enemies be protected from insta kill effects:", Plugin.ProtectImmortalEnemiesFromInstaKill.Value, (protectImmortals) => {
+                        Plugin.ProtectImmortalEnemiesFromInstaKill.Value = protectImmortals;
+                        Plugin.Instance.Config.Save();
+                        PlayConfirmSFX();
+                        Plugin.LogInfo($"Immortal enemy insta-kill protection {(protectImmortals ? "enabled" : "disabled")}");
+                    });
+
+                if (immortalProtectionSelector != null)
+                {
+                    var immortalProtectionRect = immortalProtectionSelector.GetComponent<RectTransform>();
+                    immortalProtectionRect.sizeDelta = new Vector2(0, 30);
+                }
+
+                // Add description text for immortal protection
+                var immortalDescPanel = new GameObject("ImmortalDescPanel");
+                immortalDescPanel.transform.SetParent(globalSettingsPanel.transform, false);
+
+                var immortalDescRect = immortalDescPanel.AddComponent<RectTransform>();
+                immortalDescRect.sizeDelta = new Vector2(0, 40);
+
+                var immortalDescText = UIHelper.CreateText(immortalDescPanel.transform, "ImmortalDescText",
+                    "When disabled, enemies can still be killed by insta-kill effects like the spike traps. Other mods that cause insta kill effects might bypass this setting.", TextAlignmentOptions.Left);
+
+                var immortalDescTextComp = immortalDescText?.GetComponent<TextMeshProUGUI>();
+                if (immortalDescTextComp != null)
+                {
+                    immortalDescTextComp.fontSize = 12;
+                    immortalDescTextComp.color = new Color(0.7f, 0.7f, 0.7f, 1f);
+                    immortalDescTextComp.fontStyle = FontStyles.Italic;
                 }
 
                 Plugin.LogInfo("Global settings panel created successfully");
