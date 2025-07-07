@@ -1,12 +1,12 @@
 ## Version 1.1.61
 - Updated how `.Unimmortal = false` effects gameplay - it will now set the games internal `candie` variable for the enemy to false, this will prevent them from getting killed by insta-kill causes
-- Added a global setting that configures, if immortal enemies should be protected from instakill effect <details><summary>Click for details</summary><p>If set to NO, an immortal enemy will be able to die to insta kill effects, if you want to preserve how the mod worked before 1.1.61 you will need to set it to NO</details>
+- Added a global setting `Should immortal enemies be protected from insta-kill effects` <details><summary>Click for details</summary><p>If set to NO, an immortal enemy will be able to die to insta-kill effects, if you want to preserve how the mod worked before 1.1.61 you will need to set it to NO</details>
 - Updated ReadMe
   
 ## Version 1.1.60
 - Fixed that some enemies dont despawn after getting killed by a spike trap <details><summary>Click for details</summary><p> Thanks to `Tomatobird8` for reporting it on Discord!</details>
-- Added a "Global Settings" button to the configuration ui for settings that affect all enemies.
-- Added a global setting that configures, if enemies should get killed by spike traps. 
+- Added a "Global Settings" button to the configuration ui for settings that affect all enemies
+- Added a global setting `Allow spike traps to kill enemies` that configures, if enemies should get killed by spike traps
 ##
 
 ###### Version 1.1.59 - Fixed that preview images were not displayed in the ui... again
