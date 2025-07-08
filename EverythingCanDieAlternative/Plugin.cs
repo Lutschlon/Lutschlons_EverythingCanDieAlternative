@@ -31,6 +31,9 @@ namespace EverythingCanDieAlternative
 
         // Trap configuration
         public static ConfigEntry<bool> AllowSpikeTrapsToKillEnemies { get; private set; }
+        
+        // Immortal enemy protection configuration
+        public static ConfigEntry<bool> ProtectImmortalEnemiesFromInstaKill { get; private set; }
 
         // Flag to indicate if logging should be conditionally suppressed
         private static bool _infoLogsEnabled = true;
@@ -62,6 +65,12 @@ namespace EverythingCanDieAlternative
                     "AllowSpikeTrapsToKillEnemies",
                     true,
                     "If true, spike roof traps can kill enemies. If false, spike traps will not affect enemies managed by this mod.");
+
+                // Initialize immortal enemy protection configuration
+                ProtectImmortalEnemiesFromInstaKill = Config.Bind("General",
+                    "ProtectImmortalEnemiesFromInstaKill",
+                    true,
+                    "If true, enemies set as immortal will be protected from insta-kill effects by setting their canDie property to false.");
 
                 // Initialize the configuration systems
                 //Plugin.LogInfo("Initializing DespawnConfiguration...");
@@ -245,6 +254,6 @@ namespace EverythingCanDieAlternative
     {
         public const string PLUGIN_GUID = "nwnt.EverythingCanDieAlternative";
         public const string PLUGIN_NAME = "EverythingCanDieAlternative";
-        public const string PLUGIN_VERSION = "1.1.60";
+        public const string PLUGIN_VERSION = "1.1.61";
     }
 }

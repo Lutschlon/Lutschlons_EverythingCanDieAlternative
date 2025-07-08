@@ -1,4 +1,4 @@
-# EverythingCanDieAlternative 1.1.59
+# EverythingCanDieAlternative 1.1.61
 
 This mod makes every enemy in the game killable with configurable hp. It works with any modded weapon and any modded enemy.
 - Easly configurable via UI
@@ -16,7 +16,7 @@ If you add more enemies to your modpack you will need to host a game once more t
 - In the configuration UI you can make enemies killable, configure their health and despawn behaviour, or disable my mod for the specific enemy
 - You can enable preview images for a few selected enemies (may spoiler you!)
 
-![](https://i.imgur.com/lcxxKto.png)
+![](https://i.imgur.com/9ZzjvOu.png)
 
 - The menu can be hidden / shown with `LethalConfig` or inside the `nwnt.EverythingCanDieAlternative.cfg` under `EnableConfigMenu`
 ____
@@ -36,6 +36,8 @@ ____
       <li><code>EnableConfigMenu</code> - Toggle if the configuration ui should be shown in the main menu</li>
       <li><code>EnableInfoLogs</code> - Toggle if info logs should be logged in the console</li>
       <li><code>ShowEnemyImages</code> - Toggle if preview images should be shown in the configuration ui</li>
+      <li><code>ProtectImmortalEnemiesFromInstaKill</code> - Toggle if enemies should be protected from instakill effects when they are configure to be immortal, might get bypassed by other mods</li>
+      <li><code>AllowSpikeTrapsToKillEnemies</code> - Toggle to decide if the vanilla spike traps should be able to kill enemies</li>
     </li>
   </ul>
 
