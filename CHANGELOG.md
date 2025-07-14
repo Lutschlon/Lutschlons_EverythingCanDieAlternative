@@ -1,5 +1,7 @@
-## 1.1.63
-- Updated the code for better performance, especially aimed at lagspikes when hitting an enemy
+## WIP
+- Updated the code for better performance, especially aimed at lagspikes when hitting an enemy (needs testing)
+- Hexi Better Shotgun Compatibility
+- Lethalmin Compatibility
 
 ## 1.1.62
 - Updated health and damage system to allow for decimal values, e.g. [LethalHands](https://thunderstore.io/c/lethal-company/p/SlapItNow/LethalHands/) will now properly deal 0.5 damage instead of 1
