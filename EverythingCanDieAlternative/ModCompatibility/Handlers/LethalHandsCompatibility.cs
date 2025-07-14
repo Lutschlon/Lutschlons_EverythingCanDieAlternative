@@ -125,7 +125,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                             if (line.StartsWith("EnemyPunchDamage = "))
                             {
                                 string valueStr = line.Substring("EnemyPunchDamage = ".Length).Trim();
-                                if (float.TryParse(valueStr, out float configValue))
+                                if (float.TryParse(valueStr, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float configValue))
                                 {
                                     _punchDamage = configValue;
                                     Plugin.LogInfo($"Found LethalHands punch damage from config: {_punchDamage}");
@@ -232,7 +232,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
         /// </summary>
         /// <param name="force">The incoming force value</param>
         /// <returns>A positive damage value to apply</returns>
-        public int ConvertPunchForceToDamage(int force)
+        public float ConvertPunchForceToDamage(float force)
         {
             // Only convert if this is a LethalHands punch (-22 force)
             if (force == -22)
@@ -240,8 +240,8 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                 // Use the punch damage value from LethalHands if available
                 float punchDamage = GetPunchDamage();
 
-                // This will convert the float damage to an int, rounding up to at least 1
-                return Mathf.Max(1, Mathf.CeilToInt(punchDamage));
+                // Return the punch damage as float, allowing values less than 1.0
+                return punchDamage;
             }
 
             // Return the original force for non-LethalHands hits

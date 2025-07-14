@@ -1112,8 +1112,8 @@ namespace EverythingCanDieAlternative.UI
                     "HealthInput",
                     "Health:",
                     config.Health,
-                    1,  // Minimum health value of 1
-                    100, // Maximum health value of 100 (adjust as needed)
+                    0.5f,  // Minimum health value of 0.5
+                    999f, // Maximum health value of 999
                     (newValue) => {
                         config.Health = newValue;
 

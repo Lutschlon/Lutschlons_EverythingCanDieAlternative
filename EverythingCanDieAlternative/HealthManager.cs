@@ -18,10 +18,10 @@ namespace EverythingCanDieAlternative
         private static int networkVarCounter = 0;
 
         // Dictionary to map enemy instance IDs to their NetworkVariables
-        private static readonly Dictionary<int, LNetworkVariable<int>> enemyHealthVars = new Dictionary<int, LNetworkVariable<int>>();
+        private static readonly Dictionary<int, LNetworkVariable<float>> enemyHealthVars = new Dictionary<int, LNetworkVariable<float>>();
 
         // Dictionary to store max health values
-        private static readonly Dictionary<int, int> enemyMaxHealth = new Dictionary<int, int>();
+        private static readonly Dictionary<int, float> enemyMaxHealth = new Dictionary<int, float>();
 
         // Dictionary to track which enemies we've processed
         private static readonly Dictionary<int, bool> processedEnemies = new Dictionary<int, bool>();
@@ -38,6 +38,14 @@ namespace EverythingCanDieAlternative
         // NEW: Dictionary to track which enemies should be immortal (Enabled=true, Unimmortal=false)
         private static readonly Dictionary<int, bool> immortalEnemies = new Dictionary<int, bool>();
 
+        // Dictionary to cache enemy references for fast lookup
+        private static readonly Dictionary<int, EnemyAI> enemyInstanceCache = new Dictionary<int, EnemyAI>();
+
+        // Network message batching to reduce traffic
+        private static readonly Dictionary<int, float> pendingDamage = new Dictionary<int, float>();
+        private static float lastBatchTime = 0f;
+        private const float BATCH_INTERVAL = 0.1f; // Batch every 100ms
+
         // Network message for despawning enemies
         private static LNetworkMessage<int> despawnMessage;
 
@@ -52,7 +60,7 @@ namespace EverythingCanDieAlternative
             public ulong EnemyNetworkId;     // Network ID (from NetworkObject)
             public int EnemyIndex;           // Enemy index (more stable across network)
             public string EnemyName;         // Enemy name (for better logging)
-            public int Damage;
+            public float Damage;
             public ulong PlayerClientId;     // Store the client ID of the player who hit the enemy
 
             public override string ToString()
@@ -61,7 +69,6 @@ namespace EverythingCanDieAlternative
             }
         }
 
-        private static bool networkMessagesCreated = false;
 
         public static void Initialize()
         {
@@ -73,6 +80,9 @@ namespace EverythingCanDieAlternative
             enemyNetworkVarNames.Clear();
             enemiesInDespawnProcess.Clear();
             immortalEnemies.Clear();
+            enemyInstanceCache.Clear();
+            pendingDamage.Clear();
+            lastBatchTime = 0f;
 
             // Create our hit message IMMEDIATELY at startup - not waiting for network
             CreateNetworkMessages();
@@ -225,6 +235,9 @@ namespace EverythingCanDieAlternative
                     enemyNetworkIds[instanceId] = enemy.NetworkObjectId;
                 }
 
+                // Cache the enemy reference for fast lookup
+                enemyInstanceCache[instanceId] = enemy;
+
                 // Check if we've already processed this enemy by instance ID
                 if (processedEnemies.ContainsKey(instanceId) && processedEnemies[instanceId])
                 {
@@ -249,7 +262,7 @@ namespace EverythingCanDieAlternative
                 if (canDamage)
                 {
                     // Get configured health
-                    int configHealth = Plugin.GetMobHealth(sanitizedName, enemy.enemyHP);
+                    float configHealth = Plugin.GetMobHealth(sanitizedName, enemy.enemyHP);
 
                     // Apply bonus health from BrutalCompanyMinus if installed
                     var brutalCompanyHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.BrutalCompanyMinusCompatibility>("SoftDiamond.BrutalCompanyMinusExtraReborn");
@@ -268,13 +281,13 @@ namespace EverythingCanDieAlternative
                     Plugin.LogInfo($"Creating network variable {varName} for enemy {enemyName} (ID: {instanceId})");
 
                     // Create the health variable
-                    LNetworkVariable<int> healthVar;
+                    LNetworkVariable<float> healthVar;
                     if (!enemyHealthVars.ContainsKey(instanceId))
                     {
                         try
                         {
                             // Create a new NetworkVariable
-                            healthVar = LNetworkVariable<int>.Create(varName, configHealth);
+                            healthVar = LNetworkVariable<float>.Create(varName, configHealth);
 
                             // Subscribe to value changes
                             healthVar.OnValueChanged += (oldHealth, newHealth) => HandleHealthChange(instanceId, newHealth);
@@ -293,7 +306,7 @@ namespace EverythingCanDieAlternative
                             enemyNetworkVarNames[instanceId] = varName;
 
                             // Create the variable with the new name
-                            healthVar = LNetworkVariable<int>.Create(varName, configHealth);
+                            healthVar = LNetworkVariable<float>.Create(varName, configHealth);
                             healthVar.OnValueChanged += (oldHealth, newHealth) => HandleHealthChange(instanceId, newHealth);
                             enemyHealthVars[instanceId] = healthVar;
                         }
@@ -361,7 +374,7 @@ namespace EverythingCanDieAlternative
         }
 
         // Handle health changes from NetworkVariable updates
-        private static void HandleHealthChange(int instanceId, int newHealth)
+        private static void HandleHealthChange(int instanceId, float newHealth)
         {
             // Get the enemy
             EnemyAI enemy = FindEnemyById(instanceId);
@@ -391,23 +404,32 @@ namespace EverythingCanDieAlternative
         // Find enemy by local instance ID (used internally)
         private static EnemyAI FindEnemyById(int instanceId)
         {
-            // Find all enemies in the scene
+            // Try cache first for O(1) lookup
+            if (enemyInstanceCache.TryGetValue(instanceId, out EnemyAI cached))
+            {
+                // Validate the cached reference is still valid
+                if (cached != null)
+                    return cached;
+                else
+                    enemyInstanceCache.Remove(instanceId);
+            }
+            
+            // Fallback to searching (and update cache)
             var allEnemies = UnityEngine.Object.FindObjectsOfType<EnemyAI>();
-
-            // Look for the one matching our instance ID
             foreach (var enemy in allEnemies)
             {
                 if (enemy.GetInstanceID() == instanceId)
                 {
+                    enemyInstanceCache[instanceId] = enemy;
                     return enemy;
                 }
             }
-
+            
             return null;
         }
 
         // This is called from our HitEnemyOnLocalClient patch
-        public static void ProcessHit(EnemyAI enemy, int damage, PlayerControllerB playerWhoHit)
+        public static void ProcessHit(EnemyAI enemy, float damage, PlayerControllerB playerWhoHit)
         {
             if (enemy == null || enemy.isEnemyDead) return;
 
@@ -455,39 +477,70 @@ namespace EverythingCanDieAlternative
             }
             else
             {
-                // Otherwise send a message to the host with ALL identifiers
-                HitData hitData = new HitData
+                // Batch damage for non-host clients
+                if (!pendingDamage.ContainsKey(instanceId))
+                    pendingDamage[instanceId] = 0f;
+                
+                pendingDamage[instanceId] += damage;
+                
+                // Track the player who hit
+                var hitmarkerHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.HitmarkerCompatibility>("com.github.zehsteam.Hitmarker");
+                if (hitmarkerHandler != null && hitmarkerHandler.IsInstalled && playerWhoHit != null)
                 {
-                    EnemyInstanceId = instanceId,
-                    EnemyNetworkId = enemy.NetworkObjectId,
-                    EnemyIndex = enemy.thisEnemyIndex,
-                    EnemyName = enemy.enemyType.enemyName,
-                    Damage = damage,
-                    PlayerClientId = playerWhoHit != null ? playerWhoHit.actualClientId : 0UL
-                };
-
-                try
-                {
-                    // Make sure the message exists
-                    if (hitMessage == null)
-                    {
-                        Plugin.Log.LogWarning("Hit message is null, recreating it");
-                        CreateNetworkMessages();
-                    }
-
-                    // Send the message to the server
-                    hitMessage.SendServer(hitData);
-                    Plugin.LogInfo($"Sent hit message to server: Enemy {enemy.enemyType.enemyName}, Damage {damage}, Index {enemy.thisEnemyIndex}, PlayerClientId {hitData.PlayerClientId}");
+                    hitmarkerHandler.TrackDamageSource(instanceId, playerWhoHit);
                 }
-                catch (Exception ex)
+                
+                // Check if we should send batch
+                if (Time.time - lastBatchTime >= BATCH_INTERVAL)
                 {
-                    Plugin.Log.LogError($"Error sending hit message: {ex}");
+                    SendDamageBatch();
                 }
             }
         }
 
+        private static void SendDamageBatch()
+        {
+            if (pendingDamage.Count == 0) return;
+            
+            foreach (var kvp in pendingDamage)
+            {
+                var enemy = FindEnemyById(kvp.Key);
+                if (enemy != null && !enemy.isEnemyDead)
+                {
+                    HitData hitData = new HitData
+                    {
+                        EnemyInstanceId = kvp.Key,
+                        EnemyNetworkId = enemy.NetworkObjectId,
+                        EnemyIndex = enemy.thisEnemyIndex,
+                        EnemyName = enemy.enemyType.enemyName,
+                        Damage = kvp.Value,
+                        PlayerClientId = StartOfRound.Instance.localPlayerController?.actualClientId ?? 0UL
+                    };
+                    
+                    try
+                    {
+                        if (hitMessage == null)
+                        {
+                            Plugin.Log.LogWarning("Hit message is null, recreating it");
+                            CreateNetworkMessages();
+                        }
+                        
+                        hitMessage.SendServer(hitData);
+                        Plugin.LogInfo($"Sent batched damage: {kvp.Value} to {enemy.enemyType.enemyName}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Plugin.Log.LogError($"Error sending batched hit message: {ex}");
+                    }
+                }
+            }
+            
+            pendingDamage.Clear();
+            lastBatchTime = Time.time;
+        }
+
         // Process damage directly (only called on host)
-        private static void ProcessDamageDirectly(EnemyAI enemy, int damage, PlayerControllerB playerWhoHit = null)
+        private static void ProcessDamageDirectly(EnemyAI enemy, float damage, PlayerControllerB playerWhoHit = null)
         {
             if (enemy == null || enemy.isEnemyDead) return;
 
@@ -530,8 +583,8 @@ namespace EverythingCanDieAlternative
             if (enemyHealthVars.TryGetValue(instanceId, out var healthVar))
             {
                 // Calculate new health
-                int currentHealth = healthVar.Value;
-                int newHealth = Mathf.Max(0, currentHealth - damage);
+                float currentHealth = healthVar.Value;
+                float newHealth = Mathf.Max(0f, currentHealth - damage);
 
                 Plugin.LogInfo($"Enemy {enemy.enemyType.enemyName} damaged for {damage}: {currentHealth} -> {newHealth}");
 
@@ -669,7 +722,7 @@ namespace EverythingCanDieAlternative
                 enemiesInDespawnProcess.Remove(instanceId);
         }
 
-        public static int GetEnemyHealth(EnemyAI enemy)
+        public static float GetEnemyHealth(EnemyAI enemy)
         {
             if (enemy == null) return 0;
 
@@ -682,12 +735,12 @@ namespace EverythingCanDieAlternative
             return 0;
         }
 
-        public static int GetEnemyMaxHealth(EnemyAI enemy)
+        public static float GetEnemyMaxHealth(EnemyAI enemy)
         {
             if (enemy == null) return 0;
 
             int instanceId = enemy.GetInstanceID();
-            if (enemyMaxHealth.TryGetValue(instanceId, out int maxHealth))
+            if (enemyMaxHealth.TryGetValue(instanceId, out float maxHealth))
             {
                 return maxHealth;
             }
@@ -725,6 +778,7 @@ namespace EverythingCanDieAlternative
                 enemyNetworkVarNames.Remove(instanceId);
             if (immortalEnemies.ContainsKey(instanceId))
                 immortalEnemies.Remove(instanceId);
+            enemyInstanceCache.Remove(instanceId);
 
             Plugin.LogInfo($"Cleaned up tracking data for externally killed enemy {enemy.enemyType.enemyName}");
         }

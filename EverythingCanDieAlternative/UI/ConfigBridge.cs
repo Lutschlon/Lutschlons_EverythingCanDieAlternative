@@ -19,6 +19,9 @@ namespace EverythingCanDieAlternative.UI
         private static string enemyControlConfigPath = Path.Combine(Paths.ConfigPath, "nwnt.EverythingCanDieAlternative_Enemy_Control.cfg");
         private static string despawnConfigPath = Path.Combine(Paths.ConfigPath, "nwnt.EverythingCanDieAlternative_Despawn_Rules.cfg");
 
+        // Pre-compiled regex for better performance
+        private static readonly Regex sectionRegex = new Regex(@"^\[(.*)\]$", RegexOptions.Compiled);
+
         // Cache of existing config entries
         private static Dictionary<string, Dictionary<string, object>> cachedConfigEntries = new Dictionary<string, Dictionary<string, object>>();
 
@@ -69,7 +72,7 @@ namespace EverythingCanDieAlternative.UI
                     bool isEnabled = false;
                     bool canDie = true;
                     bool shouldDespawn = true;
-                    int health = 3; // Default fallback
+                    float health = 3f; // Default fallback
 
                     if (cachedConfigEntries.TryGetValue(enemyName, out var entries))
                     {
@@ -94,11 +97,15 @@ namespace EverythingCanDieAlternative.UI
                         // Get Health value
                         if (entries.TryGetValue(".HEALTH", out var healthValue))
                         {
-                            if (healthValue is int healthInt)
+                            if (healthValue is float healthFloat)
+                            {
+                                health = healthFloat;
+                            }
+                            else if (healthValue is int healthInt)
                             {
                                 health = healthInt;
                             }
-                            else if (healthValue is string healthStr && int.TryParse(healthStr, out int parsedHealth))
+                            else if (healthValue is string healthStr && float.TryParse(healthStr, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float parsedHealth))
                             {
                                 health = parsedHealth;
                             }
@@ -156,7 +163,7 @@ namespace EverythingCanDieAlternative.UI
                         continue;
 
                     // Check if this is a section header [SectionName]
-                    Match sectionMatch = Regex.Match(trimmedLine, @"^\[(.*)\]$");
+                    Match sectionMatch = sectionRegex.Match(trimmedLine);
                     if (sectionMatch.Success)
                     {
                         currentSection = sectionMatch.Groups[1].Value;
@@ -238,15 +245,15 @@ namespace EverythingCanDieAlternative.UI
                 }
                 else if (setting == ".HEALTH")
                 {
-                    // Handle integer values
-                    int intValue;
-                    if (int.TryParse(value, out intValue))
+                    // Handle float values using invariant culture
+                    float floatValue;
+                    if (float.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out floatValue))
                     {
-                        cachedConfigEntries[enemyName][setting] = intValue;
+                        cachedConfigEntries[enemyName][setting] = floatValue;
                     }
                     else
                     {
-                        // Store as string if we can't parse as int
+                        // Store as string if we can't parse as float
                         cachedConfigEntries[enemyName][setting] = value;
                         Plugin.Log.LogWarning($"Could not parse health value {value} for {enemyName}");
                     }
@@ -274,18 +281,22 @@ namespace EverythingCanDieAlternative.UI
         }
 
         // Get cached int value
-        private static int GetCachedIntValue(string enemyName, string suffix, int defaultValue)
+        private static float GetCachedFloatValue(string enemyName, string suffix, float defaultValue)
         {
             if (cachedConfigEntries.TryGetValue(enemyName, out var entries))
             {
                 if (entries.TryGetValue(suffix, out var value))
                 {
                     // Handle both int and string values
-                    if (value is int intValue)
+                    if (value is float floatValue)
+                    {
+                        return floatValue;
+                    }
+                    else if (value is int intValue)
                     {
                         return intValue;
                     }
-                    else if (value is string stringValue && int.TryParse(stringValue, out int parsedValue))
+                    else if (value is string stringValue && float.TryParse(stringValue, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float parsedValue))
                     {
                         return parsedValue;
                     }
@@ -336,7 +347,7 @@ namespace EverythingCanDieAlternative.UI
 
                     if (cachedConfigEntries[sanitizedName].ContainsKey(".HEALTH"))
                     {
-                        mainConfigUpdates[$"{sanitizedName}.Health"] = config.Health.ToString();
+                        mainConfigUpdates[$"{sanitizedName}.Health"] = config.Health.ToString(System.Globalization.CultureInfo.InvariantCulture);
                     }
 
                     // Update main config file without Enabled setting
@@ -405,7 +416,7 @@ namespace EverythingCanDieAlternative.UI
                     string trimmedLine = line.Trim();
 
                     // Check if this is a section header
-                    Match sectionMatch = Regex.Match(trimmedLine, @"^\[(.*)\]$");
+                    Match sectionMatch = sectionRegex.Match(trimmedLine);
                     if (sectionMatch.Success)
                     {
                         currentSection = sectionMatch.Groups[1].Value;

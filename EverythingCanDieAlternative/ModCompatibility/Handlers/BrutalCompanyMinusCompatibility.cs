@@ -252,7 +252,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
         /// <summary>
         /// Applies the bonus HP from BrutalCompanyMinus to the given base health value
         /// </summary>
-        public int ApplyBonusHp(int baseHealth)
+        public float ApplyBonusHp(float baseHealth)
         {
             int bonusHp = GetBonusHp();
             if (bonusHp > 0)
