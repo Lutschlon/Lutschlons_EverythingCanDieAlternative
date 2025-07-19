@@ -3,9 +3,7 @@ using UnityEngine;
 
 namespace EverythingCanDieAlternative.ModCompatibility.Handlers
 {
-    /// <summary>
-    /// Compatibility handler for the [MOD_NAME] mod
-    /// </summary>
+    // Compatibility handler for the [MOD_NAME] mod
     public class TemplateCompatibility : BaseModCompatibility
     {
         // Replace these values with the actual mod information
@@ -23,17 +21,13 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             Plugin.LogInfo($"{ModName} compatibility initialized");
         }
         
-        /// <summary>
-        /// Example method for mod-specific functionality
-        /// </summary>
+        // Example method for mod-specific functionality
         public void ExampleMethod()
         {
             // Add compatibility code here
         }
         
-        /// <summary>
-        /// Example of how to handle enemy modifications for this mod
-        /// </summary>
+        // Example of how to handle enemy modifications for this mod
         public void ProcessEnemy(EnemyAI enemy)
         {
             if (enemy == null) return;

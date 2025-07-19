@@ -5,9 +5,7 @@ using System.Reflection;
 
 namespace EverythingCanDieAlternative.ModCompatibility
 {
-    /// <summary>
-    /// Central manager for all mod compatibility handlers
-    /// </summary>
+    // Central manager for all mod compatibility handlers
     public class ModCompatibilityManager
     {
         private static ModCompatibilityManager _instance;
@@ -20,9 +18,7 @@ namespace EverythingCanDieAlternative.ModCompatibility
             // Private constructor for singleton
         }
 
-        /// <summary>
-        /// Initialize the compatibility manager and all registered handlers
-        /// </summary>
+        // Initialize the compatibility manager and all registered handlers
         public void Initialize()
         {
             try
@@ -58,9 +54,7 @@ namespace EverythingCanDieAlternative.ModCompatibility
             }
         }
 
-        /// <summary>
-        /// Register known compatibility handlers manually
-        /// </summary>
+        // Register known compatibility handlers manually
         private void RegisterKnownHandlers()
         {
             try
@@ -81,9 +75,7 @@ namespace EverythingCanDieAlternative.ModCompatibility
             }
         }
 
-        /// <summary>
-        /// Safely register a compatibility handler with error handling
-        /// </summary>
+        // Safely register a compatibility handler with error handling
         private void SafeRegisterHandler(Func<IModCompatibility> handlerFactory, string handlerName)
         {
             try
@@ -97,9 +89,7 @@ namespace EverythingCanDieAlternative.ModCompatibility
             }
         }
 
-        /// <summary>
-        /// Manually register a compatibility handler
-        /// </summary>
+        // Manually register a compatibility handler
         public void RegisterHandler(IModCompatibility handler)
         {
             try
@@ -120,9 +110,7 @@ namespace EverythingCanDieAlternative.ModCompatibility
             }
         }
 
-        /// <summary>
-        /// Check if a specific mod is installed
-        /// </summary>
+        // Check if a specific mod is installed
         public bool IsModInstalled(string modId)
         {
             try
@@ -136,9 +124,7 @@ namespace EverythingCanDieAlternative.ModCompatibility
             }
         }
 
-        /// <summary>
-        /// Get a specific mod compatibility handler
-        /// </summary>
+        // Get a specific mod compatibility handler
         public T GetHandler<T>(string modId) where T : class, IModCompatibility
         {
             try
@@ -156,9 +142,7 @@ namespace EverythingCanDieAlternative.ModCompatibility
             }
         }
 
-        /// <summary>
-        /// Get all registered compatibility handlers
-        /// </summary>
+        // Get all registered compatibility handlers
         public IEnumerable<IModCompatibility> GetAllHandlers()
         {
             return _handlers.Values;

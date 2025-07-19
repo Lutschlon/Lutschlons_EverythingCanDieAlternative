@@ -6,9 +6,7 @@ using UnityEngine;
 
 namespace EverythingCanDieAlternative.ModCompatibility.Handlers
 {
-    /// <summary>
-    /// Compatibility handler for the LethalHands mod
-    /// </summary>
+    // Compatibility handler for the LethalHands mod
     public class LethalHandsCompatibility : BaseModCompatibility
     {
         public override string ModId => "SlapitNow.LethalHands";
@@ -91,9 +89,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             TryGetPunchDamageValue();
         }
 
-        /// <summary>
-        /// Get the punch damage value from LethalHands mod
-        /// </summary>
+        // Get the punch damage value from LethalHands mod
         public float GetPunchDamage()
         {
             if (_punchDamage.HasValue)
@@ -103,9 +99,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             return 1;
         }
 
-        /// <summary>
-        /// Tries to extract the punch damage value from LethalHands using reflection
-        /// </summary>
+        // Tries to extract the punch damage value from LethalHands using reflection
         private void TryGetPunchDamageValue()
         {
             try
@@ -227,11 +221,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             }
         }
 
-        /// <summary>
-        /// Converts the special LethalHands punch force (-22) to a proper damage value
-        /// </summary>
-        /// <param name="force">The incoming force value</param>
-        /// <returns>A positive damage value to apply</returns>
+        // Converts the special LethalHands punch force (-22) to a proper damage value
         public float ConvertPunchForceToDamage(float force)
         {
             // Only convert if this is a LethalHands punch (-22 force)

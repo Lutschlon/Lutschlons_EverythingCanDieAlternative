@@ -6,10 +6,7 @@ using UnityEngine;
 
 namespace EverythingCanDieAlternative.ModCompatibility.Handlers
 {
-    /// <summary>
-    /// Compatibility handler for enemy-vs-enemy combat
-    /// This handles interactions between different enemy types to ensure damage is properly tracked
-    /// </summary>
+    // Compatibility handler for enemy-vs-enemy combat - handles interactions between different enemy types to ensure damage is properly tracked
     public class EnemyVsEnemyCompatibility : BaseModCompatibility
     {
         public override string ModId => "nwnt.EnemyVsEnemyCompat";
@@ -65,9 +62,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             }
         }
 
-        /// <summary>
-        /// Prefix patch for EnemyAI.HitEnemy to intercept all damage
-        /// </summary>
+        // Prefix patch for EnemyAI.HitEnemy to intercept all damage
         public static bool HitEnemyPrefix(EnemyAI __instance, int force, PlayerControllerB playerWhoHit, bool playHitSFX, int hitID)
         {
             try

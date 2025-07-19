@@ -7,9 +7,7 @@ using Unity.Netcode;
 
 namespace EverythingCanDieAlternative.ModCompatibility.Handlers
 {
-    /// <summary>
-    /// Compatibility handler for the SellBodies mod
-    /// </summary>
+    // Compatibility handler for the SellBodies mod
     public class SellBodiesCompatibility : BaseModCompatibility
     {
         public override string ModId => "Entity378.sellbodies";
@@ -91,6 +89,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             _problemEnemyPowerLevels.Add("Rabbit?", 1);
             _problemEnemyPowerLevels.Add("Light Eater", 2);
             _problemEnemyPowerLevels.Add("SCP682", 2);
+            _problemEnemyPowerLevels.Add("Nancy", 1);
             // Add more problematic enemies here as they're discovered
             // _problemEnemyPowerLevels.Add("OtherEnemy", 2);
         }

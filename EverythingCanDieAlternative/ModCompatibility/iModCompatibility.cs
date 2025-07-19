@@ -3,35 +3,23 @@ using System.Linq;
 
 namespace EverythingCanDieAlternative.ModCompatibility
 {
-    /// <summary>
-    /// Interface for all mod compatibility handlers
-    /// </summary>
+    // Interface for all mod compatibility handlers
     public interface IModCompatibility
     {
-        /// <summary>
-        /// Unique identifier for the mod
-        /// </summary>
+        // Unique identifier for the mod
         string ModId { get; }
         
-        /// <summary>
-        /// Human-readable name of the mod
-        /// </summary>
+        // Human-readable name of the mod
         string ModName { get; }
         
-        /// <summary>
-        /// Whether the mod is currently installed
-        /// </summary>
+        // Whether the mod is currently installed
         bool IsInstalled { get; }
         
-        /// <summary>
-        /// Initialize the compatibility handler
-        /// </summary>
+        // Initialize the compatibility handler
         void Initialize();
     }
 
-    /// <summary>
-    /// Base class for mod compatibility implementations
-    /// </summary>
+    // Base class for mod compatibility implementations
     public abstract class BaseModCompatibility : IModCompatibility
     {
         public abstract string ModId { get; }
@@ -65,9 +53,7 @@ namespace EverythingCanDieAlternative.ModCompatibility
             }
         }
         
-        /// <summary>
-        /// Called when the mod is detected as installed
-        /// </summary>
+        // Called when the mod is detected as installed
         protected abstract void OnModInitialize();
     }
 }
