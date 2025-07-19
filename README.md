@@ -1,6 +1,6 @@
-# EverythingCanDieAlternative 1.1.61
+# EverythingCanDieAlternative 1.1.63
 
-This mod makes every enemy in the game killable with configurable hp. It works with any modded weapon and any modded enemy.
+This mod makes every enemy in the game killable with configurable hp. It aims to works with any modded weapon and any modded enemy.
 - Easly configurable via UI
 - You can leave enemies immortal in the config to hit the right balance, you can also disable my mod for enemies if you want to 100% preserve their original behaviour
 - This mod despawns dead enemies by itself (configurable)
@@ -13,7 +13,7 @@ In order to generate the enemy configs: <br>
 Start the game > host a lobby > quit the lobby > check out the EverythingCanDieAlt menu or the .cfg files<br>
 If you add more enemies to your modpack you will need to host a game once more to generate their configs
 <br>
-- In the configuration UI you can make enemies killable, configure their health and despawn behaviour, or disable my mod for the specific enemy
+- In the configuration UI you can make enemies killable, configure their health, configure their despawn behaviour, or disable my mod for the specific enemy
 - You can enable preview images for a few selected enemies (may spoiler you!)
 
 ![](https://i.imgur.com/9ZzjvOu.png)
@@ -65,12 +65,12 @@ Iam working on compatibilities for a few requested mods. Let me know if you have
 | List of implemented compatibility patches|Mods that seem to work out of the box| Mods with known issues|
 | ------- | ------- | ------- |
 | [SellBodiesFixed](https://thunderstore.io/c/lethal-company/p/Entity378/SellBodiesFixed/)|[Enhanced Monsters](https://thunderstore.io/c/lethal-company/p/VELD/Enhanced_Monsters/)|[EnemyHealthBars](https://thunderstore.io/c/lethal-company/p/NotezyTeam/EnemyHealthBars/) - HealthBar doesnt work|
-| [LethalHands](https://thunderstore.io/c/lethal-company/p/SlapItNow/LethalHands/)|[MoreCounterplay](https://thunderstore.io/c/lethal-company/p/BaronDrakula/MoreCounterplay/)||
-| [BrutalCompanyMinusExtraReborn](https://thunderstore.io/c/lethal-company/p/SoftDiamond/BrutalCompanyMinusExtraReborn/)|[FairAi](https://thunderstore.io/c/lethal-company/p/TheFluff/FairAI)||
+| [LethalHands](https://thunderstore.io/c/lethal-company/p/SlapItNow/LethalHands/)|[MoreCounterplay](https://thunderstore.io/c/lethal-company/p/BaronDrakula/MoreCounterplay/)|[HexiBetterShotgunFixed](https://thunderstore.io/c/lethal-company/p/Entity378/HexiBetterShotgunFixed/) - Shutgun deals no damage, fix is in the making|
+| [BrutalCompanyMinusExtraReborn](https://thunderstore.io/c/lethal-company/p/SoftDiamond/BrutalCompanyMinusExtraReborn/)|[FairAi](https://thunderstore.io/c/lethal-company/p/TheFluff/FairAI)|[LethalMin](https://thunderstore.io/c/lethal-company/p/NotezyTeam/LethalMin/) - Pikmin deal no damage to monsters, fix is in the making|
 |[Hitmarker](https://thunderstore.io/c/lethal-company/p/Zehs/Hitmarker/)|||
 
 ## Known Issues
-- Currently none
+- See Mod Compatibilities
 
 <h3>Found a bug? Is my mod not compatible with your favourite mod? You can find me here:</h3>
 
