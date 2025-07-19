@@ -5,6 +5,7 @@
 - Updated how the ECDA config menu gets inserted into the main menu, due to a very niche error that stops the config menu from being inserted to the main menu<details><summary>Click for details</summary>Thanks to `Megoman` for reporting it on Discord!<br> The issue occours when [UsefulZapGun](https://thunderstore.io/c/lethal-company/p/mborsh/Useful_Zap_Gun/) tries to add an item [..to its configuration list] that has an illegal character in it. Like "Mario's Boombox" from [CastleGrounds](https://thunderstore.io/c/lethal-company/p/RealeStudios/CastleGrounds/). This scenario crashed the MenuManager.Start method, wich was needed to insert the ECDA config menu</details>
 - LessLogs now doesnt require a game restart anymore
 - Updated the SellBodiesFixed compatibility. The enemy `Nancy` will now spawn an item when killed
+- Added 9 preview images to the config UI, may spoiler you and your friends of how enemies look like so use with caution
 
 
 ###### 1.1.62 (unreleased) - Updated the mod from .Net v4.7.2 to netstandard2.1
@@ -27,7 +28,7 @@
 ###### 1.1.57 - Fixed that preview images were not displayed in the ui
 
 ## 1.1.56
-- Added preview images for a few selected enemies to the config UI. Is toggled off by default, may spoiler you and your friends of how enemies look like so use with caution. <details><summary>Click for details</summary>- Should help users understanding what name refers to what actual enemy. <br>- The preview images are screenshots i made and edited. If i didnt made a screenshot for that enemy no preview will be shown.</details>
+- Added preview images for 46 enemies to the config UI. Is toggled off by default, may spoiler you and your friends of how enemies look like so use with caution <details><summary>Click for details</summary>- Should help users understanding what name refers to what actual enemy. <br>- The preview images are screenshots i made and edited. If i didnt made a screenshot for that enemy no preview will be shown.</details>
 - Updated nearly all info log entries to be hidden when `EnableInfoLogs` is deactivated
 
 ##
