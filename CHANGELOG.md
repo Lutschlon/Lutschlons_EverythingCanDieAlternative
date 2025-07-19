@@ -3,6 +3,7 @@
 - Updated health and damage system to allow for decimal values, e.g. [LethalHands](https://thunderstore.io/c/lethal-company/p/SlapItNow/LethalHands/) will now properly deal 0.5 damage instead of 1
 - Updated maximum configurable health to 999 instead of 100
 - Updated how the ECDA config menu gets inserted into the main menu, due to a very niche error that stops the config menu from being inserted to the main menu<details><summary>Click for details</summary><p> Thanks to `Megoman` for reporting it on Discord!<br> The issue occours when [UsefulZapGun](https://thunderstore.io/c/lethal-company/p/mborsh/Useful_Zap_Gun/) tries to add an item [..to its configuration list] that has an illegal character in it. Like "Mario's Boombox" from [CastleGrounds](https://thunderstore.io/c/lethal-company/p/RealeStudios/CastleGrounds/). This scenario crashed the MenuManager.Start method, wich was needed to insert the ECDA config menu</details>
+- LessLogs now doesnt require a game restart anymore
 ###### 1.1.62 (unreleased) - Updated the mod from .Net v4.7.2 to netstandard2.1
 ## 1.1.61
 - Updated how `.Unimmortal = false` effects gameplay - it will now set the games internal `candie` variable for the enemy to false, this will prevent them from getting killed by insta-kill causes
