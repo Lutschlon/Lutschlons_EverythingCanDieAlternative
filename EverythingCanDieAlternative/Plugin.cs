@@ -35,15 +35,15 @@ namespace EverythingCanDieAlternative
         // Immortal enemy protection configuration
         public static ConfigEntry<bool> ProtectImmortalEnemiesFromInstaKill { get; private set; }
 
+        // Flag to indicate if logging should be conditionally suppressed
+        private static bool _infoLogsEnabled = true;
+
         // Caches for configuration values to avoid repeated lookups
         private static readonly Dictionary<string, ConfigEntry<bool>> boolConfigCache = new Dictionary<string, ConfigEntry<bool>>();
         private static readonly Dictionary<string, ConfigEntry<float>> floatConfigCache = new Dictionary<string, ConfigEntry<float>>();
         
         // Cache for sanitized strings to avoid repeated processing
         private static readonly Dictionary<string, string> sanitizedNameCache = new Dictionary<string, string>();
-
-        // Flag to indicate if logging should be conditionally suppressed
-        private static bool _infoLogsEnabled = true;
 
         private void Awake()
         {
@@ -169,6 +169,16 @@ namespace EverythingCanDieAlternative
         {
             Log.LogWarning(message);
         }
+        
+        // Refresh the cached logging state when the config changes
+        public static void RefreshLoggingState()
+        {
+            if (UIConfiguration.Instance != null && UIConfiguration.Instance.IsInitialized)
+            {
+                _infoLogsEnabled = UIConfiguration.Instance.ShouldLogInfo();
+                LogInfo($"Logging state refreshed: info logs {(_infoLogsEnabled ? "enabled" : "disabled")}");
+            }
+        }
 
         // Check if an enemy is killable based on config
         public static bool CanMob(string identifier, string mobName)
@@ -177,13 +187,13 @@ namespace EverythingCanDieAlternative
             {
                 string mob = RemoveInvalidCharacters(mobName).ToUpper();
                 string mobConfigKey = mob + identifier.ToUpper();
-                
+
                 // Check cache first
                 if (boolConfigCache.TryGetValue(mobConfigKey, out var cachedEntry))
                 {
                     return cachedEntry.Value;
                 }
-                
+
                 // Look for existing config
                 ConfigEntry<bool> configEntry = null;
                 foreach (ConfigDefinition entry in Instance.Config.Keys)
@@ -195,7 +205,7 @@ namespace EverythingCanDieAlternative
                         return configEntry.Value;
                     }
                 }
-                
+
                 // Create new config if not found
                 configEntry = Instance.Config.Bind("Mobs", mob + identifier, true, $"If true, {mobName} will be damageable");
                 boolConfigCache[mobConfigKey] = configEntry; // Cache it

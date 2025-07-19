@@ -69,6 +69,7 @@ namespace EverythingCanDieAlternative
             }
         }
 
+        private static bool networkMessagesCreated = false;
 
         public static void Initialize()
         {
@@ -229,14 +230,14 @@ namespace EverythingCanDieAlternative
             {
                 int instanceId = enemy.GetInstanceID();
 
+                // Cache the enemy reference for fast lookup
+                enemyInstanceCache[instanceId] = enemy;
+
                 // Store network object ID for later lookup
                 if (enemy.NetworkObject != null)
                 {
                     enemyNetworkIds[instanceId] = enemy.NetworkObjectId;
                 }
-
-                // Cache the enemy reference for fast lookup
-                enemyInstanceCache[instanceId] = enemy;
 
                 // Check if we've already processed this enemy by instance ID
                 if (processedEnemies.ContainsKey(instanceId) && processedEnemies[instanceId])
@@ -521,7 +522,7 @@ namespace EverythingCanDieAlternative
                     {
                         if (hitMessage == null)
                         {
-                            Plugin.Log.LogWarning("Hit message is null, recreating it");
+                            Plugin.LogWarning("Hit message is null, recreating it");
                             CreateNetworkMessages();
                         }
                         
@@ -530,7 +531,7 @@ namespace EverythingCanDieAlternative
                     }
                     catch (Exception ex)
                     {
-                        Plugin.Log.LogError($"Error sending batched hit message: {ex}");
+                        Plugin.LogError($"Error sending batched hit message: {ex}");
                     }
                 }
             }
@@ -748,9 +749,7 @@ namespace EverythingCanDieAlternative
             return 0;
         }
 
-        /// <summary>
-        /// Check if an enemy is being tracked by our health system
-        /// </summary>
+        // Check if an enemy is being tracked by our health system
         public static bool IsEnemyTracked(EnemyAI enemy)
         {
             if (enemy == null) return false;
@@ -758,7 +757,7 @@ namespace EverythingCanDieAlternative
             return enemyHealthVars.ContainsKey(instanceId) || immortalEnemies.ContainsKey(instanceId);
         }
 
-        /// Clean up tracking data for an externally killed enemy
+        // Clean up tracking data for an externally killed enemy
         public static void CleanupExternallyKilledEnemy(EnemyAI enemy)
         {
             if (enemy == null) return;
@@ -778,7 +777,8 @@ namespace EverythingCanDieAlternative
                 enemyNetworkVarNames.Remove(instanceId);
             if (immortalEnemies.ContainsKey(instanceId))
                 immortalEnemies.Remove(instanceId);
-            enemyInstanceCache.Remove(instanceId);
+            if (enemyInstanceCache.ContainsKey(instanceId))
+                enemyInstanceCache.Remove(instanceId);
 
             Plugin.LogInfo($"Cleaned up tracking data for externally killed enemy {enemy.enemyType.enemyName}");
         }

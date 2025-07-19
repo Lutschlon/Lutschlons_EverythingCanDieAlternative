@@ -30,9 +30,7 @@ namespace EverythingCanDieAlternative
             //Plugin.Log.LogInfo($"Enemy control configuration loaded");
         }
 
-        /// <summary>
-        /// Reload configuration from disk and clear cache
-        /// </summary>
+        // Reload configuration from disk and clear cache
         public void ReloadConfig()
         {
             try
@@ -51,9 +49,7 @@ namespace EverythingCanDieAlternative
             }
         }
 
-        /// <summary>
-        /// Pre-create configuration entries for all known enemies
-        /// </summary>
+        // Pre-create configuration entries for all known enemies
         public void PreCreateEnemyConfigEntries()
         {
             // Only create entries once
@@ -83,9 +79,7 @@ namespace EverythingCanDieAlternative
             }
         }
 
-        /// <summary>
-        /// Check if the mod should be enabled for a specific enemy
-        /// </summary>
+        // Check if the mod should be enabled for a specific enemy
         public bool IsModEnabledForEnemy(string enemyName)
         {
             string sanitizedName = Plugin.RemoveInvalidCharacters(enemyName).ToUpper();
@@ -113,9 +107,7 @@ namespace EverythingCanDieAlternative
             }
         }
 
-        /// <summary>
-        /// Clear cache to force re-reading values from config
-        /// </summary>
+        // Clear cache to force re-reading values from config
         public void ClearCache()
         {
             _enemyModEnabled.Clear();

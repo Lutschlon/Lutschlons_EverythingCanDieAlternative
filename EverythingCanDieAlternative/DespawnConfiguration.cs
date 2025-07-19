@@ -65,9 +65,7 @@ namespace EverythingCanDieAlternative
             //Plugin.Log.LogInfo($"Despawn configuration loaded");
         }
 
-        /// <summary>
-        /// Reload configuration from disk and clear cache
-        /// </summary>
+        // Reload configuration from disk and clear cache
         public void ReloadConfig()
         {
             try
@@ -148,9 +146,7 @@ namespace EverythingCanDieAlternative
             return configEntry.Value;
         }
 
-        /// <summary>
-        /// Clear cache to force re-reading values from config
-        /// </summary>
+        // Clear cache to force re-reading values from config
         public void ClearCache()
         {
             _enemyDespawnEnabled.Clear();
