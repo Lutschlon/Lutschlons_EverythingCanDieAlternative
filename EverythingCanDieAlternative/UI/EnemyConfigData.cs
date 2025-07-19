@@ -4,9 +4,7 @@ using static EverythingCanDieAlternative.Plugin;
 
 namespace EverythingCanDieAlternative.UI
 {
-    /// <summary>
-    /// Class to hold enemy configuration data for the UI
-    /// </summary>
+    // Class to hold enemy configuration data for the UI
     public class EnemyConfigData
     {
         public string Name;
@@ -14,9 +12,9 @@ namespace EverythingCanDieAlternative.UI
         public bool IsEnabled;
         public bool CanDie;
         public bool ShouldDespawn;
-        public int Health;
+        public float Health;
 
-        public EnemyConfigData(string name, bool isEnabled, bool canDie, bool shouldDespawn, int health)
+        public EnemyConfigData(string name, bool isEnabled, bool canDie, bool shouldDespawn, float health)
         {
             Name = name;
             SanitizedName = Plugin.RemoveInvalidCharacters(name).ToUpper();
@@ -56,7 +54,7 @@ namespace EverythingCanDieAlternative.UI
             }
             else if (!CanDie)
             {
-                return "Immortal to hits, can die to instakill effects, health config is irrelevant";
+                return "Immortal to hits, ignores health config, immune to insta-kill effects depending on global setting";
             }
             else
             {

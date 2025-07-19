@@ -27,7 +27,7 @@ namespace EverythingCanDieAlternative
         public static Harmony Harmony { get; private set; }
         public static List<EnemyType> enemies = new List<EnemyType>();
         public static ConfigEntry<bool> PatchCruiserDamage { get; private set; }
-        public static ConfigEntry<int> CruiserDamageAtHighSpeeds { get; private set; }
+        public static ConfigEntry<float> CruiserDamageAtHighSpeeds { get; private set; }
 
         // Trap configuration
         public static ConfigEntry<bool> AllowSpikeTrapsToKillEnemies { get; private set; }
@@ -37,6 +37,13 @@ namespace EverythingCanDieAlternative
 
         // Flag to indicate if logging should be conditionally suppressed
         private static bool _infoLogsEnabled = true;
+
+        // Caches for configuration values to avoid repeated lookups
+        private static readonly Dictionary<string, ConfigEntry<bool>> boolConfigCache = new Dictionary<string, ConfigEntry<bool>>();
+        private static readonly Dictionary<string, ConfigEntry<float>> floatConfigCache = new Dictionary<string, ConfigEntry<float>>();
+        
+        // Cache for sanitized strings to avoid repeated processing
+        private static readonly Dictionary<string, string> sanitizedNameCache = new Dictionary<string, string>();
 
         private void Awake()
         {
@@ -122,8 +129,13 @@ namespace EverythingCanDieAlternative
         public static string RemoveInvalidCharacters(string source)
         {
             if (string.IsNullOrEmpty(source)) return string.Empty;
-
-            StringBuilder sb = new StringBuilder();
+            
+            // Check cache first
+            if (sanitizedNameCache.TryGetValue(source, out string cached))
+                return cached;
+            
+            // Pre-size StringBuilder for efficiency
+            StringBuilder sb = new StringBuilder(source.Length);
             foreach (char c in source)
             {
                 if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
@@ -131,7 +143,10 @@ namespace EverythingCanDieAlternative
                     sb.Append(c);
                 }
             }
-            return string.Join("", sb.ToString().Split(default(string[]), StringSplitOptions.RemoveEmptyEntries));
+            
+            string result = sb.ToString();
+            sanitizedNameCache[source] = result; // Cache it
+            return result;
         }
 
         // Conditional logging methods
@@ -154,6 +169,16 @@ namespace EverythingCanDieAlternative
         {
             Log.LogWarning(message);
         }
+        
+        // Refresh the cached logging state when the config changes
+        public static void RefreshLoggingState()
+        {
+            if (UIConfiguration.Instance != null && UIConfiguration.Instance.IsInitialized)
+            {
+                _infoLogsEnabled = UIConfiguration.Instance.ShouldLogInfo();
+                LogInfo($"Logging state refreshed: info logs {(_infoLogsEnabled ? "enabled" : "disabled")}");
+            }
+        }
 
         // Check if an enemy is killable based on config
         public static bool CanMob(string identifier, string mobName)
@@ -163,24 +188,27 @@ namespace EverythingCanDieAlternative
                 string mob = RemoveInvalidCharacters(mobName).ToUpper();
                 string mobConfigKey = mob + identifier.ToUpper();
 
-                // Create configEntry variable to store the entry we find
-                ConfigEntry<bool> configEntry = null;
+                // Check cache first
+                if (boolConfigCache.TryGetValue(mobConfigKey, out var cachedEntry))
+                {
+                    return cachedEntry.Value;
+                }
 
+                // Look for existing config
+                ConfigEntry<bool> configEntry = null;
                 foreach (ConfigDefinition entry in Instance.Config.Keys)
                 {
                     if (RemoveInvalidCharacters(entry.Key.ToUpper()).Equals(RemoveInvalidCharacters(mobConfigKey)))
                     {
-                        // Get the actual ConfigEntry object to ensure we get current value
                         configEntry = (ConfigEntry<bool>)Instance.Config[entry];
-                        bool result = configEntry.Value;
-                        //Plugin.LogInfo($"Mob config: [Mobs] {mobConfigKey} = {result}");
-                        return result;
+                        boolConfigCache[mobConfigKey] = configEntry; // Cache it
+                        return configEntry.Value;
                     }
                 }
 
-                // If config doesn't exist yet, create it
+                // Create new config if not found
                 configEntry = Instance.Config.Bind("Mobs", mob + identifier, true, $"If true, {mobName} will be damageable");
-                //Plugin.LogInfo($"No config found for [Mobs] {mobConfigKey}, defaulting to true");
+                boolConfigCache[mobConfigKey] = configEntry; // Cache it
                 return configEntry.Value;
             }
             catch (Exception e)
@@ -191,11 +219,10 @@ namespace EverythingCanDieAlternative
         }
 
         // Get enemy health from config
-        public static int GetMobHealth(string mobName, int defaultHealth)
+        public static float GetMobHealth(string mobName, float defaultHealth)
         {
             try
             {
-                // Ensure minimum default health of 1
                 if (defaultHealth <= 0)
                 {
                     defaultHealth = 1;
@@ -204,42 +231,47 @@ namespace EverythingCanDieAlternative
 
                 string mob = RemoveInvalidCharacters(mobName).ToUpper();
                 string healthKey = mob + ".HEALTH";
-
-                // Create configEntry variable to store the entry we find
-                ConfigEntry<int> configEntry = null;
-
+                
+                // Check cache first
+                if (floatConfigCache.TryGetValue(healthKey, out var cachedEntry))
+                {
+                    float cachedHealth = cachedEntry.Value;
+                    if (cachedHealth <= 0)
+                    {
+                        cachedHealth = 1;
+                        cachedEntry.Value = 1;
+                    }
+                    return cachedHealth;
+                }
+                
+                // Look for existing config
+                ConfigEntry<float> configEntry = null;
                 foreach (ConfigDefinition entry in Instance.Config.Keys)
                 {
                     if (RemoveInvalidCharacters(entry.Key.ToUpper()).Equals(healthKey))
                     {
-                        // Cast to correct type to ensure we access the real current value
-                        configEntry = (ConfigEntry<int>)Instance.Config[entry];
-                        int health = configEntry.Value;
-
-                        // Ensure configured health is also at least 1
+                        configEntry = (ConfigEntry<float>)Instance.Config[entry];
+                        floatConfigCache[healthKey] = configEntry; // Cache it
+                        
+                        float health = configEntry.Value;
                         if (health <= 0)
                         {
                             health = 1;
-                            Plugin.LogInfo($"Enforcing minimum configured health of 1 for {mobName}");
-
-                            // Update the config value to 1
                             configEntry.Value = 1;
                         }
-
-                        Plugin.LogInfo($"Enemy {mobName} health from config: {health}");
                         return health;
                     }
                 }
-
-                // If config doesn't exist yet, create it
+                
+                // Create new config if not found
                 configEntry = Instance.Config.Bind("Mobs", mob + ".Health", defaultHealth, $"Health for {mobName}");
-                Plugin.LogInfo($"Using config for {mobName} health: {configEntry.Value}");
+                floatConfigCache[healthKey] = configEntry; // Cache it
                 return configEntry.Value;
             }
             catch (Exception e)
             {
                 Log.LogError($"Error getting health for {mobName}: {e.Message}");
-                return Math.Max(1, defaultHealth); // Ensure at least 1 HP even in error cases
+                return Math.Max(1f, defaultHealth);
             }
         }
 
@@ -254,6 +286,6 @@ namespace EverythingCanDieAlternative
     {
         public const string PLUGIN_GUID = "nwnt.EverythingCanDieAlternative";
         public const string PLUGIN_NAME = "EverythingCanDieAlternative";
-        public const string PLUGIN_VERSION = "1.1.61";
+        public const string PLUGIN_VERSION = "1.1.63";
     }
 }

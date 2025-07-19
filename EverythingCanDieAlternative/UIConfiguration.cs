@@ -3,9 +3,7 @@ using System;
 
 namespace EverythingCanDieAlternative.UI
 {
-    /// <summary>
-    /// Configuration class for UI settings
-    /// </summary>
+    // Configuration class for UI settings
     public class UIConfiguration
     {
         // Static config entries that LethalConfig will automatically detect
@@ -59,9 +57,7 @@ namespace EverythingCanDieAlternative.UI
             }
         }
 
-        /// <summary>
-        /// Check if config menu should be enabled
-        /// </summary>
+        // Check if config menu should be enabled
         public bool IsConfigMenuEnabled()
         {
             // In case of initialization error, default to true
@@ -69,9 +65,7 @@ namespace EverythingCanDieAlternative.UI
             return EnableConfigMenu.Value;
         }
 
-        /// <summary>
-        /// Check if info logs should be shown
-        /// </summary>
+        // Check if info logs should be shown
         public bool ShouldLogInfo()
         {
             // In case of initialization error, default to true
@@ -79,9 +73,7 @@ namespace EverythingCanDieAlternative.UI
             return EnableInfoLogs.Value;
         }
 
-        /// <summary>
-        /// Check if enemy images should be shown
-        /// </summary>
+        // Check if enemy images should be shown
         public bool ShouldShowEnemyImages()
         {
             // In case of initialization error, default to false
@@ -89,21 +81,20 @@ namespace EverythingCanDieAlternative.UI
             return ShowEnemyImages.Value;
         }
 
-        /// <summary>
-        /// Set whether info logs should be shown
-        /// </summary>
+        // Set whether info logs should be shown
         public void SetInfoLogsEnabled(bool enabled)
         {
             if (IsInitialized && EnableInfoLogs != null)
             {
                 EnableInfoLogs.Value = enabled;
                 Plugin.Log.LogInfo($"Info logs {(enabled ? "enabled" : "disabled")}");
+                
+                // Refresh the cached logging state in Plugin immediately
+                Plugin.RefreshLoggingState();
             }
         }
 
-        /// <summary>
-        /// Set whether the config menu should be enabled
-        /// </summary>
+        // Set whether the config menu should be enabled
         public void SetConfigMenuEnabled(bool enabled)
         {
             if (IsInitialized && EnableConfigMenu != null)
@@ -113,9 +104,7 @@ namespace EverythingCanDieAlternative.UI
             }
         }
 
-        /// <summary>
-        /// Set whether enemy images should be shown
-        /// </summary>
+        // Set whether enemy images should be shown
         public void SetShowEnemyImages(bool enabled)
         {
             if (IsInitialized && ShowEnemyImages != null)
@@ -125,9 +114,7 @@ namespace EverythingCanDieAlternative.UI
             }
         }
 
-        /// <summary>
-        /// Save any pending changes to the config file
-        /// </summary>
+        // Save any pending changes to the config file
         public void Save()
         {
             try
@@ -148,9 +135,7 @@ namespace EverythingCanDieAlternative.UI
             }
         }
 
-        /// <summary>
-        /// Reload all config values from files
-        /// </summary>
+        // Reload all config values from files
         public void ReloadAllConfigs()
         {
             try

@@ -8,9 +8,7 @@ using System.Linq;
 
 namespace EverythingCanDieAlternative.UI
 {
-    /// <summary>
-    /// Manager for the configuration menu UI
-    /// </summary>
+    // Manager for the configuration menu UI
     public class ConfigMenuManager : MonoBehaviour
     {
         private static GameObject menuPrefab;
@@ -25,6 +23,10 @@ namespace EverythingCanDieAlternative.UI
         // Configuration data
         private List<EnemyConfigData> enemyConfigs = new List<EnemyConfigData>();
         private Dictionary<string, GameObject> enemyEntries = new Dictionary<string, GameObject>();
+
+        // Object pooling for enemy list entries
+        private readonly Stack<GameObject> enemyEntryPool = new Stack<GameObject>();
+        private const int INITIAL_POOL_SIZE = 20;
 
         // Current selection
         private string selectedEnemyName;
@@ -64,10 +66,11 @@ namespace EverythingCanDieAlternative.UI
         {
             Plugin.LogInfo("RefreshEnemyData called");
 
-            // Clear existing enemy entries
+            // Hide all entries instead of destroying
             foreach (Transform child in enemyListContent)
             {
-                Destroy(child.gameObject);
+                child.gameObject.SetActive(false);
+                enemyEntryPool.Push(child.gameObject);
             }
             enemyEntries.Clear();
 
@@ -798,8 +801,30 @@ namespace EverythingCanDieAlternative.UI
         }
         private void CreateEnemyListEntry(EnemyConfigData config)
         {
-            // Create stylized list entry
-            var entryObj = UIHelper.CreatePanel(enemyListContent, $"Enemy_{config.SanitizedName}", new Vector2(230, ENTRY_HEIGHT));
+            GameObject entryObj;
+            if (enemyEntryPool.Count > 0)
+            {
+                entryObj = enemyEntryPool.Pop();
+                entryObj.SetActive(true);
+                entryObj.name = $"Enemy_{config.SanitizedName}";
+                // Move to end of hierarchy to maintain sort order
+                entryObj.transform.SetAsLastSibling();
+                // Update the existing entry with new data
+                UpdateEnemyListEntry(entryObj, config);
+            }
+            else
+            {
+                // Create new entry only if pool is empty
+                entryObj = UIHelper.CreatePanel(enemyListContent, $"Enemy_{config.SanitizedName}", new Vector2(230, ENTRY_HEIGHT));
+                SetupNewEnemyListEntry(entryObj, config);
+            }
+
+            // Store entry for filtering
+            enemyEntries[config.Name] = entryObj;
+        }
+
+        private void SetupNewEnemyListEntry(GameObject entryObj, EnemyConfigData config)
+        {
 
             // Add some margin between entries
             var layoutElement = entryObj.AddComponent<LayoutElement>();
@@ -843,9 +868,35 @@ namespace EverythingCanDieAlternative.UI
                 tmpText.fontSize = UITheme.NormalFontSize;
                 tmpText.alignment = TextAlignmentOptions.Left;
             }
+        }
 
-            // Store entry for filtering
-            enemyEntries[config.Name] = entryObj;
+        private void UpdateEnemyListEntry(GameObject entryObj, EnemyConfigData config)
+        {
+            // Update button text and callback
+            var buttonObj = entryObj.transform.Find("Button");
+            if (buttonObj != null)
+            {
+                var button = buttonObj.GetComponent<Button>();
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(() => SelectEnemy(config.Name));
+
+                // Update text
+                var textObj = buttonObj.transform.Find("Text");
+                if (textObj != null)
+                {
+                    var tmpText = textObj.GetComponent<TextMeshProUGUI>();
+                    tmpText.text = config.Name;
+                }
+
+                // Update status indicator
+                var statusObj = buttonObj.transform.Find("Status");
+                if (statusObj != null)
+                {
+                    var statusImage = statusObj.GetComponent<Image>();
+                    if (statusImage != null)
+                        statusImage.color = config.GetStatusColor();
+                }
+            }
         }
 
         // Simplified FilterEnemyList method that only uses search text
@@ -1112,8 +1163,8 @@ namespace EverythingCanDieAlternative.UI
                     "HealthInput",
                     "Health:",
                     config.Health,
-                    1,  // Minimum health value of 1
-                    100, // Maximum health value of 100 (adjust as needed)
+                    0.5f,  // Minimum health value of 0.5
+                    999f, // Maximum health value of 999
                     (newValue) => {
                         config.Health = newValue;
 
@@ -1193,9 +1244,7 @@ namespace EverythingCanDieAlternative.UI
             }
         }
 
-        /// <summary>
-        /// Shows or hides the enemy image based on the configuration setting
-        /// </summary>
+        // Shows or hides the enemy image based on the configuration setting
         private void UpdateEnemyImageVisibility(GameObject controlsPanel, string enemyName)
         {
             try

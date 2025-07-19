@@ -4,9 +4,7 @@ using TMPro;
 
 namespace EverythingCanDieAlternative.UI
 {
-    /// <summary>
-    /// Helper class for creating UI elements
-    /// </summary>
+    // Helper class for creating UI elements
     public static class UIHelper
     {
         public static GameObject CreatePanel(Transform parent, string name, Vector2 sizeDelta)
@@ -189,12 +187,7 @@ namespace EverythingCanDieAlternative.UI
             return scrollViewObj;
         }
 
-        /// <summary>
-        /// Creates a Yes/No selector with two buttons
-        /// </summary>
-        /// <param name="parent">Parent transform</param>
-        /// <param name="name">Name of the game object</param>
-        /// <param name="label">Label text to display</param>
+        // Creates a Yes/No selector with two buttons
         /// <param name="isYes">Initial state (true = Yes selected, false = No selected)</param>
         /// <param name="onValueChanged">Callback when value changes</param>
         /// <returns>The created game object</returns>
@@ -314,9 +307,7 @@ namespace EverythingCanDieAlternative.UI
             return selectorObj;
         }
 
-        /// <summary>
-        /// Utility class to hold state for the Yes/No selector
-        /// </summary>
+        // Utility class to hold state for the Yes/No selector
         public class StateHolder : MonoBehaviour
         {
             public bool IsYes;
@@ -350,10 +341,7 @@ namespace EverythingCanDieAlternative.UI
                 }
             }
 
-            /// <summary>
-            /// Updates the visual state of the Yes/No selector to match the specified value
-            /// </summary>
-            /// <param name="isYes">Whether the Yes button should be selected</param>
+            // Updates the visual state of the Yes/No selector to match the specified value
             public void UpdateVisualState(bool isYes)
             {
                 // Update internal state
@@ -370,17 +358,15 @@ namespace EverythingCanDieAlternative.UI
             }
         }
 
-        /// <summary>
-        /// Creates a numeric input field with up/down arrow buttons
-        /// </summary>
+        // Creates a numeric input field with up/down arrow buttons
         public static GameObject CreateNumericInputWithArrows(
     Transform parent,
     string name,
     string label,
-    int initialValue,
-    int minValue,
-    int maxValue,
-    UnityEngine.Events.UnityAction<int> onValueChanged)
+    float initialValue,
+    float minValue,
+    float maxValue,
+    UnityEngine.Events.UnityAction<float> onValueChanged)
         {
             // Create main container
             GameObject containerObj = new GameObject(name);
@@ -421,24 +407,24 @@ namespace EverythingCanDieAlternative.UI
             inputField.contentType = TMP_InputField.ContentType.IntegerNumber;
 
             // Create text area for input
-            GameObject textAreaObj = CreateText(inputObj.transform, "Text", initialValue.ToString());
+            GameObject textAreaObj = CreateText(inputObj.transform, "Text", ((int)initialValue).ToString());
             TextMeshProUGUI textArea = textAreaObj.GetComponent<TextMeshProUGUI>();
             textArea.alignment = TextAlignmentOptions.Center;
 
             inputField.textComponent = textArea;
-            inputField.text = initialValue.ToString();
+            inputField.text = ((int)initialValue).ToString();
 
             // Create placeholder
             GameObject placeholderObj = CreateText(inputObj.transform, "Placeholder", "Enter value");
             TextMeshProUGUI placeholderText = placeholderObj.GetComponent<TextMeshProUGUI>();
             placeholderText.color = new Color(0.5f, 0.5f, 0.5f);
             placeholderText.alignment = TextAlignmentOptions.Center;
-            placeholderText.enabled = string.IsNullOrEmpty(initialValue.ToString());
+            placeholderText.enabled = string.IsNullOrEmpty(((int)initialValue).ToString());
 
             inputField.placeholder = placeholderText;
 
             // Store the current value
-            int currentValue = initialValue;
+            float currentValue = initialValue;
 
             // Create a container for arrow buttons
             GameObject arrowsContainer = new GameObject("ArrowsContainer");
@@ -499,10 +485,10 @@ namespace EverythingCanDieAlternative.UI
 
             // Add button handlers
             upButtonComponent.onClick.AddListener(() => {
-                // Increment value
-                currentValue = Mathf.Min(currentValue + 1, maxValue);
-                // Update input field
-                inputField.text = currentValue.ToString();
+                // Increment value by 1
+                currentValue = Mathf.Min(currentValue + 1f, maxValue);
+                // Update input field (show as integer)
+                inputField.text = ((int)currentValue).ToString();
                 // Notify callback
                 if (onValueChanged != null)
                 {
@@ -511,10 +497,10 @@ namespace EverythingCanDieAlternative.UI
             });
 
             downButtonComponent.onClick.AddListener(() => {
-                // Decrement value
-                currentValue = Mathf.Max(currentValue - 1, minValue);
-                // Update input field
-                inputField.text = currentValue.ToString();
+                // Decrement value by 1
+                currentValue = Mathf.Max(currentValue - 1f, minValue);
+                // Update input field (show as integer)
+                inputField.text = ((int)currentValue).ToString();
                 // Notify callback
                 if (onValueChanged != null)
                 {
@@ -524,26 +510,29 @@ namespace EverythingCanDieAlternative.UI
 
             // Handle manual input changes
             inputField.onEndEdit.AddListener((newValue) => {
-                // Try to parse the value
-                if (int.TryParse(newValue, out int parsedValue))
+                // Try to parse the value as integer first, then as float
+                if (int.TryParse(newValue, out int intValue))
                 {
-                    // Clamp to min/max
-                    currentValue = Mathf.Clamp(parsedValue, minValue, maxValue);
-                    // Update input field in case it was clamped
-                    if (parsedValue != currentValue)
-                    {
-                        inputField.text = currentValue.ToString();
-                    }
-                    // Notify callback
-                    if (onValueChanged != null)
-                    {
-                        onValueChanged(currentValue);
-                    }
+                    currentValue = Mathf.Clamp(intValue, minValue, maxValue);
+                }
+                else if (float.TryParse(newValue, out float floatValue))
+                {
+                    currentValue = Mathf.Clamp(floatValue, minValue, maxValue);
                 }
                 else
                 {
                     // Reset to current value if parsing failed
-                    inputField.text = currentValue.ToString();
+                    inputField.text = ((int)currentValue).ToString();
+                    return;
+                }
+                
+                // Update input field (always show as integer)
+                inputField.text = ((int)currentValue).ToString();
+                
+                // Notify callback
+                if (onValueChanged != null)
+                {
+                    onValueChanged(currentValue);
                 }
             });
 
@@ -560,18 +549,16 @@ namespace EverythingCanDieAlternative.UI
             return containerObj;
         }
 
-        /// <summary>
-        /// Utility class to hold state for numeric input with arrows
-        /// </summary>
+        // Utility class to hold state for numeric input with arrows
         public class NumericInputState : MonoBehaviour
         {
-            public int CurrentValue;
-            public int MinValue;
-            public int MaxValue;
+            public float CurrentValue;
+            public float MinValue;
+            public float MaxValue;
             public TMP_InputField InputField;
             public Button UpButton;
             public Button DownButton;
-            public UnityEngine.Events.UnityAction<int> OnValueChanged;
+            public UnityEngine.Events.UnityAction<float> OnValueChanged;
 
             public void SetInteractable(bool interactable)
             {
@@ -580,10 +567,10 @@ namespace EverythingCanDieAlternative.UI
                 DownButton.interactable = interactable;
             }
 
-            public void SetValue(int value)
+            public void SetValue(float value)
             {
                 CurrentValue = Mathf.Clamp(value, MinValue, MaxValue);
-                InputField.text = CurrentValue.ToString();
+                InputField.text = ((int)CurrentValue).ToString();
             }
         }
     }

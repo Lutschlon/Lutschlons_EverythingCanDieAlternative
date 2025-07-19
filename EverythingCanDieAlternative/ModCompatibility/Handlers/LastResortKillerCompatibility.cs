@@ -7,9 +7,7 @@ using Unity.Netcode;
 
 namespace EverythingCanDieAlternative.ModCompatibility.Handlers
 {
-    /// <summary>
-    /// Compatibility handler to handle problematic enemies that don't die properly with standard kill methods
-    /// </summary>
+    // Compatibility handler to handle problematic enemies that don't die properly with standard kill methods
     public class LastResortKillerCompatibility : BaseModCompatibility
     {
         public override string ModId => "nwnt.EverythingCanDieAlternative.LastResortKiller";
@@ -30,10 +28,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             enemyKillAttempts.Clear();
         }
 
-        /// <summary>
-        /// Try to kill an enemy with progressive fallbacks if initial attempts fail
-        /// </summary>
-        /// <param name="enemy">The enemy to kill</param>
+        // Try to kill an enemy with progressive fallbacks if initial attempts fail
         /// <param name="allowDespawn">Whether this enemy is allowed to despawn based on config</param>
         /// <returns>True if a kill attempt was initiated</returns>
         public bool AttemptToKillEnemy(EnemyAI enemy, bool allowDespawn)
@@ -140,9 +135,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
         }
 
 
-        /// <summary>
-        /// Schedule a check to see if the enemy actually died
-        /// </summary>
+        // Schedule a check to see if the enemy actually died
         private void ScheduleKillCheck(EnemyAI enemy)
         {
             if (StartOfRound.Instance != null)
@@ -153,9 +146,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             }
         }
 
-        /// <summary>
-        /// Check if the enemy is actually dead after a brief delay, retry if not
-        /// </summary>
+        // Check if the enemy is actually dead after a brief delay, retry if not
         private IEnumerator CheckIfEnemyDied(EnemyAI enemy, bool allowDespawn)
         {
             yield return new WaitForSeconds(RETRY_DELAY);
@@ -177,9 +168,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             }
         }
 
-        /// <summary>
-        /// Attempt to force enemy properties to behave as if it were dead
-        /// </summary>
+        // Attempt to force enemy properties to behave as if it were dead
         private void ForceDeadState(EnemyAI enemy)
         {
             try
@@ -244,10 +233,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             }
         }
 
-        /// <summary>
-        /// Aggressively disable all components on the enemy except its main EnemyAI component
-        /// This helps ensure the enemy stops all activity and doesn't interfere with the game
-        /// </summary>
+        // Aggressively disable all components on the enemy except its main EnemyAI component - helps ensure the enemy stops all activity and doesn't interfere with the game
         private void DisableAllComponents(EnemyAI enemy)
         {
             try
@@ -326,9 +312,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             }
         }
 
-        /// <summary>
-        /// Reset tracking data (e.g., when starting a new game)
-        /// </summary>
+        // Reset tracking data (e.g., when starting a new game)
         public void Reset()
         {
             enemyKillAttempts.Clear();

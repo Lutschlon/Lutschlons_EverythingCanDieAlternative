@@ -1,16 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
 namespace EverythingCanDieAlternative.ModCompatibility.Handlers
 {
-    /// <summary>
-    /// Compatibility handler for the BrutalCompanyMinus mod
-    /// </summary>
+    // Compatibility handler for the BrutalCompanyMinus mod
     public class BrutalCompanyMinusCompatibility : BaseModCompatibility
     {
         public override string ModId => "SoftDiamond.BrutalCompanyMinusExtraReborn";
         public override string ModName => "BrutalCompanyMinusExtraReborn";
+
+        // Static caches for reflection results
+        private static readonly Dictionary<string, Type> typeCache = new Dictionary<string, Type>();
+        private static readonly Dictionary<string, FieldInfo> fieldCache = new Dictionary<string, FieldInfo>();
+        private static readonly Dictionary<string, Assembly> assemblyCache = new Dictionary<string, Assembly>();
 
         // Cache the result to avoid repeated reflection
         private bool? _isInstalled = null;
@@ -33,29 +37,36 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
 
                 try
                 {
-                    // First try the BepInEx plugin GUID approach - safer
-                    var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-                    // Look for assembly with matching name first (safest)
-                    foreach (var assembly in assemblies)
+                    // Check assembly cache first
+                    if (!assemblyCache.TryGetValue("BrutalCompanyMinus", out Assembly bcmAssembly))
                     {
-                        try
+                        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                        foreach (var assembly in assemblies)
                         {
-                            if (assembly.GetName().Name == "BrutalCompanyMinus" ||
-                                assembly.GetName().Name.Contains("BrutalCompanyMinusExtraReborn"))
+                            try
                             {
-                                _isInstalled = true;
-                                return true;
+                                string assemblyName = assembly.GetName().Name;
+                                if (assemblyName == "BrutalCompanyMinus" || 
+                                    assemblyName.Contains("BrutalCompanyMinusExtraReborn"))
+                                {
+                                    bcmAssembly = assembly;
+                                    assemblyCache["BrutalCompanyMinus"] = assembly;
+                                    break;
+                                }
                             }
-                        }
-                        catch
-                        {
-                            // Ignore errors for individual assemblies
-                            continue;
+                            catch
+                            {
+                                continue;
+                            }
                         }
                     }
 
-                    // Check if the plugin GUID exists in BepInEx plugins
+                    if (bcmAssembly != null)
+                    {
+                        _isInstalled = true;
+                        return true;
+                    }
+
                     bool pluginExists = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(ModId);
                     _isInstalled = pluginExists;
                     return pluginExists;
@@ -126,10 +137,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             }
         }
 
-        /// <summary>
-        /// Get the bonus HP value from BrutalCompanyMinus
-        /// Called when we need to apply the bonus HP to an enemy
-        /// </summary>
+        // Get the bonus HP value from BrutalCompanyMinus when we need to apply the bonus HP to an enemy
         public int GetBonusHp()
         {
             // Return cached value if available and not null
@@ -231,17 +239,13 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             return 0;
         }
 
-        /// <summary>
-        /// Invalidate the cached bonus HP value to force a refresh on the next call to GetBonusHp()
-        /// </summary>
+        // Invalidate the cached bonus HP value to force a refresh on the next call to GetBonusHp()
         public void InvalidateCache()
         {
             _cachedBonusHp = null;
         }
 
-        /// <summary>
-        /// Called to refresh the bonus HP cache when BrutalCompanyMinus might have changed the value
-        /// </summary>
+        // Called to refresh the bonus HP cache when BrutalCompanyMinus might have changed the value
         public void RefreshBonusHp()
         {
             InvalidateCache();
@@ -249,10 +253,8 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             Plugin.LogInfo($"Refreshed BrutalCompanyMinus bonus HP: {bonusHp}");
         }
 
-        /// <summary>
-        /// Applies the bonus HP from BrutalCompanyMinus to the given base health value
-        /// </summary>
-        public int ApplyBonusHp(int baseHealth)
+        // Applies the bonus HP from BrutalCompanyMinus to the given base health value
+        public float ApplyBonusHp(float baseHealth)
         {
             int bonusHp = GetBonusHp();
             if (bonusHp > 0)

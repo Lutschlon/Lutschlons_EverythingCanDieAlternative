@@ -108,7 +108,7 @@ namespace EverythingCanDieAlternative
                     Plugin.CanMob(".Unimmortal", sanitizedName); // This will create config if it doesn't exist
 
                     // Get vanilla HP value from prefab if available
-                    int defaultHealth = 3; // Default fallback value
+                    float defaultHealth = 3f; // Default fallback value
                     if (enemyType.enemyPrefab != null)
                     {
                         EnemyAI enemyAI = enemyType.enemyPrefab.GetComponentInChildren<EnemyAI>();
@@ -117,13 +117,13 @@ namespace EverythingCanDieAlternative
                             // Ensure minimum HP of 1
                             if (enemyAI.enemyHP <= 0)
                             {
-                                defaultHealth = 1;
+                                defaultHealth = 1f;
                                 Plugin.LogInfo($"Detected 0 or negative HP for {enemyType.enemyName}, setting default to 1");
                             }
                             else
                             {
                                 // Cap the HP at CAPPED_DEFAULT_HP
-                                defaultHealth = Math.Min(enemyAI.enemyHP, CAPPED_DEFAULT_HP);
+                                defaultHealth = Math.Min((float)enemyAI.enemyHP, CAPPED_DEFAULT_HP);
 
                                 if (enemyAI.enemyHP > CAPPED_DEFAULT_HP)
                                 {

@@ -7,9 +7,7 @@ using GameNetcodeStuff;
 
 namespace EverythingCanDieAlternative.ModCompatibility.Handlers
 {
-    /// <summary>
-    /// Compatibility handler for the Hitmarker mod
-    /// </summary>
+    // Compatibility handler for the Hitmarker mod
     public class HitmarkerCompatibility : BaseModCompatibility
     {
         public override string ModId => "com.github.zehsteam.Hitmarker";
@@ -186,9 +184,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             }
         }
 
-        /// <summary>
-        /// Track which player damaged an enemy - only used when compatibility is active
-        /// </summary>
+        // Track which player damaged an enemy - only used when compatibility is active
         public void TrackDamageSource(int enemyInstanceId, PlayerControllerB playerWhoHit)
         {
             if (!_initialized || _lastDamageSources == null || playerWhoHit == null)
@@ -205,9 +201,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             }
         }
 
-        /// <summary>
-        /// Get the player who last damaged an enemy
-        /// </summary>
+        // Get the player who last damaged an enemy
         public PlayerControllerB GetLastDamageSource(int enemyInstanceId)
         {
             if (!_initialized || _lastDamageSources == null)
@@ -223,9 +217,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             return null;
         }
 
-        /// <summary>
-        /// Clear tracking when a level is unloaded
-        /// </summary>
+        // Clear tracking when a level is unloaded
         public void ClearTracking()
         {
             if (_lastDamageSources != null)
@@ -235,9 +227,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
             }
         }
 
-        /// <summary>
-        /// Notify the Hitmarker mod when an enemy is killed
-        /// </summary>
+        // Notify the Hitmarker mod when an enemy is killed
         public void NotifyEnemyKilled(EnemyAI enemy, PlayerControllerB playerWhoKilled)
         {
             if (!_initialized || enemy == null)
