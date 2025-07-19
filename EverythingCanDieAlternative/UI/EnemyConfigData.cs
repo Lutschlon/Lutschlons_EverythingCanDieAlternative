@@ -4,9 +4,7 @@ using static EverythingCanDieAlternative.Plugin;
 
 namespace EverythingCanDieAlternative.UI
 {
-    /// <summary>
-    /// Class to hold enemy configuration data for the UI
-    /// </summary>
+    // Class to hold enemy configuration data for the UI
     public class EnemyConfigData
     {
         public string Name;

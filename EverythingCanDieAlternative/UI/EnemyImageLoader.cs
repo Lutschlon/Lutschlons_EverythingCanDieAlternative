@@ -6,9 +6,7 @@ using UnityEngine;
 
 namespace EverythingCanDieAlternative.UI
 {
-    /// <summary>
-    /// Utility class for loading enemy preview images
-    /// </summary>
+    // Utility class for loading enemy preview images
     public static class EnemyImageLoader
     {
         // Dictionary to cache loaded textures
@@ -20,9 +18,7 @@ namespace EverythingCanDieAlternative.UI
         // Flag to track if the cache has been initialized
         private static bool isInitialized = false;
 
-        /// <summary>
-        /// Initialize the image loader, setting up paths and directories
-        /// </summary>
+        // Initialize the image loader, setting up paths and directories
         public static void Initialize()
         {
             if (isInitialized) return;
@@ -54,9 +50,7 @@ namespace EverythingCanDieAlternative.UI
             }
         }
 
-        /// <summary>
-        /// Clear the texture cache (e.g., when exiting the menu)
-        /// </summary>
+        // Clear the texture cache (e.g., when exiting the menu)
         public static void ClearCache()
         {
             // Destroy textures to avoid memory leaks
@@ -69,11 +63,7 @@ namespace EverythingCanDieAlternative.UI
             Plugin.LogInfo("Enemy image cache cleared");
         }
 
-        /// <summary>
-        /// Get a texture for the specified enemy name, returns null if no image exists
-        /// </summary>
-        /// <param name="enemyName">The name of the enemy</param>
-        /// <returns>Texture2D if found, null otherwise</returns>
+        // Get a texture for the specified enemy name, returns null if no image exists
         public static Texture2D GetEnemyTexture(string enemyName)
         {
             if (!isInitialized)

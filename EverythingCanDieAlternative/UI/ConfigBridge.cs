@@ -9,18 +9,16 @@ using static EverythingCanDieAlternative.Plugin;
 
 namespace EverythingCanDieAlternative.UI
 {
-    /// <summary>
-    /// Bridge between UI and configuration system - reads files directly
-    /// </summary>
+    // Bridge between UI and configuration system - reads files directly
     public static class ConfigBridge
     {
+        // Pre-compiled regex for better performance
+        private static readonly Regex sectionRegex = new Regex(@"^\[(.*)\]$", RegexOptions.Compiled);
+
         // Cache the config file paths
         private static string pluginConfigPath = Path.Combine(Paths.ConfigPath, "nwnt.EverythingCanDieAlternative.cfg");
         private static string enemyControlConfigPath = Path.Combine(Paths.ConfigPath, "nwnt.EverythingCanDieAlternative_Enemy_Control.cfg");
         private static string despawnConfigPath = Path.Combine(Paths.ConfigPath, "nwnt.EverythingCanDieAlternative_Despawn_Rules.cfg");
-
-        // Pre-compiled regex for better performance
-        private static readonly Regex sectionRegex = new Regex(@"^\[(.*)\]$", RegexOptions.Compiled);
 
         // Cache of existing config entries
         private static Dictionary<string, Dictionary<string, object>> cachedConfigEntries = new Dictionary<string, Dictionary<string, object>>();

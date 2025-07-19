@@ -4,9 +4,7 @@ using TMPro;
 
 namespace EverythingCanDieAlternative.UI
 {
-    /// <summary>
-    /// Theme helper for consistent UI styling matching the game's aesthetic
-    /// </summary>
+    // Theme helper for consistent UI styling matching the game's aesthetic
     public static class UITheme
     {
         // Color scheme that matches Lethal Company's UI
@@ -33,9 +31,7 @@ namespace EverythingCanDieAlternative.UI
         public static readonly float ButtonHeight = 40f;
         public static readonly float InputHeight = 30f;
 
-        /// <summary>
-        /// Applies theme to a button
-        /// </summary>
+        // Applies theme to a button
         public static void ApplyButtonTheme(Button button)
         {
             // Set colors
@@ -55,17 +51,13 @@ namespace EverythingCanDieAlternative.UI
             }
         }
 
-        /// <summary>
-        /// Applies theme to a panel
-        /// </summary>
+        // Applies theme to a panel
         public static void ApplyPanelTheme(Image panelImage)
         {
             panelImage.color = PanelColor;
         }
 
-        /// <summary>
-        /// Creates a styled header
-        /// </summary>
+        // Creates a styled header
         public static TextMeshProUGUI CreateStyledHeader(GameObject textObject)
         {
             TextMeshProUGUI tmp = textObject.GetComponent<TextMeshProUGUI>();
@@ -78,9 +70,7 @@ namespace EverythingCanDieAlternative.UI
             return tmp;
         }
 
-        /// <summary>
-        /// Creates a styled normal text
-        /// </summary>
+        // Creates a styled normal text
         public static TextMeshProUGUI CreateStyledText(GameObject textObject)
         {
             TextMeshProUGUI tmp = textObject.GetComponent<TextMeshProUGUI>();
@@ -92,9 +82,7 @@ namespace EverythingCanDieAlternative.UI
             return tmp;
         }
 
-        /// <summary>
-        /// Applies theme to a scroll view
-        /// </summary>
+        // Applies theme to a scroll view
         public static void ApplyScrollViewTheme(ScrollRect scrollRect)
         {
             if (scrollRect.GetComponent<Image>() != null)
@@ -109,9 +97,7 @@ namespace EverythingCanDieAlternative.UI
             }
         }
 
-        /// <summary>
-        /// Apply input field theme
-        /// </summary>
+        // Apply input field theme
         public static void ApplyInputFieldTheme(TMP_InputField inputField)
         {
             if (inputField.GetComponent<Image>() != null)

@@ -4,9 +4,7 @@ using TMPro;
 
 namespace EverythingCanDieAlternative.UI
 {
-    /// <summary>
-    /// Helper class for creating UI elements
-    /// </summary>
+    // Helper class for creating UI elements
     public static class UIHelper
     {
         public static GameObject CreatePanel(Transform parent, string name, Vector2 sizeDelta)
@@ -189,12 +187,7 @@ namespace EverythingCanDieAlternative.UI
             return scrollViewObj;
         }
 
-        /// <summary>
-        /// Creates a Yes/No selector with two buttons
-        /// </summary>
-        /// <param name="parent">Parent transform</param>
-        /// <param name="name">Name of the game object</param>
-        /// <param name="label">Label text to display</param>
+        // Creates a Yes/No selector with two buttons
         /// <param name="isYes">Initial state (true = Yes selected, false = No selected)</param>
         /// <param name="onValueChanged">Callback when value changes</param>
         /// <returns>The created game object</returns>
@@ -314,9 +307,7 @@ namespace EverythingCanDieAlternative.UI
             return selectorObj;
         }
 
-        /// <summary>
-        /// Utility class to hold state for the Yes/No selector
-        /// </summary>
+        // Utility class to hold state for the Yes/No selector
         public class StateHolder : MonoBehaviour
         {
             public bool IsYes;
@@ -350,10 +341,7 @@ namespace EverythingCanDieAlternative.UI
                 }
             }
 
-            /// <summary>
-            /// Updates the visual state of the Yes/No selector to match the specified value
-            /// </summary>
-            /// <param name="isYes">Whether the Yes button should be selected</param>
+            // Updates the visual state of the Yes/No selector to match the specified value
             public void UpdateVisualState(bool isYes)
             {
                 // Update internal state
@@ -370,9 +358,7 @@ namespace EverythingCanDieAlternative.UI
             }
         }
 
-        /// <summary>
-        /// Creates a numeric input field with up/down arrow buttons
-        /// </summary>
+        // Creates a numeric input field with up/down arrow buttons
         public static GameObject CreateNumericInputWithArrows(
     Transform parent,
     string name,
@@ -563,9 +549,7 @@ namespace EverythingCanDieAlternative.UI
             return containerObj;
         }
 
-        /// <summary>
-        /// Utility class to hold state for numeric input with arrows
-        /// </summary>
+        // Utility class to hold state for numeric input with arrows
         public class NumericInputState : MonoBehaviour
         {
             public float CurrentValue;
