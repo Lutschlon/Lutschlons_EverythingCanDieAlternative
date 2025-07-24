@@ -1,5 +1,6 @@
 ## 1.1.64
 - Updated hit registration to also recognize the EnemyAI.HitEnemy method, this allows mods like [LethalMin](https://thunderstore.io/c/lethal-company/p/NotezyTeam/LethalMin/) or [HexyBetterShotgunFixed](https://thunderstore.io/c/lethal-company/p/Entity378/HexiBetterShotgunFixed/) to natively work with ECDA, this includes a system that prevents double hits from calling both EnemyAI.HitEnemy and HitEnemyOnLocalClient methods
+- Updated wording inside the UI to better reflect what the despawn setting actually does
 
 ## 1.1.63
 - Overhaul of the core hit and health mechanics, aimed to lessen lagspikes in the exact moment an enemy is spawned or hit
