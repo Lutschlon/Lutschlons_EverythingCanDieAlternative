@@ -20,6 +20,7 @@ namespace EverythingCanDieAlternative
     [BepInDependency("SoftDiamond.BrutalCompanyMinusExtraReborn", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("ainavt.lc.lethalconfig", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.github.zehsteam.Hitmarker", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("LethalMin", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
         public static Plugin Instance { get; private set; }
@@ -31,7 +32,7 @@ namespace EverythingCanDieAlternative
 
         // Trap configuration
         public static ConfigEntry<bool> AllowSpikeTrapsToKillEnemies { get; private set; }
-        
+
         // Immortal enemy protection configuration
         public static ConfigEntry<bool> ProtectImmortalEnemiesFromInstaKill { get; private set; }
 
@@ -41,7 +42,7 @@ namespace EverythingCanDieAlternative
         // Caches for configuration values to avoid repeated lookups
         private static readonly Dictionary<string, ConfigEntry<bool>> boolConfigCache = new Dictionary<string, ConfigEntry<bool>>();
         private static readonly Dictionary<string, ConfigEntry<float>> floatConfigCache = new Dictionary<string, ConfigEntry<float>>();
-        
+
         // Cache for sanitized strings to avoid repeated processing
         private static readonly Dictionary<string, string> sanitizedNameCache = new Dictionary<string, string>();
 
@@ -104,12 +105,16 @@ namespace EverythingCanDieAlternative
                     Log.LogInfo($"{PluginInfo.PLUGIN_NAME} v{PluginInfo.PLUGIN_VERSION} is loaded with network support (configuration menu disabled)");
                 }
             }
+
             catch (Exception ex)
             {
                 Log.LogError($"Error initializing {PluginInfo.PLUGIN_NAME}: {ex.Message}");
                 Log.LogError($"Stack trace: {ex.StackTrace}");
             }
+            // Test cross-mod patching after game starts - using Harmony instead of MonoMod
+            // This will be handled by the StartOfRoundPatch in Patches.cs
         }
+
 
         /// Check if a specific mod is installed using the compatibility framework
         public bool IsModInstalled(string modId)
@@ -129,11 +134,11 @@ namespace EverythingCanDieAlternative
         public static string RemoveInvalidCharacters(string source)
         {
             if (string.IsNullOrEmpty(source)) return string.Empty;
-            
+
             // Check cache first
             if (sanitizedNameCache.TryGetValue(source, out string cached))
                 return cached;
-            
+
             // Pre-size StringBuilder for efficiency
             StringBuilder sb = new StringBuilder(source.Length);
             foreach (char c in source)
@@ -143,7 +148,7 @@ namespace EverythingCanDieAlternative
                     sb.Append(c);
                 }
             }
-            
+
             string result = sb.ToString();
             sanitizedNameCache[source] = result; // Cache it
             return result;
@@ -169,7 +174,7 @@ namespace EverythingCanDieAlternative
         {
             Log.LogWarning(message);
         }
-        
+
         // Refresh the cached logging state when the config changes
         public static void RefreshLoggingState()
         {
@@ -231,7 +236,7 @@ namespace EverythingCanDieAlternative
 
                 string mob = RemoveInvalidCharacters(mobName).ToUpper();
                 string healthKey = mob + ".HEALTH";
-                
+
                 // Check cache first
                 if (floatConfigCache.TryGetValue(healthKey, out var cachedEntry))
                 {
@@ -243,7 +248,7 @@ namespace EverythingCanDieAlternative
                     }
                     return cachedHealth;
                 }
-                
+
                 // Look for existing config
                 ConfigEntry<float> configEntry = null;
                 foreach (ConfigDefinition entry in Instance.Config.Keys)
@@ -252,7 +257,7 @@ namespace EverythingCanDieAlternative
                     {
                         configEntry = (ConfigEntry<float>)Instance.Config[entry];
                         floatConfigCache[healthKey] = configEntry; // Cache it
-                        
+
                         float health = configEntry.Value;
                         if (health <= 0)
                         {
@@ -262,7 +267,7 @@ namespace EverythingCanDieAlternative
                         return health;
                     }
                 }
-                
+
                 // Create new config if not found
                 configEntry = Instance.Config.Bind("Mobs", mob + ".Health", defaultHealth, $"Health for {mobName}");
                 floatConfigCache[healthKey] = configEntry; // Cache it
@@ -286,6 +291,6 @@ namespace EverythingCanDieAlternative
     {
         public const string PLUGIN_GUID = "nwnt.EverythingCanDieAlternative";
         public const string PLUGIN_NAME = "EverythingCanDieAlternative";
-        public const string PLUGIN_VERSION = "1.1.63";
+        public const string PLUGIN_VERSION = "1.1.64";
     }
 }
