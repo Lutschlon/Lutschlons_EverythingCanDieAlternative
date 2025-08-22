@@ -1,6 +1,6 @@
 ## 1.1.64
 - Added beta compatibility for [LethalMin](https://thunderstore.io/c/lethal-company/p/NotezyTeam/LethalMin/) by NotezyTeam
-- Updated the wording inside the UI to better reflect what the despawn setting actually does
+- Updated the wording inside the UI to better reflect what the despawn setting actually does, it removes the corspe when the enemy dies
 
 ## 1.1.63
 - Overhaul of the core hit and health mechanics, aimed to lessen lagspikes in the exact moment an enemy is spawning or hit
@@ -154,5 +154,6 @@
 - Big thanks to nyakowint for having the original mod in an public github repository to allow the community to expand on it https://github.com/nyakowint/EverythingCanDie-LC/tree/main 
 - As already mentioned in the readme, the creation of this mod was made possible thanks to using claude.ai (sounds like iam putting an ad here lol). 
 Have a good one fellas.
+
 
 
