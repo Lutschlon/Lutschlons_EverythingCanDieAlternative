@@ -1,5 +1,5 @@
 ## 1.1.64
-- Overhaul of the hit registration, now works natively with mods like [LethalMin](https://thunderstore.io/c/lethal-company/p/NotezyTeam/LethalMin/) or [HexyBetterShotgunFixed](https://thunderstore.io/c/lethal-company/p/Entity378/HexiBetterShotgunFixed/)
+- Added beta compatibility for [LethalMin](https://thunderstore.io/c/lethal-company/p/NotezyTeam/LethalMin/) by NotezyTeam
 - Updated the wording inside the UI to better reflect what the despawn setting actually does
 
 ## 1.1.63
@@ -154,4 +154,5 @@
 - Big thanks to nyakowint for having the original mod in an public github repository to allow the community to expand on it https://github.com/nyakowint/EverythingCanDie-LC/tree/main 
 - As already mentioned in the readme, the creation of this mod was made possible thanks to using claude.ai (sounds like iam putting an ad here lol). 
 Have a good one fellas.
+
 
