@@ -70,6 +70,7 @@ Iam working on compatibilities for a few requested mods. Let me know if you have
 |[Hitmarker](https://thunderstore.io/c/lethal-company/p/Zehs/Hitmarker/)|||
 |[LethalMin](https://thunderstore.io/c/lethal-company/p/NotezyTeam/LethalMin/)|||
 ## Known Issues
+- Old Birds can hit themselves with rockets. Not exactly a bug, but not exactly useful behavior either. Iam planning a fix that allows you to choose if you want Old Birds friendly fire allowed or not.
 - See Mod Compatibilities
 
 <h3>Found a bug? Is my mod not compatible with your favourite mod? You can find me here:</h3>
