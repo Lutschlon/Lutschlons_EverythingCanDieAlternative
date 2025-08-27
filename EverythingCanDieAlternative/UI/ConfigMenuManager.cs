@@ -1141,7 +1141,7 @@ namespace EverythingCanDieAlternative.UI
 
                 // Despawn selector
                 var despawnSelector = UIHelper.CreateYesNoSelector(controlsPanel.transform, "DespawnSelector",
-                    "Despawn after death:", config.ShouldDespawn, (isYes) => {
+                    "Remove corpse after death:", config.ShouldDespawn, (isYes) => {
                         config.ShouldDespawn = isYes;
 
                         // Auto-save the config immediately

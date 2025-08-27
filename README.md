@@ -1,4 +1,4 @@
-# EverythingCanDieAlternative 1.1.63
+# EverythingCanDieAlternative 1.1.64
 
 This mod makes every enemy in the game killable with configurable hp. It aims to works with any modded weapon and any modded enemy.
 - Easly configurable via UI
@@ -66,10 +66,11 @@ Iam working on compatibilities for a few requested mods. Let me know if you have
 | ------- | ------- | ------- |
 | [SellBodiesFixed](https://thunderstore.io/c/lethal-company/p/Entity378/SellBodiesFixed/)|[Enhanced Monsters](https://thunderstore.io/c/lethal-company/p/VELD/Enhanced_Monsters/)|[EnemyHealthBars](https://thunderstore.io/c/lethal-company/p/NotezyTeam/EnemyHealthBars/) - HealthBar doesnt work|
 | [LethalHands](https://thunderstore.io/c/lethal-company/p/SlapItNow/LethalHands/)|[MoreCounterplay](https://thunderstore.io/c/lethal-company/p/BaronDrakula/MoreCounterplay/)|[HexiBetterShotgunFixed](https://thunderstore.io/c/lethal-company/p/Entity378/HexiBetterShotgunFixed/) - Shutgun deals no damage, fix is in the making|
-| [BrutalCompanyMinusExtraReborn](https://thunderstore.io/c/lethal-company/p/SoftDiamond/BrutalCompanyMinusExtraReborn/)|[FairAi](https://thunderstore.io/c/lethal-company/p/TheFluff/FairAI)|[LethalMin](https://thunderstore.io/c/lethal-company/p/NotezyTeam/LethalMin/) - Pikmin deal no damage to monsters, fix is in the making|
+| [BrutalCompanyMinusExtraReborn](https://thunderstore.io/c/lethal-company/p/SoftDiamond/BrutalCompanyMinusExtraReborn/)|[FairAi](https://thunderstore.io/c/lethal-company/p/TheFluff/FairAI)||
 |[Hitmarker](https://thunderstore.io/c/lethal-company/p/Zehs/Hitmarker/)|||
-
+|[LethalMin](https://thunderstore.io/c/lethal-company/p/NotezyTeam/LethalMin/)|||
 ## Known Issues
+- Old Birds can hit themselves with rockets. Not exactly a bug, but not exactly useful behavior either. Iam planning a fix that allows you to choose if you want Old Birds friendly fire allowed or not.
 - See Mod Compatibilities
 
 <h3>Found a bug? Is my mod not compatible with your favourite mod? You can find me here:</h3>

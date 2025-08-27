@@ -757,6 +757,38 @@ namespace EverythingCanDieAlternative
             return enemyHealthVars.ContainsKey(instanceId) || immortalEnemies.ContainsKey(instanceId);
         }
 
+        public static void DirectHealthChange(EnemyAI enemy, int damage, PlayerControllerB playerWhoHit = null)
+        {
+            if (enemy == null || enemy.isEnemyDead || damage <= 0) return;
+
+            int instanceId = enemy.GetInstanceID();
+            
+            // Check if this enemy has a network health variable
+            if (!enemyHealthVars.ContainsKey(instanceId))
+            {
+                Plugin.LogInfo($"No network health variable found for {enemy.enemyType.enemyName}, probably set to enabled = false");
+                return;
+            }
+
+            // Track damage source for hitmarker compatibility
+            var hitmarkerHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.HitmarkerCompatibility>("com.github.zehsteam.Hitmarker");
+            if (hitmarkerHandler != null && hitmarkerHandler.IsInstalled && playerWhoHit != null)
+            {
+                hitmarkerHandler.TrackDamageSource(instanceId, playerWhoHit);
+            }
+
+            // Get current health and apply damage
+            var healthVar = enemyHealthVars[instanceId];
+            float currentHealth = healthVar.Value;
+            float newHealth = Mathf.Max(0, currentHealth - damage);
+            
+            Plugin.LogInfo($"DirectHealthChange: {enemy.enemyType.enemyName} damaged for {damage}: {currentHealth} -> {newHealth}");
+            
+            // Directly set the network health value - this will automatically sync to all clients
+            healthVar.Value = newHealth;
+            
+            // The OnValueChanged callback will handle death checking and other logic
+        }
         // Clean up tracking data for an externally killed enemy
         public static void CleanupExternallyKilledEnemy(EnemyAI enemy)
         {

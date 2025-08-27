@@ -1,8 +1,12 @@
+## 1.1.64
+- Added beta compatibility for [LethalMin](https://thunderstore.io/c/lethal-company/p/NotezyTeam/LethalMin/) by NotezyTeam
+- Updated the wording inside the UI to better reflect what the despawn setting actually does, it removes the corspe when the enemy dies
+
 ## 1.1.63
-- Overhaul of the core hit and health mechanics, aimed to lessen lagspikes in the exact moment an enemy is spawned or hit
+- Overhaul of the core hit and health mechanics, aimed to lessen lagspikes in the exact moment an enemy is spawning or hit
 - Updated health and damage system to allow for decimal values, e.g. [LethalHands](https://thunderstore.io/c/lethal-company/p/SlapItNow/LethalHands/) will now properly deal 0.5 damage instead of 1
 - Updated maximum configurable health to 999 instead of 100
-- Updated how the ECDA config menu gets inserted into the main menu, due to a very niche error that stops the config menu from being inserted to the main menu<details><summary>Click for details</summary>Thanks to `Megoman` for reporting it on Discord!<br> The issue occours when [UsefulZapGun](https://thunderstore.io/c/lethal-company/p/mborsh/Useful_Zap_Gun/) tries to add an item [..to its configuration list] that has an illegal character in it. Like "Mario's Boombox" from [CastleGrounds](https://thunderstore.io/c/lethal-company/p/RealeStudios/CastleGrounds/). This scenario crashed the MenuManager.Start method, wich was needed to insert the ECDA config menu</details>
+- Updated how the ECDA config menu gets inserted into the main menu, due to a very niche error that stops the config menu from being inserted to the main menu<details><summary>Click for details</summary>Thanks to `Megoman` for reporting it on Discord!<br> The issue occours when [UsefulZapGun](https://thunderstore.io/c/lethal-company/p/mborsh/Useful_Zap_Gun/) tries to add an item to its configuration list, when that item has an illegal character in it. Like "Mario's Boombox" from [CastleGrounds](https://thunderstore.io/c/lethal-company/p/RealeStudios/CastleGrounds/). This scenario crashes the MenuManager.Start method, wich is needed to insert the ECDA config menu</details>
 - LessLogs now doesnt require a game restart anymore
 - Updated the SellBodiesFixed compatibility. The enemy `Nancy` will now spawn an item when killed
 - Added 9 preview images to the config UI, may spoiler you and your friends of how enemies look like so use with caution
@@ -150,3 +154,6 @@
 - Big thanks to nyakowint for having the original mod in an public github repository to allow the community to expand on it https://github.com/nyakowint/EverythingCanDie-LC/tree/main 
 - As already mentioned in the readme, the creation of this mod was made possible thanks to using claude.ai (sounds like iam putting an ad here lol). 
 Have a good one fellas.
+
+
+
