@@ -67,29 +67,29 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
         {
             try
             {
-                // Skip processing if the enemy is already dead
-                if (__instance == null || __instance.isEnemyDead) return true;
-
-                // When playerWhoHit is null, this is likely enemy-vs-enemy damage
-                if (playerWhoHit == null)
+                // Check if this is HexiBetterShotgun damage
+                var hexiHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.HexiBetterShotgunCompatibility>("HexiBetterShotgun");
+                if (hexiHandler != null && hexiHandler.IsInstalled && 
+                    HexiBetterShotgunCompatibility.IsHexiBetterShotgunDamage(__instance, force, playerWhoHit))
                 {
-                    Plugin.LogInfo($"Enemy vs enemy hit detected on {__instance.enemyType.enemyName} with force {force}");
-
-                    // Process the hit with our networked health system
-                    HealthManager.ProcessHit(__instance, force, null);
-
-                    // Let vanilla method run for sound effects, but we've already handled damage
-                    return true;
+                    Plugin.Log.LogInfo($"HexiBetterShotgun damage detected: {force} to {__instance.enemyType.enemyName}");
+                    HealthManager.DirectHealthChange(__instance, force, playerWhoHit);
+                    return true; // Let original run for sound effects
                 }
 
-                // For player hits, let the existing HitEnemyOnLocalClient patch handle it
+                // Check if this hit has no player (enemy vs enemy damage)
+                if (playerWhoHit == null)
+                {
+                    Plugin.Log.LogInfo($"Enemy vs enemy hit detected on {__instance.enemyType.enemyName} with force {force}");
+                    HealthManager.ProcessHit(__instance, force, null);
+                }
+
                 return true;
             }
             catch (Exception ex)
             {
                 Plugin.Log.LogError($"Error in HitEnemyPrefix: {ex.Message}");
-                Plugin.Log.LogError(ex.StackTrace);
-                return true; // Always continue to original method on error
+                return true;
             }
         }
     }

@@ -67,6 +67,7 @@ namespace EverythingCanDieAlternative.ModCompatibility
                 SafeRegisterHandler(() => new Handlers.LastResortKillerCompatibility(), "LastResortKiller");
                 SafeRegisterHandler(() => new Handlers.HitmarkerCompatibility(), "Hitmarker");
                 SafeRegisterHandler(() => new Handlers.LethalMinCompatibility(), "NoteBoxz.LethalMin");
+                SafeRegisterHandler(() => new Handlers.HexiBetterShotgunCompatibility(), "HexiBetterShotgunFixed");
 
             }
             catch (Exception ex)
