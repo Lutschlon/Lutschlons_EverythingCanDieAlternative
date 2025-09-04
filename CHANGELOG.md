@@ -1,3 +1,6 @@
+## 1.1.66
+- Added a global setting `Protect Old Birds (alias Rad Mech) from their own rockets` <details><summary>Click for details</summary><p>If set to 'Yes', Old Birds will be protected from damage caused by their rocket explosions. They wont damage themself or other Old Birds. This will have the side effect that Old Birds cannot be damaged by running into real landmines. This works with [FairAi](https://thunderstore.io/c/lethal-company/p/TheFluff/FairAI)</details>
+
 ## 1.1.65
 - Added beta compatibility for [HexiBetterShotgunFixed](https://thunderstore.io/c/lethal-company/p/Entity378/HexiBetterShotgunFixed/) by Entity378 <details><summary>Click for details</summary>Shotgun pellets now deal damage to enemies</details>
 
@@ -157,6 +160,7 @@
 - Big thanks to nyakowint for having the original mod in an public github repository to allow the community to expand on it https://github.com/nyakowint/EverythingCanDie-LC/tree/main 
 - As already mentioned in the readme, the creation of this mod was made possible thanks to using claude.ai (sounds like iam putting an ad here lol). 
 Have a good one fellas.
+
 
 
 
