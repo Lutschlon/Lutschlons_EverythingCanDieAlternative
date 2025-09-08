@@ -1,4 +1,4 @@
-# EverythingCanDieAlternative 1.1.65
+# EverythingCanDieAlternative 1.1.66
 
 This mod makes every enemy in the game killable with configurable hp. It aims to works with any modded weapon and any modded enemy.
 - Easly configurable via UI
@@ -71,7 +71,7 @@ Iam working on compatibilities for a few requested mods. Let me know if you have
 |[LethalMin](https://thunderstore.io/c/lethal-company/p/NotezyTeam/LethalMin/)|||
 |[HexiBetterShotgunFixed](https://thunderstore.io/c/lethal-company/p/Entity378/HexiBetterShotgunFixed/)|||
 ## Known Issues
-- Old Birds can hit themselves with rockets. Not exactly a bug, but not exactly useful behavior either. Iam planning a fix that allows you to choose if you want Old Birds friendly fire allowed or not.
+- Currently none
 
 <h3>Found a bug? Is my mod not compatible with your favourite mod? You can find me here:</h3>
 
