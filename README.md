@@ -3,7 +3,7 @@
 This mod makes every enemy in the game killable with configurable hp. It aims to works with any modded weapon and any modded enemy.
 - Easly configurable via UI
 - You can leave enemies immortal in the config to hit the right balance, you can also disable my mod for enemies if you want to 100% preserve their original behaviour
-- This mod despawns dead enemies by itself (configurable)
+- This mod removes dead enemie's corpses by itself (configurable)
 - This mod is compatible with see [Mod Compatibilities Table](#Mod-Compatibilities) below
 
 > <details><summary> Differences from Original Mod</summary>- No separate shotgun/melee weapon settings<br>- No Explosion Effects on death<br>- An alternative version of the EverythingCanDie mod from TheFluff as it did not work for me with a few modded enemies</details>
@@ -13,8 +13,8 @@ In order to generate the enemy configs: <br>
 Start the game > host a lobby > quit the lobby > check out the EverythingCanDieAlt menu or the .cfg files<br>
 If you add more enemies to your modpack you will need to host a game once more to generate their configs
 <br>
-- In the configuration UI you can make enemies killable, configure their health, configure their despawn behaviour, or disable my mod for the specific enemy
-- You can enable preview images for a few selected enemies (may spoiler you!)
+- In the configuration UI you can make enemies killable, configure their health, configure if their corpse should despawn, or disable my mod for the specific enemy
+- You can enable preview images for some enemies (may spoiler you!)
 
 ![](https://i.imgur.com/9ZzjvOu.png)
 
