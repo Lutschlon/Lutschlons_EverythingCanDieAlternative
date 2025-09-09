@@ -4,14 +4,11 @@ This mod makes every enemy in the game killable with configurable hp. It aims to
 - Easly configurable via UI
 - You can leave enemies immortal in the config to hit the right balance, you can also disable my mod for enemies if you want to 100% preserve their original behaviour
 - This mod removes dead enemie's corpses by itself (configurable)
-- This mod is compatible with see [Mod Compatibilities Table](#Mod-Compatibilities) below
 
 > <details><summary> Differences from Original Mod</summary>- No separate shotgun/melee weapon settings<br>- No Explosion Effects on death<br>- An alternative version of the EverythingCanDie mod from TheFluff as it did not work for me with a few modded enemies</details>
 
 ## Configuration
-In order to generate the enemy configs: <br>
 Start the game > host a lobby > quit the lobby > check out the EverythingCanDieAlt menu or the .cfg files<br>
-If you add more enemies to your modpack you will need to host a game once more to generate their configs
 <br>
 - In the configuration UI you can make enemies killable, configure their health, configure if their corpse should despawn, or disable my mod for the specific enemy
 - You can enable preview images for some enemies (may spoiler you!)
@@ -61,8 +58,8 @@ ____
 Everyone needs to have this mod installed for it to work. Everyone should have the same config.
 
 ## Mod Compatibilities
-Iam working on compatibilities for a few requested mods. Let me know if you have any issues with said mods, as testing all of them is not possible for me alone. Mods with known issues might be fixed later.
-| List of implemented compatibility patches|Mods that seem to work out of the box| Mods with known issues|
+I implemented some compatibilities for popular mods. Let me know if you have any issues with said mods, as testing all of them is not possible for me alone.
+| Compatibility implemented | Seem to work out of the box | Incompatible|
 | ------- | ------- | ------- |
 | [SellBodiesFixed](https://thunderstore.io/c/lethal-company/p/Entity378/SellBodiesFixed/)|[Enhanced Monsters](https://thunderstore.io/c/lethal-company/p/VELD/Enhanced_Monsters/)|[EnemyHealthBars](https://thunderstore.io/c/lethal-company/p/NotezyTeam/EnemyHealthBars/) - HealthBar doesnt work|
 | [LethalHands](https://thunderstore.io/c/lethal-company/p/SlapItNow/LethalHands/)|[MoreCounterplay](https://thunderstore.io/c/lethal-company/p/BaronDrakula/MoreCounterplay/)||
@@ -73,7 +70,8 @@ Iam working on compatibilities for a few requested mods. Let me know if you have
 ## Known Issues
 - Currently none
 
-<h3>Found a bug? Is my mod not compatible with your favourite mod? You can find me here:</h3>
+Found a bug? 
+Join the LC Modding Discord and let me know in my mod page:</h3>
 
 <table>
   <tr>
