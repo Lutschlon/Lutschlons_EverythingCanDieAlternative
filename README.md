@@ -16,7 +16,38 @@ Start the game > host a lobby > quit the lobby > check out the EverythingCanDieA
 ![](https://i.imgur.com/9ZzjvOu.png)
 
 - The menu can be hidden / shown with `LethalConfig` or inside the `nwnt.EverythingCanDieAlternative.cfg` under `EnableConfigMenu`
-____
+
+Everyone needs to have this mod installed for it to work. Everyone should have the same config.
+
+## Mod Compatibilities
+I implemented some compatibilities for popular mods. Let me know if you have any issues with said mods, as testing all of them is not possible for me alone.
+| Compatibility implemented | Seem to work out of the box | Incompatible|
+| ------- | ------- | ------- |
+| [SellBodiesFixed](https://thunderstore.io/c/lethal-company/p/Entity378/SellBodiesFixed/)|[Enhanced Monsters](https://thunderstore.io/c/lethal-company/p/VELD/Enhanced_Monsters/)|[EnemyHealthBars](https://thunderstore.io/c/lethal-company/p/NotezyTeam/EnemyHealthBars/) - HealthBar doesnt work|
+| [LethalHands](https://thunderstore.io/c/lethal-company/p/SlapItNow/LethalHands/)|[MoreCounterplay](https://thunderstore.io/c/lethal-company/p/BaronDrakula/MoreCounterplay/)||
+| [BrutalCompanyMinusExtraReborn](https://thunderstore.io/c/lethal-company/p/SoftDiamond/BrutalCompanyMinusExtraReborn/)|[FairAi](https://thunderstore.io/c/lethal-company/p/TheFluff/FairAI)||
+|[Hitmarker](https://thunderstore.io/c/lethal-company/p/Zehs/Hitmarker/)|||
+|[LethalMin](https://thunderstore.io/c/lethal-company/p/NotezyTeam/LethalMin/)|||
+|[HexiBetterShotgunFixed](https://thunderstore.io/c/lethal-company/p/Entity378/HexiBetterShotgunFixed/)|||
+## Known Issues
+- Currently none
+
+Found a bug? 
+Join the LC Modding Discord and let me know in my mod page:</h3>
+
+<table>
+  <tr>
+    <td style="padding: 8px; background-color: #f2f2f2;"><a href="https://discord.gg/8DgrNrH8Z5">LC Modding Discord</a></td>
+    <td style="padding: 8px; background-color: #f2f2f2;"><a href="https://discord.com/channels/1168655651455639582/1348071762549805208">My Mod Page</a></td>
+  </tr>
+</table>
+
+## Credits
+Based on the original EverythingCanDie mod from here: [Thunderstore page](https://thunderstore.io/c/lethal-company/p/TheFluff/EverythingCanDie/) and [GitHub](https://github.com/nyakowint/EverythingCanDie-LC/tree/main).
+<br> Thank you nyakowint.
+<br> ClaudeAI did the coding. 
+<br> Thank you Henni for testing with me.
+
 <details>
   <summary>Click for help for the .cfg files</summary>
   <p>For each enemy, you can configure:</p>
@@ -54,34 +85,3 @@ ____
   </ul>
   <hr>
 </details>
-
-Everyone needs to have this mod installed for it to work. Everyone should have the same config.
-
-## Mod Compatibilities
-I implemented some compatibilities for popular mods. Let me know if you have any issues with said mods, as testing all of them is not possible for me alone.
-| Compatibility implemented | Seem to work out of the box | Incompatible|
-| ------- | ------- | ------- |
-| [SellBodiesFixed](https://thunderstore.io/c/lethal-company/p/Entity378/SellBodiesFixed/)|[Enhanced Monsters](https://thunderstore.io/c/lethal-company/p/VELD/Enhanced_Monsters/)|[EnemyHealthBars](https://thunderstore.io/c/lethal-company/p/NotezyTeam/EnemyHealthBars/) - HealthBar doesnt work|
-| [LethalHands](https://thunderstore.io/c/lethal-company/p/SlapItNow/LethalHands/)|[MoreCounterplay](https://thunderstore.io/c/lethal-company/p/BaronDrakula/MoreCounterplay/)||
-| [BrutalCompanyMinusExtraReborn](https://thunderstore.io/c/lethal-company/p/SoftDiamond/BrutalCompanyMinusExtraReborn/)|[FairAi](https://thunderstore.io/c/lethal-company/p/TheFluff/FairAI)||
-|[Hitmarker](https://thunderstore.io/c/lethal-company/p/Zehs/Hitmarker/)|||
-|[LethalMin](https://thunderstore.io/c/lethal-company/p/NotezyTeam/LethalMin/)|||
-|[HexiBetterShotgunFixed](https://thunderstore.io/c/lethal-company/p/Entity378/HexiBetterShotgunFixed/)|||
-## Known Issues
-- Currently none
-
-Found a bug? 
-Join the LC Modding Discord and let me know in my mod page:</h3>
-
-<table>
-  <tr>
-    <td style="padding: 8px; background-color: #f2f2f2;"><a href="https://discord.gg/8DgrNrH8Z5">LC Modding Discord</a></td>
-    <td style="padding: 8px; background-color: #f2f2f2;"><a href="https://discord.com/channels/1168655651455639582/1348071762549805208">My Mod Page</a></td>
-  </tr>
-</table>
-
-## Credits
-Based on the original EverythingCanDie mod from here: [Thunderstore page](https://thunderstore.io/c/lethal-company/p/TheFluff/EverythingCanDie/) and [GitHub](https://github.com/nyakowint/EverythingCanDie-LC/tree/main).
-<br> Thank you nyakowint.
-<br> ClaudeAI did the coding. 
-<br> Thank you Henni for testing with me.
