@@ -36,6 +36,7 @@ namespace EverythingCanDieAlternative
 
         // Immortal enemy protection configuration
         public static ConfigEntry<bool> ProtectImmortalEnemiesFromInstaKill { get; private set; }
+        public static ConfigEntry<bool> ProtectOldBirdsFromOwnRockets { get; private set; }
 
         // Flag to indicate if logging should be conditionally suppressed
         private static bool _infoLogsEnabled = true;
@@ -46,6 +47,7 @@ namespace EverythingCanDieAlternative
 
         // Cache for sanitized strings to avoid repeated processing
         private static readonly Dictionary<string, string> sanitizedNameCache = new Dictionary<string, string>();
+
 
         private void Awake()
         {
@@ -81,6 +83,11 @@ namespace EverythingCanDieAlternative
                     true,
                     "If true, enemies set as immortal will be protected from insta-kill effects by setting their canDie property to false.");
 
+                ProtectOldBirdsFromOwnRockets = Config.Bind("General",
+                    "ProtectOldBirdsFromOwnRockets",
+                    true,
+                    "If true, Old Birds will be protected from damage caused by their own rocket explosions.");
+
                 // Initialize the configuration systems
                 //Plugin.LogInfo("Initializing DespawnConfiguration...");
                 _ = DespawnConfiguration.Instance;
@@ -112,8 +119,6 @@ namespace EverythingCanDieAlternative
                 Log.LogError($"Error initializing {PluginInfo.PLUGIN_NAME}: {ex.Message}");
                 Log.LogError($"Stack trace: {ex.StackTrace}");
             }
-            // Test cross-mod patching after game starts - using Harmony instead of MonoMod
-            // This will be handled by the StartOfRoundPatch in Patches.cs
         }
 
 
@@ -122,8 +127,6 @@ namespace EverythingCanDieAlternative
         {
             return ModCompatibilityManager.Instance.IsModInstalled(modId);
         }
-
-        /// Convenience method to check if SellBodies mod is installed
         public bool IsSellBodiesModDetected => IsModInstalled("Entity378.sellbodies");
 
         public static bool IsModEnabledForEnemy(string mobName)
@@ -292,6 +295,6 @@ namespace EverythingCanDieAlternative
     {
         public const string PLUGIN_GUID = "nwnt.EverythingCanDieAlternative";
         public const string PLUGIN_NAME = "EverythingCanDieAlternative";
-        public const string PLUGIN_VERSION = "1.1.65";
+        public const string PLUGIN_VERSION = "1.1.66";
     }
 }

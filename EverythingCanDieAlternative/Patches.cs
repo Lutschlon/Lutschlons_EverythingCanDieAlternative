@@ -63,6 +63,12 @@ namespace EverythingCanDieAlternative
                 harmony.Patch(spikeRoofTrapMethod, new HarmonyMethod(spikeRoofTrapPrefix));
                 Plugin.Log.LogInfo("SpikeRoofTrap.OnTriggerStay patched successfully");
 
+                var spawnExplosionMethod = AccessTools.Method(typeof(Landmine), "SpawnExplosion");
+                var spawnExplosionPrefix = AccessTools.Method(typeof(Patches), nameof(SpawnExplosionPrefix));
+                var spawnExplosionPostfix = AccessTools.Method(typeof(Patches), nameof(SpawnExplosionPostfix));
+                harmony.Patch(spawnExplosionMethod, new HarmonyMethod(spawnExplosionPrefix), new HarmonyMethod(spawnExplosionPostfix));
+                Plugin.Log.LogInfo("Landmine.SpawnExplosion patched successfully");
+
                 Plugin.Log.LogInfo("All Harmony patches applied successfully");
             }
             catch (Exception ex)
@@ -193,12 +199,40 @@ namespace EverythingCanDieAlternative
 
         }
 
+        private static bool isProcessingLandmineExplosion = false;
+
+                [HarmonyPatch(typeof(Landmine), "SpawnExplosion")]
+        [HarmonyPrefix]
+        public static void SpawnExplosionPrefix()
+        {
+            isProcessingLandmineExplosion = true;
+        }
+
+        [HarmonyPatch(typeof(Landmine), "SpawnExplosion")]
+        [HarmonyPostfix]
+        public static void SpawnExplosionPostfix()
+        {
+            isProcessingLandmineExplosion = false;
+        }
+
         // This is the only hit interception point we need
         public static bool HitEnemyOnLocalClientPrefix(EnemyAI __instance, int force, Vector3 hitDirection, PlayerControllerB playerWhoHit, bool playHitSFX, int hitID)
         {
             try
             {
                 if (__instance == null || __instance.isEnemyDead) return true;
+
+                if (__instance == null || __instance.isEnemyDead) return true;
+
+                // Check for Old Bird rocket protection FIRST
+                if (Plugin.ProtectOldBirdsFromOwnRockets.Value &&
+                    __instance.enemyType.enemyName.Contains("RadMech") &&
+                    playerWhoHit == null &&
+                    isProcessingLandmineExplosion)
+                {
+                    Plugin.LogInfo($"Blocking Old Bird damage during landmine explosion processing (force: {force})");
+                    return false; // Block the hit entirely
+                }
 
                 Plugin.LogInfo($"Local hit detected on {__instance.enemyType.enemyName} from {(playerWhoHit?.playerUsername ?? "unknown")} with force {force}");
 
@@ -231,13 +265,13 @@ namespace EverythingCanDieAlternative
                 return true;
             }
         }
-
+        
+        
         // Patch for EnemyAI.HitEnemy to handle immortal enemies
         public static bool HitEnemyPrefix(EnemyAI __instance, int force, PlayerControllerB playerWhoHit)
         {
             try
             {
-                if (__instance == null || __instance.isEnemyDead) return true;
 
                 string enemyName = __instance.enemyType.enemyName;
                 string sanitizedName = Plugin.RemoveInvalidCharacters(enemyName).ToUpper();

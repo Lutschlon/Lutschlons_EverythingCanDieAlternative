@@ -792,6 +792,39 @@ namespace EverythingCanDieAlternative.UI
                     immortalDescTextComp.fontStyle = FontStyles.Italic;
                 }
 
+                // Old Bird rocket protection setting
+                var oldBirdProtectionSelector = UIHelper.CreateYesNoSelector(globalSettingsPanel.transform, "OldBirdProtectionSelector",
+                    "Protect Old Birds (alias Rad Mech) from their own rockets:", Plugin.ProtectOldBirdsFromOwnRockets.Value, (protectOldBirds) => {
+                        Plugin.ProtectOldBirdsFromOwnRockets.Value = protectOldBirds;
+                        Plugin.Instance.Config.Save();
+                        PlayConfirmSFX();
+                        Plugin.LogInfo($"Old Bird rocket protection {(protectOldBirds ? "enabled" : "disabled")}");
+                    });
+
+                if (oldBirdProtectionSelector != null)
+                {
+                    var oldBirdProtectionRect = oldBirdProtectionSelector.GetComponent<RectTransform>();
+                    oldBirdProtectionRect.sizeDelta = new Vector2(0, 30);
+                }
+
+                // Add description text for Old Bird protection
+                var oldBirdDescPanel = new GameObject("OldBirdDescPanel");
+                oldBirdDescPanel.transform.SetParent(globalSettingsPanel.transform, false);
+
+                var oldBirdDescRect = oldBirdDescPanel.AddComponent<RectTransform>();
+                oldBirdDescRect.sizeDelta = new Vector2(0, 40);
+
+                var oldBirdDescText = UIHelper.CreateText(oldBirdDescPanel.transform, "OldBirdDescText",
+                    "If 'Yes', Old Birds will be protected from damage caused by their rocket explosions. Works with FairAI", TextAlignmentOptions.Left);
+
+                var oldBirdDescTextComp = oldBirdDescText?.GetComponent<TextMeshProUGUI>();
+                if (oldBirdDescTextComp != null)
+                {
+                    oldBirdDescTextComp.fontSize = 12;
+                    oldBirdDescTextComp.color = new Color(0.7f, 0.7f, 0.7f, 1f);
+                    oldBirdDescTextComp.fontStyle = FontStyles.Italic;
+                }
+
                 Plugin.LogInfo("Global settings panel created successfully");
             }
             catch (Exception ex)
