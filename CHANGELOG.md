@@ -2,6 +2,7 @@
 - Added a global setting `Set ALL Enemies to:` with the options `Affected` `Unaffected` `Killable` `Unkillable` for bulk configuration if needed
 - Fixed a bug, that didnt properly allowed the user to configure if an enemy should be affected by the mod
 - Reduced log spam when opening the UI
+- Updated ReadMe with more images
 
 ## 1.1.66
 - Added a global setting `Protect Old Birds (alias Rad Mech) from their own rockets` default set to 'Yes' <details><summary>Click for details</summary><p>- If set to 'Yes', Old Birds will be protected from damage caused by their rocket explosions. They wont damage themself or other Old Birds.<br>- This will have the side effect that Old Birds cannot be damaged by running into real landmines. <br>- Before this update Old Birds would constantly die to their own rockets, for this old behaviour set the setting to 'No'. <br>- This works with [FairAi](https://thunderstore.io/c/lethal-company/p/TheFluff/FairAI), meaning FairAI will not deal damage to Old Birds if set to 'Yes'</details>
@@ -166,6 +167,7 @@
 - Big thanks to nyakowint for having the original mod in an public github repository to allow the community to expand on it https://github.com/nyakowint/EverythingCanDie-LC/tree/main 
 - As already mentioned in the readme, the creation of this mod was made possible thanks to using claude.ai (sounds like iam putting an ad here lol). 
 Have a good one fellas.
+
 
 
 
