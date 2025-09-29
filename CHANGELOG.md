@@ -1,11 +1,11 @@
 ## 1.1.67
 - Added a global setting `Set ALL Enemies to:` with the options `Affected` `Unaffected` `Killable` `Unkillable` for bulk configuration if needed
-- Fixed a bug, that didnt properly allowed the user to configure if an enemy should be affected by the mod
+- Fixed a bug, that didn't properly allow the user to configure if an enemy should be affected by the mod
 - Reduced log spam when opening the UI
 - Updated ReadMe with more images
 
 ## 1.1.66
-- Added a global setting `Protect Old Birds (alias Rad Mech) from their own rockets` default set to 'Yes' <details><summary>Click for details</summary><p>- If set to 'Yes', Old Birds will be protected from damage caused by their rocket explosions. They wont damage themself or other Old Birds.<br>- This will have the side effect that Old Birds cannot be damaged by running into real landmines. <br>- Before this update Old Birds would constantly die to their own rockets, for this old behaviour set the setting to 'No'. <br>- This works with [FairAi](https://thunderstore.io/c/lethal-company/p/TheFluff/FairAI), meaning FairAI will not deal damage to Old Birds if set to 'Yes'</details>
+- Added a global setting `Protect Old Birds (alias Rad Mech) from their own rockets` default set to 'Yes' <details><summary>Click for details</summary><p>- If set to 'Yes', Old Birds will be protected from damage caused by their rocket explosions. They won't damage themselves or other Old Birds.<br>- This will have the side effect that Old Birds cannot be damaged by running into real landmines. <br>- Before this update Old Birds would constantly die to their own rockets, for this old behaviour set the setting to 'No'. <br>- This works with [FairAi](https://thunderstore.io/c/lethal-company/p/TheFluff/FairAI), meaning FairAI will not deal damage to Old Birds if set to 'Yes'</details>
 - Updated ReadMe <details><summary>Click for details</summary>Help with the .cfg files got moved to the bottom of the ReadMe.</details>
 
 ## 1.1.65
@@ -13,14 +13,14 @@
 
 ## 1.1.64
 - Added beta compatibility for [LethalMin](https://thunderstore.io/c/lethal-company/p/NotezyTeam/LethalMin/) by NotezyTeam <details><summary>Click for details</summary>Pikmin now deal damage to enemies, respecting the ECDA settings</details>
-- Updated the wording inside the UI to better reflect what the despawn setting actually does, it removes the corspe when an enemy dies
+- Updated the wording inside the UI to better reflect what the despawn setting actually does, it removes the corpse when an enemy dies
 
 ## 1.1.63
 - Overhaul of the core hit and health mechanics, aimed to lessen lagspikes in the exact moment an enemy is spawning or hit
 - Updated health and damage system to allow for decimal values, e.g. [LethalHands](https://thunderstore.io/c/lethal-company/p/SlapItNow/LethalHands/) will now properly deal 0.5 damage instead of 1
 - Updated maximum configurable health to 999 instead of 100
-- Updated how the ECDA config menu gets inserted into the main menu, due to a very niche error that stopped the config menu from being inserted<details><summary>Click for details</summary>Thanks to `Megoman` for reporting it on Discord!<br> The issue occours when [UsefulZapGun](https://thunderstore.io/c/lethal-company/p/mborsh/Useful_Zap_Gun/) tries to add an item to its configuration list, which includes an illegal character. Like "Mario's Boombox" from [CastleGrounds](https://thunderstore.io/c/lethal-company/p/RealeStudios/CastleGrounds/). This scenario crashes the MenuManager.Start method, which is (was) needed to insert the ECDA config menu</details>
-- LessLogs now doesnt require a game restart anymore
+- Updated how the ECDA config menu gets inserted into the main menu, due to a very niche error that stopped the config menu from being inserted<details><summary>Click for details</summary>Thanks to `Megoman` for reporting it on Discord!<br> The issue occurs when [UsefulZapGun](https://thunderstore.io/c/lethal-company/p/mborsh/Useful_Zap_Gun/) tries to add an item to its configuration list, which includes an illegal character. Like "Mario's Boombox" from [CastleGrounds](https://thunderstore.io/c/lethal-company/p/RealeStudios/CastleGrounds/). This scenario crashes the MenuManager.Start method, which is (was) needed to insert the ECDA config menu</details>
+- LessLogs now doesn't require a game restart anymore
 - Updated the SellBodiesFixed compatibility. The enemy `Nancy` will now spawn an item when killed
 - Added 9 preview images to the config UI, may spoiler you and your friends of how enemies look like so use with caution
 
@@ -33,7 +33,7 @@
 - Updated ReadMe
   
 ## 1.1.60
-- Fixed that some enemies dont despawn after getting killed by a spike trap <details><summary>Click for details</summary><p> Thanks to `Tomatobird8` for reporting it on Discord!</details>
+- Fixed that some enemies don't despawn after getting killed by a spike trap <details><summary>Click for details</summary><p> Thanks to `Tomatobird8` for reporting it on Discord!</details>
 - Added a "Global Settings" button to the configuration ui for settings that affect all enemies
 - Added a global setting `Allow spike traps to kill enemies`
 ##
@@ -45,7 +45,7 @@
 ###### 1.1.57 - Fixed that preview images were not displayed in the ui
 
 ## 1.1.56
-- Added preview images for 46 enemies to the config UI. Is toggled off by default, may spoiler you and your friends of how enemies look like so use with caution <details><summary>Click for details</summary>- Should help users understanding what name refers to what actual enemy. <br>- The preview images are screenshots i made and edited. If i didnt made a screenshot for that enemy no preview will be shown.</details>
+- Added preview images for 46 enemies to the config UI. Is toggled off by default, may spoiler you and your friends of how enemies look like so use with caution <details><summary>Click for details</summary>- Should help users understanding what name refers to what actual enemy. <br>- The preview images are screenshots I made and edited. If I didn't make a screenshot for that enemy no preview will be shown.</details>
 - Updated nearly all info log entries to be hidden when `EnableInfoLogs` is deactivated
 
 ##
@@ -56,15 +56,15 @@
 - Added beta compatibility for [Hitmarker](https://thunderstore.io/c/lethal-company/p/Zehs/Hitmarker/) by Zehs, not tested in a multiplayer session, let me know if you encounter any problems<details><summary>Click for details</summary>- The death hitmarker will now be displayed correctly</details>
 
 ## 1.1.52
-- Added a configuration menu to the games main menu <details><summary>Click for details</summary>- Can be deactivated inside `nwnt.EverythingCanDieAlternative.cfg` > `EnableConfigMenu` or inside LethalConfig or inside the menu itself.<br>-  Changes inside the menu take effect immediately <br>- Configuration will be updated when starting a lobby now, you dont need to restart your game for the changes inside the UI to take effect</details>
-- Added `EnableInfoLogs` to `nwnt.EverythingCanDieAlternative.cfg` <details><summary>Click for details</summary>- This will supress nearly all of the info logs as of 1.1.56, may help against lag spikes</details>
+- Added a configuration menu to the games main menu <details><summary>Click for details</summary>- Can be deactivated inside `nwnt.EverythingCanDieAlternative.cfg` > `EnableConfigMenu` or inside LethalConfig or inside the menu itself.<br>-  Changes inside the menu take effect immediately <br>- Configuration will be updated when starting a lobby now, you don't need to restart your game for the changes inside the UI to take effect</details>
+- Added `EnableInfoLogs` to `nwnt.EverythingCanDieAlternative.cfg` <details><summary>Click for details</summary>- This will suppress nearly all of the info logs as of 1.1.56, may help against lag spikes</details>
   
 ##
 ###### 1.1.51 (unreleased) - First UI-Config implementation
 
 ## 1.1.50
 - Fixed that some enemies like `Light Eater` or `SCP682` will not die after their configured HP reach 0 <details><summary>Click for details</summary> - Added a more forceful way of removing enemies that resist the vanilla kill method<p>- This approach should be robust for any future enemies as well</details>
-- Updated how `.Unimmortal = false` effects gameplay - it will now give enemies 999 vanilla HP, this wont save them from instakills<details><summary>Click for details</summary>Hitting such an enemy will not trigger the EverythingCanDieAlternative hit processing, this is unchanged from earlier patches <p> Before this patch, enemies would revert to vanilla HP values, you can make enemies use vanilla values by setting `.Enable = false`</details>
+- Updated how `.Unimmortal = false` effects gameplay - it will now give enemies 999 vanilla HP, this won't save them from instakills<details><summary>Click for details</summary>Hitting such an enemy will not trigger the EverythingCanDieAlternative hit processing, this is unchanged from earlier patches <p> Before this patch, enemies would revert to vanilla HP values, you can make enemies use vanilla values by setting `.Enable = false`</details>
 - Updated the SellBodiesFixed compatibility. The enemies `Light Eater` and `SCP682` will now spawn an item
   
 ## 1.1.43
@@ -73,11 +73,11 @@
 
 ## 1.1.42
 
-- Updated the SellBodiesFixed compatibility. The enemies `SCP3166` (Gorefield) and `Rabbit?` will now spawn an item <details><summary>Click for details</summary> The original SellBodiesFixed mod does not spawn an item for them. These enemies are currently hardcoded with power level 2 and 1 items. Btw, i have no clue what mod adds the Rabbit enemy or if it even spawns naturally.</details>
+- Updated the SellBodiesFixed compatibility. The enemies `SCP3166` (Gorefield) and `Rabbit?` will now spawn an item <details><summary>Click for details</summary> The original SellBodiesFixed mod does not spawn an item for them. These enemies are currently hardcoded with power level 2 and 1 items. By the way, I have no clue what mod adds the Rabbit enemy or if it even spawns naturally.</details>
 
 ## 1.1.41
 
-- Updated the SellBodiesFixed compatibility. The enemies `Baldi` and `The Fiend` will now spawn an item <details><summary>Click for details</summary> The original SellBodiesFixed mod does not spawn an item for them. These enemies are currently hardcoded with power level 2 items, let me know if there are more enemies that dont spawn an item with the SellBodiesFixed mod and i add them.</details>
+- Updated the SellBodiesFixed compatibility. The enemies `Baldi` and `The Fiend` will now spawn an item <details><summary>Click for details</summary> The original SellBodiesFixed mod does not spawn an item for them. These enemies are currently hardcoded with power level 2 items, let me know if there are more enemies that don't spawn an item with the SellBodiesFixed mod and I'll add them.</details>
 - Updated the default configuration so enemy health caps at 30, this should result in more consistent 1 shot kills when hitting an enemy with the [LethalThings](https://thunderstore.io/c/lethal-company/p/Evaisa/LethalThings/) Rocket Launcher, this only effects new generated configs, you can still configure health to be higher
 
 ## 1.1.40
@@ -102,11 +102,11 @@
 
 ## 1.1.30
 
-- Fixed the creation of health configs, for not referencing original enemy hp but instead always defaulting to 3 hp <details><summary>Click for details</summary><p> Thanks to `pxntxrez` for reporting it on discord!<p>This fix only takes effect when you delete your existing `nwnt.EverythingCanDieAlternative.cfg` file or during a fresh installation in a new modpack.<p>Before this fix, enemies like Forest Giant would default to 3 hp, now they default to 38 hp like in the vanilla game. You can of course still configure them back to 3 hp or whatever you like to. <p>The default configuration caps enemy hp at 38. You can still manually configure hp to be higher. Why is it limited? The enemy "The Fiend" is configured with 1000 hp, i dont think having an hitable enemy with 1000 hp is what someone expects when installing my mod. 38 is already way to much for the shovel or shotgun but eh, might change the hp cap later.</details>
+- Fixed the creation of health configs, for not referencing original enemy hp but instead always defaulting to 3 hp <details><summary>Click for details</summary><p> Thanks to `pxntxrez` for reporting it on Discord!<p>This fix only takes effect when you delete your existing `nwnt.EverythingCanDieAlternative.cfg` file or during a fresh installation in a new modpack.<p>Before this fix, enemies like Forest Giant would default to 3 hp, now they default to 38 hp like in the vanilla game. You can of course still configure them back to 3 hp or whatever you like to. <p>The default configuration caps enemy hp at 38. You can still manually configure hp to be higher. Why is it limited? The enemy "The Fiend" is configured with 1000 hp, I don't think having a hittable enemy with 1000 hp is what someone expects when installing my mod. 38 is already way too much for the shovel or shotgun but eh, might change the hp cap later.</details>
 
 ## 1.1.20
 
-- Fixed dead enemies not despawning by adding a feature, that despawns dead enemies <details><summary>Click for details</summary> <p>You can disable this feature in the new `nwnt.EverythingCanDieAlternative_Despawn_Rules.cfg` by setting `EnableDespawnFeature` to `false`. <p>Why should you despawn an enemy? A Coilhead will just be froozen if dead if you dont despawn it, looks awful and is bad player feedback. <p>Why should you NOT despawn an enemy? Enemies like Baboon Hawks have proper death animation and proper corpses that are fine to leave as is. <p>You can configure for every mob if it should be despawned or not. For a couple of vanilla enemies with death animations it is defaulted to false. <p>This feature is compatible with SellBodiesFixed and EnhancedMonsters. </details>
+- Fixed dead enemies not despawning by adding a feature, that despawns dead enemies <details><summary>Click for details</summary> <p>You can disable this feature in the new `nwnt.EverythingCanDieAlternative_Despawn_Rules.cfg` by setting `EnableDespawnFeature` to `false`. <p>Why should you despawn an enemy? A Coilhead will just be frozen if dead if you don't despawn it, looks awful and is bad player feedback. <p>Why should you NOT despawn an enemy? Enemies like Baboon Hawks have proper death animation and proper corpses that are fine to leave as is. <p>You can configure for every mob if it should be despawned or not. For a couple of vanilla enemies with death animations it is defaulted to false. <p>This feature is compatible with SellBodiesFixed and EnhancedMonsters. </details>
 
 ## 1.1.10
 
@@ -115,7 +115,7 @@
 
 ## 1.1.00
 
-- Fixed an issue that counted one hit two times by redoing the whole health and hit system with LethalNetworkAPI<details><summary>Click for technical notes:</summary><p>The mod now uses the LethalNetworkAPI to bypass the vanilla games hit and health system. May this lead to unforeseen problems? Perhaps, i keep an eye on it.<p>Vanilla Enemy health gets set to 999 for every enemy to not to worry about. <p>This mod now uses its own health tracking system based on the network id of the enemy. When a client hits an enemy the hit gets networked to the host. The host is the only source of truth and keeps track of enemy health. This means clients will no longer see how much health an enemy has inside the log as this information gets not transmitted back. When an enemy reaches 0 hp of the own health tracking the host simply calls the base games methods for killing it. Some modded enemies dont seem to despawn properly, SellBodiesFixed fixes this. <p>With the 1.0.1 approach i also ran into issues with killing some vanilla enemies at 1 hp instead of zero. This is now fixed too.</details>
+- Fixed an issue that counted one hit two times by redoing the whole health and hit system with LethalNetworkAPI<details><summary>Click for technical notes:</summary><p>The mod now uses the LethalNetworkAPI to bypass the vanilla games hit and health system. May this lead to unforeseen problems? Perhaps, I keep an eye on it.<p>Vanilla Enemy health gets set to 999 for every enemy to not to worry about. <p>This mod now uses its own health tracking system based on the network id of the enemy. When a client hits an enemy the hit gets networked to the host. The host is the only source of truth and keeps track of enemy health. This means clients will no longer see how much health an enemy has inside the log as this information gets not transmitted back. When an enemy reaches 0 hp of the own health tracking the host simply calls the base games methods for killing it. Some modded enemies don't seem to despawn properly, SellBodiesFixed fixes this. <p>With the 1.0.1 approach I also ran into issues with killing some vanilla enemies at 1 hp instead of zero. This is now fixed too.</details>
 
 ---
 <details><summary> Click for Older Versions</summary>
@@ -155,27 +155,15 @@
 
 #### Future Plans For Known Issues
 - Not planning to fix The Fiend or Locker (changed my mind, did try to fix it in 1.0.1)
-- Ghost Girl despawn issue will remain as is (i leave her at immortal anyway)
+- Ghost Girl despawn issue will remain as is (I leave her at immortal anyway)
 - Investigating config synchronization between host and clients (works better as of 1.0.1)
 
 #### Future Features?
-- None, this mods only purpose is to be a robust mod to allow the death of enemies with being able to configure their hp, i want to use this mod alongside SellBodiesFixed or Enhanced_Monsters or whatever mods reward you for going on the hunt
+- None, this mods only purpose is to be a robust mod to allow the death of enemies with being able to configure their hp, I want to use this mod alongside SellBodiesFixed or Enhanced_Monsters or whatever mods reward you for going on the hunt
 </details>
 
 ---
 
-- Big thanks to nyakowint for having the original mod in an public github repository to allow the community to expand on it https://github.com/nyakowint/EverythingCanDie-LC/tree/main 
-- As already mentioned in the readme, the creation of this mod was made possible thanks to using claude.ai (sounds like iam putting an ad here lol). 
+- Big thanks to nyakowint for having the original mod in a public github repository to allow the community to expand on it https://github.com/nyakowint/EverythingCanDie-LC/tree/main 
+- As already mentioned in the readme, the creation of this mod was made possible thanks to using claude.ai (sounds like I'm putting an ad here lol). 
 Have a good one fellas.
-
-
-
-
-
-
-
-
-
-
-
-
