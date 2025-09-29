@@ -24,7 +24,7 @@ namespace EverythingCanDieAlternative.UI
             Health = health;
 
             // Log the actual values being stored in the config data
-            Plugin.LogInfo($"Created EnemyConfigData for {name}: Enabled={isEnabled}, CanDie={canDie}, ShouldDespawn={shouldDespawn}, Health={health}");
+            //Plugin.LogInfo($"Created EnemyConfigData for {name}: Enabled={isEnabled}, CanDie={canDie}, ShouldDespawn={shouldDespawn}, Health={health}");
         }
 
         public Color GetStatusColor()

@@ -35,11 +35,11 @@ namespace EverythingCanDieAlternative.UI
                 if (!Directory.Exists(uiImagesPath))
                 {
                     Directory.CreateDirectory(uiImagesPath);
-                    Plugin.LogInfo($"Created UI images directory at {uiImagesPath}");
+                    //Plugin.LogInfo($"Created UI images directory at {uiImagesPath}");
                 }
                 else
                 {
-                    Plugin.LogInfo($"UI images directory found at {uiImagesPath}");
+                    //Plugin.LogInfo($"UI images directory found at {uiImagesPath}");
                 }
 
                 isInitialized = true;
