@@ -573,5 +573,172 @@ namespace EverythingCanDieAlternative.UI
                 InputField.text = ((int)CurrentValue).ToString();
             }
         }
+
+        // Creates a button selector with custom options (e.g., "Enabled/Disabled" or "Killable/Unkillable")
+        public static GameObject CreateBulkActionSelector(Transform parent, string name, string label,
+            string option1Text, string option2Text, UnityEngine.Events.UnityAction<bool> onOption1Selected, UnityEngine.Events.UnityAction<bool> onOption2Selected)
+        {
+            GameObject selectorObj = new GameObject(name);
+            selectorObj.transform.SetParent(parent, false);
+
+            RectTransform rectTransform = selectorObj.AddComponent<RectTransform>();
+            rectTransform.anchorMin = new Vector2(0, 0.5f);
+            rectTransform.anchorMax = new Vector2(1, 0.5f);
+            rectTransform.pivot = new Vector2(0, 0.5f);
+            rectTransform.sizeDelta = new Vector2(0, UITheme.InputHeight);
+
+            // Create horizontal layout
+            HorizontalLayoutGroup layout = selectorObj.AddComponent<HorizontalLayoutGroup>();
+            layout.spacing = 10;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = true;
+            layout.childControlWidth = false;
+            layout.childControlHeight = true;
+            layout.padding = new RectOffset(0, 0, 0, 0);
+
+            // Create label
+            GameObject labelObj = CreateText(selectorObj.transform, "Label", label, TextAlignmentOptions.Left);
+            RectTransform labelRect = labelObj.GetComponent<RectTransform>();
+            labelRect.sizeDelta = new Vector2(200, UITheme.InputHeight);
+
+            // Create container for buttons
+            GameObject buttonContainer = new GameObject("ButtonContainer");
+            buttonContainer.transform.SetParent(selectorObj.transform, false);
+
+            RectTransform buttonContainerRect = buttonContainer.AddComponent<RectTransform>();
+            buttonContainerRect.sizeDelta = new Vector2(200, UITheme.InputHeight);
+
+            HorizontalLayoutGroup buttonLayout = buttonContainer.AddComponent<HorizontalLayoutGroup>();
+            buttonLayout.spacing = 5;
+            buttonLayout.childForceExpandWidth = true;
+            buttonLayout.childForceExpandHeight = true;
+            buttonLayout.childAlignment = TextAnchor.MiddleCenter;
+
+            // Create Option 1 button
+            GameObject option1Button = new GameObject("Option1Button");
+            option1Button.transform.SetParent(buttonContainer.transform, false);
+
+            RectTransform option1Rect = option1Button.AddComponent<RectTransform>();
+
+            Image option1Image = option1Button.AddComponent<Image>();
+            option1Image.color = UITheme.ButtonColor;
+
+            Button option1ButtonComponent = option1Button.AddComponent<Button>();
+            ColorBlock option1Colors = option1ButtonComponent.colors;
+            option1Colors.normalColor = UITheme.ButtonColor;
+            option1Colors.highlightedColor = UITheme.ButtonHighlightColor;
+            option1Colors.pressedColor = UITheme.ButtonPressedColor;
+            option1ButtonComponent.colors = option1Colors;
+
+            // Create Option 1 text
+            GameObject option1TextObj = CreateText(option1Button.transform, "Text", option1Text, TextAlignmentOptions.Center);
+            TextMeshProUGUI option1TextComp = option1TextObj.GetComponent<TextMeshProUGUI>();
+            option1TextComp.fontSize = UITheme.SmallFontSize;
+            option1TextComp.color = new Color(1f, 0.9f, 0.5f, 1f);
+
+            // Create Option 2 button
+            GameObject option2Button = new GameObject("Option2Button");
+            option2Button.transform.SetParent(buttonContainer.transform, false);
+
+            RectTransform option2Rect = option2Button.AddComponent<RectTransform>();
+
+            Image option2Image = option2Button.AddComponent<Image>();
+            option2Image.color = UITheme.ButtonColor;
+
+            Button option2ButtonComponent = option2Button.AddComponent<Button>();
+            ColorBlock option2Colors = option2ButtonComponent.colors;
+            option2Colors.normalColor = UITheme.ButtonColor;
+            option2Colors.highlightedColor = UITheme.ButtonHighlightColor;
+            option2Colors.pressedColor = UITheme.ButtonPressedColor;
+            option2ButtonComponent.colors = option2Colors;
+
+            // Create Option 2 text
+            GameObject option2TextObj = CreateText(option2Button.transform, "Text", option2Text, TextAlignmentOptions.Center);
+            TextMeshProUGUI option2TextComp = option2TextObj.GetComponent<TextMeshProUGUI>();
+            option2TextComp.fontSize = UITheme.SmallFontSize;
+            option2TextComp.color = new Color(1f, 0.9f, 0.5f, 1f);
+
+            // Add callbacks
+            option1ButtonComponent.onClick.AddListener(() => {
+                if (onOption1Selected != null)
+                {
+                    onOption1Selected(true);
+                }
+            });
+
+            option2ButtonComponent.onClick.AddListener(() => {
+                if (onOption2Selected != null)
+                {
+                    onOption2Selected(true);
+                }
+            });
+
+            return selectorObj;
+        }
+
+        // Creates a simple confirmation dialog
+        public static void CreateConfirmationDialog(Transform parent, string message, UnityEngine.Events.UnityAction onYes, UnityEngine.Events.UnityAction onNo)
+        {
+            // Create overlay
+            GameObject overlayObj = new GameObject("ConfirmationOverlay");
+            overlayObj.transform.SetParent(parent, false);
+
+            RectTransform overlayRect = overlayObj.AddComponent<RectTransform>();
+            overlayRect.anchorMin = Vector2.zero;
+            overlayRect.anchorMax = Vector2.one;
+            overlayRect.offsetMin = Vector2.zero;
+            overlayRect.offsetMax = Vector2.zero;
+
+            Image overlayImage = overlayObj.AddComponent<Image>();
+            overlayImage.color = new Color(0, 0, 0, 0.8f);
+
+            // Create dialog panel
+            GameObject dialogPanel = CreatePanel(overlayObj.transform, "DialogPanel", new Vector2(400, 200));
+            var dialogRect = dialogPanel.GetComponent<RectTransform>();
+            dialogRect.anchorMin = new Vector2(0.5f, 0.5f);
+            dialogRect.anchorMax = new Vector2(0.5f, 0.5f);
+            dialogRect.anchoredPosition = Vector2.zero;
+
+            // Create message text
+            GameObject messageObj = CreateText(dialogPanel.transform, "Message", message);
+            var messageRect = messageObj.GetComponent<RectTransform>();
+            messageRect.anchorMin = new Vector2(0.1f, 0.4f);
+            messageRect.anchorMax = new Vector2(0.9f, 0.8f);
+            messageRect.offsetMin = Vector2.zero;
+            messageRect.offsetMax = Vector2.zero;
+
+            var messageText = messageObj.GetComponent<TextMeshProUGUI>();
+            messageText.fontSize = 16;
+            messageText.alignment = TextAlignmentOptions.Center;
+
+            // Create buttons container
+            GameObject buttonsContainer = new GameObject("ButtonsContainer");
+            buttonsContainer.transform.SetParent(dialogPanel.transform, false);
+
+            var buttonsRect = buttonsContainer.AddComponent<RectTransform>();
+            buttonsRect.anchorMin = new Vector2(0.1f, 0.1f);
+            buttonsRect.anchorMax = new Vector2(0.9f, 0.4f);
+            buttonsRect.offsetMin = Vector2.zero;
+            buttonsRect.offsetMax = Vector2.zero;
+
+            HorizontalLayoutGroup buttonsLayout = buttonsContainer.AddComponent<HorizontalLayoutGroup>();
+            buttonsLayout.spacing = 20;
+            buttonsLayout.childForceExpandWidth = true;
+            buttonsLayout.childForceExpandHeight = true;
+            buttonsLayout.childAlignment = TextAnchor.MiddleCenter;
+
+            // Create Yes button
+            GameObject yesButton = CreateButton(buttonsContainer.transform, "YesButton", "Yes", () => {
+                GameObject.Destroy(overlayObj);
+                if (onYes != null) onYes();
+            });
+
+            // Create No button
+            GameObject noButton = CreateButton(buttonsContainer.transform, "NoButton", "No", () => {
+                GameObject.Destroy(overlayObj);
+                if (onNo != null) onNo();
+            });
+        }
+
     }
 }

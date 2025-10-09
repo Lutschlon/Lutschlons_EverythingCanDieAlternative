@@ -12,8 +12,6 @@ namespace EverythingCanDieAlternative
         private ConfigFile _configFile;
         // Dictionary to cache per-enemy mod enabled settings
         private readonly Dictionary<string, bool> _enemyModEnabled = new Dictionary<string, bool>();
-        // Flag to track if we've already created the entries
-        private bool _configEntriesCreated = false;
 
         private EnemyControlConfiguration()
         {
@@ -52,12 +50,6 @@ namespace EverythingCanDieAlternative
         // Pre-create configuration entries for all known enemies
         public void PreCreateEnemyConfigEntries()
         {
-            // Only create entries once
-            if (_configEntriesCreated)
-            {
-                return;
-            }
-
             if (Plugin.enemies != null && Plugin.enemies.Count > 0)
             {
                 Plugin.LogInfo($"Creating control entries for {Plugin.enemies.Count} enemy types");
@@ -72,10 +64,9 @@ namespace EverythingCanDieAlternative
                         $"{sanitizedName}.Enabled",
                         true,
                         new ConfigDescription($"If set to false, {enemyType.enemyName} will not be affected by this mod"));
-                }
 
-                // Mark as completed
-                _configEntriesCreated = true;
+                    //Plugin.LogInfo($"Created Enemy_Control config entry for: {enemyType.enemyName} ({sanitizedName})");
+                }
             }
         }
 

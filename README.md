@@ -1,20 +1,25 @@
-# EverythingCanDieAlternative 1.1.66
+# EverythingCanDieAlternative 1.1.67
 
-This mod makes every enemy in the game killable with configurable hp. It aims to works with any modded weapon and any modded enemy.
-- Easly configurable via UI
+This mod makes every enemy in the game killable with configurable HP. It aims to work with any modded weapon and any modded enemy.
+- Easily configurable via UI
 - You can leave enemies immortal in the config to hit the right balance, you can also disable my mod for enemies if you want to 100% preserve their original behaviour
-- This mod removes dead enemie's corpses by itself (configurable)
+- This mod removes dead enemies' corpses by itself (configurable)
 
 > <details><summary> Differences from Original Mod</summary>- No separate shotgun/melee weapon settings<br>- No Explosion Effects on death<br>- An alternative version of the EverythingCanDie mod from TheFluff as it did not work for me with a few modded enemies</details>
 
-## Configuration
+## Configuration UI
 Start the game > host a lobby > quit the lobby > check out the EverythingCanDieAlt menu or the .cfg files<br>
-<br>
-- In the configuration UI you can make enemies killable, configure their health, configure if their corpse should despawn, or disable my mod for the specific enemy
 - You can enable preview images for some enemies (may spoiler you!)
+### Killable Spring Example
+![](https://i.imgur.com/CTfooq3.png)
+### Make Enemies Immortal
+![](https://i.imgur.com/K9GzuMu.png)
+### Disable ECDA For An Enemy
+![](https://i.imgur.com/BFZP4WC.png)
 
-![](https://i.imgur.com/9ZzjvOu.png)
-
+---------
+### Global Settings
+![](https://i.imgur.com/OIIj2O4.png)
 - The menu can be hidden / shown with `LethalConfig` or inside the `nwnt.EverythingCanDieAlternative.cfg` under `EnableConfigMenu`
 
 Everyone needs to have this mod installed for it to work. Everyone should have the same config.
@@ -23,15 +28,13 @@ Everyone needs to have this mod installed for it to work. Everyone should have t
 I implemented some compatibilities for popular mods. Let me know if you have any issues with said mods, as testing all of them is not possible for me alone.
 | Compatibility implemented | Seem to work out of the box | Incompatible|
 | ------- | ------- | ------- |
-| [SellBodiesFixed](https://thunderstore.io/c/lethal-company/p/Entity378/SellBodiesFixed/)|[Enhanced Monsters](https://thunderstore.io/c/lethal-company/p/VELD/Enhanced_Monsters/)|[EnemyHealthBars](https://thunderstore.io/c/lethal-company/p/NotezyTeam/EnemyHealthBars/) - HealthBar doesnt work|
+| [SellBodiesFixed](https://thunderstore.io/c/lethal-company/p/Entity378/SellBodiesFixed/)|[Enhanced Monsters](https://thunderstore.io/c/lethal-company/p/VELD/Enhanced_Monsters/)|[EnemyHealthBars](https://thunderstore.io/c/lethal-company/p/NotezyTeam/EnemyHealthBars/) - HealthBar doesn't work|
 | [LethalHands](https://thunderstore.io/c/lethal-company/p/SlapItNow/LethalHands/)|[MoreCounterplay](https://thunderstore.io/c/lethal-company/p/BaronDrakula/MoreCounterplay/)||
 | [BrutalCompanyMinusExtraReborn](https://thunderstore.io/c/lethal-company/p/SoftDiamond/BrutalCompanyMinusExtraReborn/)|[FairAi](https://thunderstore.io/c/lethal-company/p/TheFluff/FairAI)||
 |[Hitmarker](https://thunderstore.io/c/lethal-company/p/Zehs/Hitmarker/)|||
 |[LethalMin](https://thunderstore.io/c/lethal-company/p/NotezyTeam/LethalMin/)|||
 |[HexiBetterShotgunFixed](https://thunderstore.io/c/lethal-company/p/Entity378/HexiBetterShotgunFixed/)|||
-## Known Issues
-- Currently none
-
+## Report Bugs
 Found a bug? 
 Join the LC Modding Discord and let me know in my mod page:</h3>
 
@@ -64,7 +67,7 @@ Based on the original EverythingCanDie mod from here: [Thunderstore page](https:
       <li><code>EnableConfigMenu</code> - Toggle if the configuration ui should be shown in the main menu</li>
       <li><code>EnableInfoLogs</code> - Toggle if info logs should be logged in the console</li>
       <li><code>ShowEnemyImages</code> - Toggle if preview images should be shown in the configuration ui</li>
-      <li><code>ProtectImmortalEnemiesFromInstaKill</code> - Toggle if enemies should be protected from instakill effects when they are configure to be immortal, might get bypassed by other mods</li>
+      <li><code>ProtectImmortalEnemiesFromInstaKill</code> - Toggle if enemies should be protected from instakill effects when they are configured to be immortal, might get bypassed by other mods</li>
       <li><code>AllowSpikeTrapsToKillEnemies</code> - Toggle to decide if the vanilla spike traps should be able to kill enemies</li>
     </li>
   </ul>

@@ -223,7 +223,7 @@ namespace EverythingCanDieAlternative.UI
                     closeButtonRectTransform.anchorMin = new Vector2(1, 1);
                     closeButtonRectTransform.anchorMax = new Vector2(1, 1);
                     closeButtonRectTransform.pivot = new Vector2(1, 1);
-                    closeButtonRectTransform.sizeDelta = new Vector2(40, 40);
+                    closeButtonRectTransform.sizeDelta = new Vector2(80, 40);
                     closeButtonRectTransform.anchoredPosition = new Vector2(-10, -10);
                 }
 
@@ -825,6 +825,45 @@ namespace EverythingCanDieAlternative.UI
                     oldBirdDescTextComp.fontStyle = FontStyles.Italic;
                 }
 
+                // Add bulk action selectors
+                var bulkEnabledSelector = UIHelper.CreateBulkActionSelector(globalSettingsPanel.transform, "BulkEnabledSelector",
+                    "Set ALL Enemies to:", "Affected", "Unaffected",
+                    (option) => {
+                        ShowBulkActionConfirmation("Set ALL Enemies to: Affected", () => {
+                            SetAllEnemiesEnabled(true);
+                        });
+                    },
+                    (option) => {
+                        ShowBulkActionConfirmation("Set ALL Enemies to: Unaffected", () => {
+                            SetAllEnemiesEnabled(false);
+                        });
+                    });
+
+                if (bulkEnabledSelector != null)
+                {
+                    var bulkEnabledRect = bulkEnabledSelector.GetComponent<RectTransform>();
+                    bulkEnabledRect.sizeDelta = new Vector2(0, 30);
+                }
+
+                var bulkKillableSelector = UIHelper.CreateBulkActionSelector(globalSettingsPanel.transform, "BulkKillableSelector",
+                    "Set ALL Enemies to:", "Killable", "Unkillable",
+                    (option) => {
+                        ShowBulkActionConfirmation("Set ALL Enemies to: Killable", () => {
+                            SetAllEnemiesKillable(true);
+                        });
+                    },
+                    (option) => {
+                        ShowBulkActionConfirmation("Set ALL Enemies to: Unkillable", () => {
+                            SetAllEnemiesKillable(false);
+                        });
+                    });
+
+                if (bulkKillableSelector != null)
+                {
+                    var bulkKillableRect = bulkKillableSelector.GetComponent<RectTransform>();
+                    bulkKillableRect.sizeDelta = new Vector2(0, 30);
+                }
+
                 Plugin.LogInfo("Global settings panel created successfully");
             }
             catch (Exception ex)
@@ -1401,5 +1440,112 @@ namespace EverythingCanDieAlternative.UI
             // Clear the image cache when the menu is closed
             EnemyImageLoader.ClearCache();
         }
+
+        // Shows a confirmation dialog for bulk actions
+        private void ShowBulkActionConfirmation(string actionText, UnityEngine.Events.UnityAction onConfirm)
+        {
+            string message = $"Do you really want to \"{actionText}\"?\n\nThis will modify all enemy configurations.";
+
+            UIHelper.CreateConfirmationDialog(menuPanel.transform.parent, message, () => {
+                PlayConfirmSFX();
+                Plugin.LogInfo($"User confirmed bulk action: {actionText}");
+                onConfirm?.Invoke();
+            }, () => {
+                PlayCancelSFX();
+                Plugin.LogInfo($"User cancelled bulk action: {actionText}");
+            });
+        }
+
+        // Sets all enemies to enabled or disabled
+        private void SetAllEnemiesEnabled(bool enabled)
+        {
+            try
+            {
+                Plugin.LogInfo($"Setting all enemies to {(enabled ? "enabled" : "disabled")}");
+
+                int updatedCount = 0;
+                foreach (var config in enemyConfigs)
+                {
+                    if (config.IsEnabled != enabled)
+                    {
+                        config.IsEnabled = enabled;
+                        ConfigBridge.SaveEnemyConfig(config);
+                        updatedCount++;
+                    }
+                }
+
+                Plugin.LogInfo($"Updated {updatedCount} enemy configurations");
+
+                // Refresh the enemy list to update visual indicators
+                RefreshAfterBulkAction();
+            }
+            catch (Exception ex)
+            {
+                Plugin.LogError($"Error in SetAllEnemiesEnabled: {ex.Message}");
+            }
+        }
+
+        // Sets all enemies to killable or unkillable
+        private void SetAllEnemiesKillable(bool killable)
+        {
+            try
+            {
+                Plugin.LogInfo($"Setting all enemies to {(killable ? "killable" : "unkillable")}");
+
+                int updatedCount = 0;
+                foreach (var config in enemyConfigs)
+                {
+                    if (config.CanDie != killable)
+                    {
+                        config.CanDie = killable;
+                        ConfigBridge.SaveEnemyConfig(config);
+                        updatedCount++;
+                    }
+                }
+
+                Plugin.LogInfo($"Updated {updatedCount} enemy configurations");
+
+                // Refresh the enemy list to update visual indicators
+                RefreshAfterBulkAction();
+            }
+            catch (Exception ex)
+            {
+                Plugin.LogError($"Error in SetAllEnemiesKillable: {ex.Message}");
+            }
+        }
+
+        // Refreshes the menu after bulk actions
+        private void RefreshAfterBulkAction()
+        {
+            try
+            {
+                Plugin.LogInfo("Refreshing menu after bulk action");
+
+                // Schedule a refresh to update the enemy list
+                ScheduleRefresh();
+
+                // If we're currently showing global settings, stay there
+                if (isShowingGlobalSettings)
+                {
+                    // Small delay to ensure refresh completes first
+                    StartCoroutine(DelayedGlobalSettingsRefresh());
+                }
+            }
+            catch (Exception ex)
+            {
+                Plugin.LogError($"Error in RefreshAfterBulkAction: {ex.Message}");
+            }
+        }
+
+        // Coroutine to refresh global settings after a delay
+        private IEnumerator DelayedGlobalSettingsRefresh()
+        {
+            yield return new WaitForSeconds(0.2f);
+            if (isShowingGlobalSettings)
+            {
+                ShowGlobalSettings();
+            }
+        }
+
     }
 }
