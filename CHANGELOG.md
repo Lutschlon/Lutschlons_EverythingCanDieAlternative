@@ -1,5 +1,6 @@
 ## 1.1.68
 - Fixed a harmless error message inside the logs that occurs when starting multiple lobbies without restarting the game in between <details><summary>Click to see the error message</summary>Error creating network messages: System.InvalidOperationException: A message with the identifier nwnt.EverythingCanDieAlternative.ECDA_HitMessage already exists! Please use a different identifier.</details>
+- Fixed scrolling distance in the enemy list from the configuration menu
 
 ## 1.1.67
 - Added a global setting `Set ALL Enemies to:` with the options `Affected` `Unaffected` `Killable` `Unkillable` for bulk configuration if needed
@@ -170,4 +171,5 @@
 - Big thanks to nyakowint for having the original mod in a public github repository to allow the community to expand on it https://github.com/nyakowint/EverythingCanDie-LC/tree/main 
 - As already mentioned in the readme, the creation of this mod was made possible thanks to using claude.ai (sounds like I'm putting an ad here lol). 
 Have a good one fellas.
+
 
