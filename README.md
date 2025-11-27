@@ -36,7 +36,7 @@ I implemented some compatibilities for popular mods. Let me know if you have any
 |[HexiBetterShotgunFixed](https://thunderstore.io/c/lethal-company/p/Entity378/HexiBetterShotgunFixed/)|||
 ## Report Bugs
 Found a bug? 
-Join the LC Modding Discord and let me know in my mod page:</h3>
+1. Join the LC Modding Discord 2. Let me know in my mod page:</h3>
 
 <table>
   <tr>
