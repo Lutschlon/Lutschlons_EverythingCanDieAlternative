@@ -430,7 +430,7 @@ namespace EverythingCanDieAlternative.UI
                 var scrollRect = enemyScrollView.GetComponent<ScrollRect>();
                 if (scrollRect != null)
                 {
-                    scrollRect.scrollSensitivity = 15f;
+                    NormalizedScrollRect.ApplyTo(enemyScrollView, scrollSpeed: 0.08f, maxDelta: 0.08f);
                 }
 
                 // Check if viewport exists

@@ -1,13 +1,13 @@
-# EverythingCanDieAlternative 1.1.67
+# EverythingCanDieAlternative 1.1.68
 
 This mod makes every enemy in the game killable with configurable HP. It aims to work with any modded weapon and any modded enemy.
-- Easily configurable via UI
+- Easily configurable via in game configuration menu
 - You can leave enemies immortal in the config to hit the right balance, you can also disable my mod for enemies if you want to 100% preserve their original behaviour
 - This mod removes dead enemies' corpses by itself (configurable)
 
 > <details><summary> Differences from Original Mod</summary>- No separate shotgun/melee weapon settings<br>- No Explosion Effects on death<br>- An alternative version of the EverythingCanDie mod from TheFluff as it did not work for me with a few modded enemies</details>
 
-## Configuration UI
+## Configuration Menu
 Start the game > host a lobby > quit the lobby > check out the EverythingCanDieAlt menu or the .cfg files<br>
 - You can enable preview images for some enemies (may spoiler you!)
 ### Killable Spring Example
@@ -36,7 +36,7 @@ I implemented some compatibilities for popular mods. Let me know if you have any
 |[HexiBetterShotgunFixed](https://thunderstore.io/c/lethal-company/p/Entity378/HexiBetterShotgunFixed/)|||
 ## Report Bugs
 Found a bug? 
-Join the LC Modding Discord and let me know in my mod page:</h3>
+1. Join the LC Modding Discord 2. Let me know in my mod page:</h3>
 
 <table>
   <tr>
@@ -64,9 +64,9 @@ Based on the original EverythingCanDie mod from here: [Thunderstore page](https:
       <ul>
         <li>For reference: the shovel deals 1 damage, the vanilla shotgun either 1/3/5 based on distance, cruiser deals 12 damage at high speed, modded weapons work as well with their own stats</li>
       </ul>
-      <li><code>EnableConfigMenu</code> - Toggle if the configuration ui should be shown in the main menu</li>
+      <li><code>EnableConfigMenu</code> - Toggle if the configuration menu should be shown in the main menu</li>
       <li><code>EnableInfoLogs</code> - Toggle if info logs should be logged in the console</li>
-      <li><code>ShowEnemyImages</code> - Toggle if preview images should be shown in the configuration ui</li>
+      <li><code>ShowEnemyImages</code> - Toggle if preview images should be shown in the configuration menu</li>
       <li><code>ProtectImmortalEnemiesFromInstaKill</code> - Toggle if enemies should be protected from instakill effects when they are configured to be immortal, might get bypassed by other mods</li>
       <li><code>AllowSpikeTrapsToKillEnemies</code> - Toggle to decide if the vanilla spike traps should be able to kill enemies</li>
     </li>

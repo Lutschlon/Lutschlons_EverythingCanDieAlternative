@@ -174,6 +174,7 @@ namespace EverythingCanDieAlternative.UI
             // Add Content Size Fitter to auto-resize content based on children
             ContentSizeFitter fitter = contentObj.AddComponent<ContentSizeFitter>();
             fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
 
             // Add Vertical Layout Group to arrange children
             VerticalLayoutGroup layout = contentObj.AddComponent<VerticalLayoutGroup>();
@@ -183,6 +184,7 @@ namespace EverythingCanDieAlternative.UI
             layout.childControlWidth = true;
             layout.spacing = 5;
             layout.padding = new RectOffset(5, 5, 5, 5);
+            layout.childAlignment = TextAnchor.UpperCenter;
 
             return scrollViewObj;
         }

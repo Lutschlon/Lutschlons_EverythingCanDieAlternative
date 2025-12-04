@@ -93,6 +93,13 @@ namespace EverythingCanDieAlternative
 
         private static void CreateNetworkMessages()
         {
+            // Check if messages already exist
+            if (networkMessagesCreated)
+            {
+                Plugin.LogInfo("Network messages already created, skipping recreation");
+                return;
+            }
+
             try
             {
                 // Create the hit message
@@ -149,6 +156,7 @@ namespace EverythingCanDieAlternative
                         }
                     });
 
+                networkMessagesCreated = true;
                 Plugin.LogInfo("Network messages created successfully");
             }
             catch (Exception ex)
