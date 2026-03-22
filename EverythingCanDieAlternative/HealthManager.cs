@@ -664,11 +664,92 @@ namespace EverythingCanDieAlternative
             // Check if this enemy should despawn after death
             if (DespawnConfiguration.Instance.ShouldDespawnEnemy(enemy.enemyType.enemyName))
             {
-                // Start a coroutine to wait for death animation, then despawn
                 StartDespawnProcess(enemy);
+            }
+            else if (Plugin.MuteDeadEnemies.Value)
+            {
+                Plugin.LogInfo($"Starting audio fade for {enemy.enemyType.enemyName}");
+                SilenceDeadEnemy(enemy);
+            }
+            else
+            {
+                Plugin.LogInfo($"Silence skipped: MuteDeadEnemies={Plugin.MuteDeadEnemies.Value}, Despawn={DespawnConfiguration.Instance.ShouldDespawnEnemy(enemy.enemyType.enemyName)}");
             }
         }
 
+        public static void SilenceDeadEnemy(EnemyAI enemy)
+        {
+            if (enemy == null) return;
+            try
+            {
+                if (StartOfRound.Instance == null)
+                {
+                    Plugin.Log.LogError("SilenceDeadEnemy: StartOfRound.Instance is null");
+                    return;
+                }
+                StartOfRound.Instance.StartCoroutine(DelayedSilence(enemy));
+                //Plugin.LogInfo($"DelayedSilence coroutine started for {enemy.enemyType.enemyName}");
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError($"Failed to start DelayedSilence coroutine: {ex.Message}");
+            }
+        }
+
+        private static IEnumerator DelayedSilence(EnemyAI enemy)
+        {
+            Plugin.LogInfo($"DelayedSilence started for {enemy?.enemyType?.enemyName}");
+            yield return new WaitForSeconds(0.5f);
+
+            //Plugin.LogInfo($"DelayedSilence woke up, enemy null: {enemy == null}");
+
+            // Unity objects can be "null" via destroyed GameObject even if C# reference exists
+            if (enemy == null || enemy.gameObject == null) yield break;
+
+            try
+            {
+                AudioSource[] sources = enemy.GetComponentsInChildren<AudioSource>(includeInactive: true);
+                //Plugin.LogInfo($"Found {sources.Length} audio sources on {enemy.enemyType.enemyName}");
+                if (sources.Length == 0) yield break;
+                StartOfRound.Instance.StartCoroutine(FadeOutEnemyAudio(sources, 1f));
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError($"Error silencing dead enemy {enemy?.enemyType?.enemyName}: {ex.Message}");
+            }
+        }
+
+        private static IEnumerator FadeOutEnemyAudio(AudioSource[] sources, float duration)
+        {
+            // Snapshot starting volumes so each source fades proportionally
+            float[] startVolumes = new float[sources.Length];
+            for (int i = 0; i < sources.Length; i++)
+                startVolumes[i] = sources[i] != null ? sources[i].volume : 0f;
+
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+
+                for (int i = 0; i < sources.Length; i++)
+                {
+                    if (sources[i] != null)
+                        sources[i].volume = Mathf.Lerp(startVolumes[i], 0f, t);
+                }
+                yield return null;
+            }
+
+            // Guarantee silence and stop playback after the fade completes
+            for (int i = 0; i < sources.Length; i++)
+            {
+                if (sources[i] != null)
+                {
+                    sources[i].volume = 0f;
+                    sources[i].Stop();
+                }
+            }
+        }
         // Start the despawn process for a dead enemy
         private static void StartDespawnProcess(EnemyAI enemy)
         {

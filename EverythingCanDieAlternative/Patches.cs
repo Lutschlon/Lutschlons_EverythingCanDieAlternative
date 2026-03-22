@@ -1,4 +1,5 @@
 ﻿using EverythingCanDieAlternative.ModCompatibility;
+using EverythingCanDieAlternative.UI;
 using GameNetcodeStuff;
 using HarmonyLib;
 using System;
@@ -152,6 +153,7 @@ namespace EverythingCanDieAlternative
 
                 // Process existing enemies in the scene
                 ProcessExistingEnemies();
+                EnemyAliases.ScanAndPersistDisplayNames();
 
                 Log.LogInfo("StartOfRoundPostfix completed successfully");
             }
