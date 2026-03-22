@@ -1,4 +1,4 @@
-# EverythingCanDieAlternative 1.1.68
+# EverythingCanDieAlternative 1.1.70
 
 This mod makes every enemy in the game killable with configurable HP. It aims to work with any modded weapon and any modded enemy.
 - Easily configurable via in game configuration menu
@@ -22,7 +22,7 @@ Start the game > host a lobby > quit the lobby > check out the EverythingCanDieA
 ![](https://i.imgur.com/OIIj2O4.png)
 - The menu can be hidden / shown with `LethalConfig` or inside the `nwnt.EverythingCanDieAlternative.cfg` under `EnableConfigMenu`
 
-Everyone needs to have this mod installed for it to work. Everyone should have the same config.
+Images from version 1.1.68<br>Everyone needs to have this mod installed for it to work. Everyone should have the same config.
 
 ## Mod Compatibilities
 I implemented some compatibilities for popular mods. Let me know if you have any issues with said mods, as testing all of them is not possible for me alone.
@@ -31,7 +31,7 @@ I implemented some compatibilities for popular mods. Let me know if you have any
 | [SellBodiesFixed](https://thunderstore.io/c/lethal-company/p/Entity378/SellBodiesFixed/)|[Enhanced Monsters](https://thunderstore.io/c/lethal-company/p/VELD/Enhanced_Monsters/)|[EnemyHealthBars](https://thunderstore.io/c/lethal-company/p/NotezyTeam/EnemyHealthBars/) - HealthBar doesn't work|
 | [LethalHands](https://thunderstore.io/c/lethal-company/p/SlapItNow/LethalHands/)|[MoreCounterplay](https://thunderstore.io/c/lethal-company/p/BaronDrakula/MoreCounterplay/)||
 | [BrutalCompanyMinusExtraReborn](https://thunderstore.io/c/lethal-company/p/SoftDiamond/BrutalCompanyMinusExtraReborn/)|[FairAi](https://thunderstore.io/c/lethal-company/p/TheFluff/FairAI)||
-|[Hitmarker](https://thunderstore.io/c/lethal-company/p/Zehs/Hitmarker/)|||
+|[Hitmarker](https://thunderstore.io/c/lethal-company/p/Zehs/Hitmarker/)|[DeathAnimations](https://thunderstore.io/c/lethal-company/p/chillosopher/DeathAnimations/) - Remove corpse should be adjusted||
 |[LethalMin](https://thunderstore.io/c/lethal-company/p/NotezyTeam/LethalMin/)|||
 |[HexiBetterShotgunFixed](https://thunderstore.io/c/lethal-company/p/Entity378/HexiBetterShotgunFixed/)|||
 ## Report Bugs
