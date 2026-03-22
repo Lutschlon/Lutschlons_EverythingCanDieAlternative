@@ -37,7 +37,8 @@ namespace EverythingCanDieAlternative
         // Immortal enemy protection configuration
         public static ConfigEntry<bool> ProtectImmortalEnemiesFromInstaKill { get; private set; }
         public static ConfigEntry<bool> ProtectOldBirdsFromOwnRockets { get; private set; }
-
+        // Mute enemy corpses configuration
+        public static ConfigEntry<bool> MuteDeadEnemies { get; private set; }
         // Flag to indicate if logging should be conditionally suppressed
         private static bool _infoLogsEnabled = true;
 
@@ -88,6 +89,11 @@ namespace EverythingCanDieAlternative
                     true,
                     "If true, Old Birds will be protected from damage caused by their own rocket explosions.");
 
+                MuteDeadEnemies = Config.Bind("General",
+                    "MuteDeadEnemies",
+                    true,
+                    "If true, all audio sources on dead enemies are faded out and silenced when despawn is disabled.");
+                
                 // Initialize the configuration systems
                 //Plugin.LogInfo("Initializing DespawnConfiguration...");
                 _ = DespawnConfiguration.Instance;
@@ -295,6 +301,6 @@ namespace EverythingCanDieAlternative
     {
         public const string PLUGIN_GUID = "nwnt.EverythingCanDieAlternative";
         public const string PLUGIN_NAME = "EverythingCanDieAlternative";
-        public const string PLUGIN_VERSION = "1.1.68";
+        public const string PLUGIN_VERSION = "1.1.70";
     }
 }
