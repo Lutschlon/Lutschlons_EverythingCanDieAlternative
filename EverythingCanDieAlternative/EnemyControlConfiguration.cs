@@ -10,8 +10,9 @@ namespace EverythingCanDieAlternative
         private static EnemyControlConfiguration _instance;
         public static EnemyControlConfiguration Instance => _instance ??= new EnemyControlConfiguration();
         private ConfigFile _configFile;
-        // Dictionary to cache per-enemy mod enabled settings
-        private readonly Dictionary<string, bool> _enemyModEnabled = new Dictionary<string, bool>();
+        // Dictionary to cache per-enemy mod enabled ConfigEntry (skip ConfigFile.Bind on hot path,
+        // and pick up live config edits via ConfigEntry.Value)
+        private readonly Dictionary<string, ConfigEntry<bool>> _enemyModEnabled = new Dictionary<string, ConfigEntry<bool>>();
 
         private EnemyControlConfiguration()
         {
@@ -75,9 +76,9 @@ namespace EverythingCanDieAlternative
         {
             string sanitizedName = Plugin.RemoveInvalidCharacters(enemyName).ToUpper();
 
-            // Check if we already have a cached value
-            if (_enemyModEnabled.TryGetValue(sanitizedName, out bool enabled))
-                return enabled;
+            // Check if we already have a cached entry
+            if (_enemyModEnabled.TryGetValue(sanitizedName, out ConfigEntry<bool> cachedEntry))
+                return cachedEntry.Value;
 
             try
             {
@@ -87,8 +88,8 @@ namespace EverythingCanDieAlternative
                     true,
                     new ConfigDescription($"If set to false, {enemyName} will not be affected by this mod"));
 
-                // Cache the result
-                _enemyModEnabled[sanitizedName] = configEntry.Value;
+                // Cache the entry itself so future lookups skip Bind
+                _enemyModEnabled[sanitizedName] = configEntry;
                 return configEntry.Value;
             }
             catch (Exception ex)

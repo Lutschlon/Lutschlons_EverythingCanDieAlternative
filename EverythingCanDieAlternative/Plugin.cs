@@ -49,6 +49,32 @@ namespace EverythingCanDieAlternative
         // Cache for sanitized strings to avoid repeated processing
         private static readonly Dictionary<string, string> sanitizedNameCache = new Dictionary<string, string>();
 
+        // Index of plugin config keys by sanitized+uppercase key — built lazily on first use,
+        // invalidated when the config file is reloaded. Replaces O(N) scans of Instance.Config.Keys.
+        private static Dictionary<string, ConfigDefinition> _configKeyIndex = null;
+
+        // Drop the cached config-key index so the next CanMob/GetMobHealth call rebuilds it.
+        // Call this whenever Instance.Config is reloaded.
+        public static void InvalidateConfigKeyIndex()
+        {
+            _configKeyIndex = null;
+        }
+
+        private static Dictionary<string, ConfigDefinition> GetConfigKeyIndex()
+        {
+            if (_configKeyIndex != null) return _configKeyIndex;
+
+            var index = new Dictionary<string, ConfigDefinition>();
+            foreach (ConfigDefinition entry in Instance.Config.Keys)
+            {
+                string sanitized = RemoveInvalidCharacters(entry.Key.ToUpper());
+                // Last write wins on collision — same behavior as the previous linear-scan code
+                index[sanitized] = entry;
+            }
+            _configKeyIndex = index;
+            return _configKeyIndex;
+        }
+
 
         private void Awake()
         {
@@ -209,21 +235,22 @@ namespace EverythingCanDieAlternative
                     return cachedEntry.Value;
                 }
 
-                // Look for existing config
+                // O(1) lookup by sanitized key instead of scanning every config entry
                 ConfigEntry<bool> configEntry = null;
-                foreach (ConfigDefinition entry in Instance.Config.Keys)
+                string sanitizedLookup = RemoveInvalidCharacters(mobConfigKey);
+                if (GetConfigKeyIndex().TryGetValue(sanitizedLookup, out var existingDef))
                 {
-                    if (RemoveInvalidCharacters(entry.Key.ToUpper()).Equals(RemoveInvalidCharacters(mobConfigKey)))
-                    {
-                        configEntry = (ConfigEntry<bool>)Instance.Config[entry];
-                        boolConfigCache[mobConfigKey] = configEntry; // Cache it
-                        return configEntry.Value;
-                    }
+                    configEntry = (ConfigEntry<bool>)Instance.Config[existingDef];
+                    boolConfigCache[mobConfigKey] = configEntry;
+                    return configEntry.Value;
                 }
 
                 // Create new config if not found
                 configEntry = Instance.Config.Bind("Mobs", mob + identifier, true, $"If true, {mobName} will be damageable");
                 boolConfigCache[mobConfigKey] = configEntry; // Cache it
+                // Keep the index consistent with the newly bound entry
+                if (_configKeyIndex != null)
+                    _configKeyIndex[sanitizedLookup] = new ConfigDefinition("Mobs", mob + identifier);
                 return configEntry.Value;
             }
             catch (Exception e)
@@ -259,28 +286,28 @@ namespace EverythingCanDieAlternative
                     return cachedHealth;
                 }
 
-                // Look for existing config
+                // O(1) lookup by sanitized key — index keys are sanitized (no '.')
                 ConfigEntry<float> configEntry = null;
-                foreach (ConfigDefinition entry in Instance.Config.Keys)
+                string sanitizedLookup = mob + "HEALTH";
+                if (GetConfigKeyIndex().TryGetValue(sanitizedLookup, out var existingDef))
                 {
-                    if (RemoveInvalidCharacters(entry.Key.ToUpper()).Equals(healthKey))
-                    {
-                        configEntry = (ConfigEntry<float>)Instance.Config[entry];
-                        floatConfigCache[healthKey] = configEntry; // Cache it
+                    configEntry = (ConfigEntry<float>)Instance.Config[existingDef];
+                    floatConfigCache[healthKey] = configEntry;
 
-                        float health = configEntry.Value;
-                        if (health <= 0)
-                        {
-                            health = 1;
-                            configEntry.Value = 1;
-                        }
-                        return health;
+                    float health = configEntry.Value;
+                    if (health <= 0)
+                    {
+                        health = 1;
+                        configEntry.Value = 1;
                     }
+                    return health;
                 }
 
                 // Create new config if not found
                 configEntry = Instance.Config.Bind("Mobs", mob + ".Health", defaultHealth, $"Health for {mobName}");
                 floatConfigCache[healthKey] = configEntry; // Cache it
+                if (_configKeyIndex != null)
+                    _configKeyIndex[sanitizedLookup] = new ConfigDefinition("Mobs", mob + ".Health");
                 return configEntry.Value;
             }
             catch (Exception e)
@@ -301,6 +328,6 @@ namespace EverythingCanDieAlternative
     {
         public const string PLUGIN_GUID = "nwnt.EverythingCanDieAlternative";
         public const string PLUGIN_NAME = "EverythingCanDieAlternative";
-        public const string PLUGIN_VERSION = "1.1.70";
+        public const string PLUGIN_VERSION = "1.1.71";
     }
 }
