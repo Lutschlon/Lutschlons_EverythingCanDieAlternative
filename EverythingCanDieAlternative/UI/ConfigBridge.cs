@@ -265,49 +265,6 @@ namespace EverythingCanDieAlternative.UI
             return cachedConfigEntries.Keys.ToList();
         }
 
-        // Get cached bool value
-        private static bool GetCachedBoolValue(string enemyName, string suffix, bool defaultValue)
-        {
-            if (cachedConfigEntries.TryGetValue(enemyName, out var entries))
-            {
-                if (entries.TryGetValue(suffix, out var value) && value is bool boolValue)
-                {
-                    return boolValue;
-                }
-            }
-            return defaultValue;
-        }
-
-        // Get cached int value
-        private static float GetCachedFloatValue(string enemyName, string suffix, float defaultValue)
-        {
-            if (cachedConfigEntries.TryGetValue(enemyName, out var entries))
-            {
-                if (entries.TryGetValue(suffix, out var value))
-                {
-                    // Handle both int and string values
-                    if (value is float floatValue)
-                    {
-                        return floatValue;
-                    }
-                    else if (value is int intValue)
-                    {
-                        return intValue;
-                    }
-                    else if (value is string stringValue && float.TryParse(stringValue, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float parsedValue))
-                    {
-                        return parsedValue;
-                    }
-                    else
-                    {
-                        Plugin.Log.LogWarning($"Invalid health value for {enemyName}: {value} (type: {value?.GetType().Name ?? "null"})");
-                    }
-                }
-            }
-
-            return defaultValue;
-        }
-
         // Save a single enemy configuration by updating existing entries
         public static void SaveEnemyConfig(EnemyConfigData config)
         {

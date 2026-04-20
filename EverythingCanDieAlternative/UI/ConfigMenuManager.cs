@@ -23,6 +23,8 @@ namespace EverythingCanDieAlternative.UI
         // Configuration data
         private List<EnemyConfigData> enemyConfigs = new List<EnemyConfigData>();
         private Dictionary<string, GameObject> enemyEntries = new Dictionary<string, GameObject>();
+        // Lookup by display name for O(1) access in FilterEnemyList
+        private Dictionary<string, EnemyConfigData> enemyConfigsByName = new Dictionary<string, EnemyConfigData>();
 
         // Object pooling for enemy list entries
         private readonly Stack<GameObject> enemyEntryPool = new Stack<GameObject>();
@@ -82,6 +84,13 @@ namespace EverythingCanDieAlternative.UI
 
             Plugin.LogInfo($"Sorted {enemyConfigs.Count} enemies alphabetically");
 
+            // Rebuild name->config dictionary so FilterEnemyList can do O(1) lookups
+            enemyConfigsByName.Clear();
+            foreach (var config in enemyConfigs)
+            {
+                enemyConfigsByName[config.Name] = config;
+            }
+
             // Create list entries for each enemy
             foreach (var config in enemyConfigs)
             {
@@ -98,10 +107,19 @@ namespace EverythingCanDieAlternative.UI
             Plugin.LogInfo($"Loaded {enemyConfigs.Count} enemy configurations");
         }
 
+        // Cached MenuManager reference — re-resolved lazily if destroyed (e.g. between scenes)
+        private static MenuManager _cachedMenuManager;
+        private static MenuManager GetMenuManager()
+        {
+            if (_cachedMenuManager == null)
+                _cachedMenuManager = GameObject.FindObjectOfType<MenuManager>();
+            return _cachedMenuManager;
+        }
+
         // Sound methods
         private static void PlayConfirmSFX()
         {
-            var menuManager = GameObject.FindObjectOfType<MenuManager>();
+            var menuManager = GetMenuManager();
             if (menuManager != null && menuManager.MenuAudio != null)
             {
                 menuManager.PlayConfirmSFX();
@@ -110,7 +128,7 @@ namespace EverythingCanDieAlternative.UI
 
         private static void PlayCancelSFX()
         {
-            var menuManager = GameObject.FindObjectOfType<MenuManager>();
+            var menuManager = GetMenuManager();
             if (menuManager != null && menuManager.MenuAudio != null)
             {
                 menuManager.PlayCancelSFX();
@@ -996,20 +1014,18 @@ namespace EverythingCanDieAlternative.UI
             // Store the last search text
             lastSearchText = searchText;
 
+            bool anyVisible = false;
             foreach (var entry in enemyEntries)
             {
-                var config = enemyConfigs.Find(c => c.Name == entry.Key);
-                if (config == null) continue;
+                if (!enemyConfigsByName.TryGetValue(entry.Key, out var config)) continue;
 
                 bool nameMatch = config.Name.ToLower().Contains(searchText);
                 bool aliasMatch = EnemyAliases.MatchesAlias(config.Name, searchText);
                 bool visibleBySearch = string.IsNullOrEmpty(searchText) || nameMatch || aliasMatch;
 
                 entry.Value.SetActive(visibleBySearch);
+                if (visibleBySearch) anyVisible = true;
             }
-
-            // Update UI to indicate if no results found
-            bool anyVisible = enemyEntries.Any(e => e.Value.activeSelf);
 
             // Check if we have a "NoResults" text object
             GameObject noResultsObj = enemyListContent.transform.Find("NoResults")?.gameObject;
