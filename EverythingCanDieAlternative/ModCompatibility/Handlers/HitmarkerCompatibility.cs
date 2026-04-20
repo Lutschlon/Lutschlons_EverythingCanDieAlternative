@@ -21,15 +21,22 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
         private FieldInfo _instanceField; // Changed from PropertyInfo to FieldInfo
         private MethodInfo _showHitmarkerMethod;
         private MethodInfo _showKillMessageMethod;
+        private Assembly _hitmarkerAssembly;
 
         // Track initialization status
         private bool _initialized = false;
+
+        // Cache the install-detection result so the per-hit check doesn't reflect over every assembly
+        private bool? _isInstalled = null;
 
         // Override IsInstalled to use only the precise GUID-based detection
         public override bool IsInstalled
         {
             get
             {
+                if (_isInstalled.HasValue)
+                    return _isInstalled.Value;
+
                 try
                 {
                     // Find the assembly with the exact name
@@ -39,6 +46,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                     if (assembly == null)
                     {
                         // Assembly not found
+                        _isInstalled = false;
                         return false;
                     }
 
@@ -51,15 +59,19 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
 
                     if (foundPlugin)
                     {
-                        //Plugin.LogInfo("Confirmed Hitmarker mod via plugin GUID");
+                        // Cache assembly for OnModInitialize so we don't walk all assemblies again
+                        _hitmarkerAssembly = assembly;
+                        _isInstalled = true;
                         return true;
                     }
 
+                    _isInstalled = false;
                     return false;
                 }
                 catch (Exception ex)
                 {
                     Plugin.Log.LogError($"Error during Hitmarker mod detection: {ex.Message}");
+                    _isInstalled = false;
                     return false;
                 }
             }
@@ -92,32 +104,23 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
                    // }
                //}
 
-                // Search for the HitmarkerCanvasBehaviour type using a more robust approach
-                foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+                // Reuse the assembly already located by IsInstalled instead of walking AppDomain again
+                if (_hitmarkerAssembly != null)
                 {
                     try
                     {
-                        if (assembly.GetName().Name.Contains("Hitmarker"))
+                        foreach (Type type in _hitmarkerAssembly.GetTypes())
                         {
-                            // Look for the HitmarkerCanvasBehaviour class in this assembly
-                            foreach (Type type in assembly.GetTypes())
+                            if (type.Name == "HitmarkerCanvasBehaviour")
                             {
-                                if (type.Name == "HitmarkerCanvasBehaviour")
-                                {
-                                    _hitmarkerCanvasBehaviourType = type;
-                                    //Plugin.LogInfo($"Found HitmarkerCanvasBehaviour in assembly {assembly.GetName().Name}");
-                                    break;
-                                }
-                            }
-
-                            if (_hitmarkerCanvasBehaviourType != null)
+                                _hitmarkerCanvasBehaviourType = type;
                                 break;
+                            }
                         }
                     }
                     catch (Exception ex)
                     {
-                        // Just log and continue to next assembly
-                        Plugin.Log.LogWarning($"Error checking assembly {assembly.GetName().Name}: {ex.Message}");
+                        Plugin.Log.LogWarning($"Error inspecting Hitmarker assembly: {ex.Message}");
                     }
                 }
 
