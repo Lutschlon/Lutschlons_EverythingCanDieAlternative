@@ -65,6 +65,10 @@
       <HintPath>D:\Lethal_Comp\Modding\Dependencies\Entity378-SellBodiesFixed-1.12.1\BepInEx\plugins\SellBodies\SellBodies.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="NoteBoxz.LethalMin">
+      <HintPath>D:\Lethal_Comp\Modding\Dependencies\NotezyTeam-LethalMin-1.0.21\NoteBoxz.LethalMin.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 
   <!-- Mono.Cecil References -->
