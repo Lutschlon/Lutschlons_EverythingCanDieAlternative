@@ -13,6 +13,13 @@ namespace EverythingCanDieAlternative.ModCompatibility
 
         private readonly Dictionary<string, IModCompatibility> _handlers = new Dictionary<string, IModCompatibility>();
 
+        // Cached typed handler references so hot paths don't pay for dict lookup + type check per call
+        public Handlers.HitmarkerCompatibility Hitmarker { get; private set; }
+        public Handlers.LethalHandsCompatibility LethalHands { get; private set; }
+        public Handlers.SellBodiesCompatibility SellBodies { get; private set; }
+        public Handlers.BrutalCompanyMinusCompatibility BrutalCompanyMinus { get; private set; }
+        public Handlers.LastResortKillerCompatibility LastResortKiller { get; private set; }
+
         private ModCompatibilityManager()
         {
             // Private constructor for singleton
@@ -27,6 +34,13 @@ namespace EverythingCanDieAlternative.ModCompatibility
 
                 // Register handlers manually - more reliable than auto-discovery
                 RegisterKnownHandlers();
+
+                // Populate typed handler cache once so hot paths can skip dictionary lookups
+                Hitmarker = GetHandler<Handlers.HitmarkerCompatibility>("com.github.zehsteam.Hitmarker");
+                LethalHands = GetHandler<Handlers.LethalHandsCompatibility>("SlapitNow.LethalHands");
+                SellBodies = GetHandler<Handlers.SellBodiesCompatibility>("Entity378.sellbodies");
+                BrutalCompanyMinus = GetHandler<Handlers.BrutalCompanyMinusCompatibility>("SoftDiamond.BrutalCompanyMinusExtraReborn");
+                LastResortKiller = GetHandler<Handlers.LastResortKillerCompatibility>("nwnt.EverythingCanDieAlternative.LastResortKiller");
 
                 // Initialize all registered handlers - with additional error handling
                 foreach (var handler in _handlers.Values)

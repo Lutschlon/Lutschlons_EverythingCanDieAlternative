@@ -18,11 +18,12 @@ namespace EverythingCanDieAlternative
         // Configuration values
         public ConfigEntry<bool> EnableDespawnFeature { get; private set; }
 
-        // Dictionary to store per-enemy despawn settings
-        private readonly Dictionary<string, bool> _enemyDespawnEnabled = new Dictionary<string, bool>();
+        // Dictionary to cache per-enemy despawn ConfigEntry (skip ConfigFile.Bind on hot path,
+        // and pick up live config edits via ConfigEntry.Value)
+        private readonly Dictionary<string, ConfigEntry<bool>> _enemyDespawnEnabled = new Dictionary<string, ConfigEntry<bool>>();
 
-        // List of enemies that should default to not despawning (for enemies who have proper death animations)
-        private readonly string[] _enemiesWithProperDeathAnimations = new string[]
+        // Set of enemies that should default to not despawning (for enemies who have proper death animations)
+        private static readonly HashSet<string> _enemiesWithProperDeathAnimations = new HashSet<string>(StringComparer.Ordinal)
         {
             "DOGDAY",
             "DOGDAYCRITTER",
@@ -118,21 +119,13 @@ namespace EverythingCanDieAlternative
 
             string sanitizedName = Plugin.RemoveInvalidCharacters(enemyName).ToUpper();
 
-            // Check if we already have a cached value
-            if (_enemyDespawnEnabled.TryGetValue(sanitizedName, out bool enabled))
-                return enabled;
+            // Check if we already have a cached entry
+            if (_enemyDespawnEnabled.TryGetValue(sanitizedName, out ConfigEntry<bool> cachedEntry))
+                return cachedEntry.Value;
 
             // Otherwise, load from config
             // Check if this enemy should default to not despawning
-            bool defaultValue = true;
-            foreach (var noAnimEnemy in _enemiesWithProperDeathAnimations)
-            {
-                if (sanitizedName == noAnimEnemy)
-                {
-                    defaultValue = false;
-                    break;
-                }
-            }
+            bool defaultValue = !_enemiesWithProperDeathAnimations.Contains(sanitizedName);
 
             // Use proper ConfigDescription to ensure correct comment format
             var configEntry = _configFile.Bind("Enemies",
@@ -140,8 +133,8 @@ namespace EverythingCanDieAlternative
                 defaultValue,
                 new ConfigDescription($"If true, {enemyName} will despawn after death"));
 
-            // Cache the result
-            _enemyDespawnEnabled[sanitizedName] = configEntry.Value;
+            // Cache the entry itself so future lookups skip Bind
+            _enemyDespawnEnabled[sanitizedName] = configEntry;
 
             return configEntry.Value;
         }

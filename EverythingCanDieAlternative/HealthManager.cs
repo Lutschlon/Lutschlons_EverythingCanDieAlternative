@@ -41,6 +41,12 @@ namespace EverythingCanDieAlternative
         // Dictionary to cache enemy references for fast lookup
         private static readonly Dictionary<int, EnemyAI> enemyInstanceCache = new Dictionary<int, EnemyAI>();
 
+        // Reverse lookup: NetworkObjectId -> EnemyAI, used by client-side message handlers
+        private static readonly Dictionary<ulong, EnemyAI> enemyByNetworkId = new Dictionary<ulong, EnemyAI>();
+
+        // Sanitized + uppercase enemy name keyed by instanceId — avoids re-sanitizing on every hit
+        private static readonly Dictionary<int, string> sanitizedEnemyNames = new Dictionary<int, string>();
+
         // Network message batching to reduce traffic
         private static readonly Dictionary<int, float> pendingDamage = new Dictionary<int, float>();
         private static float lastBatchTime = 0f;
@@ -82,6 +88,8 @@ namespace EverythingCanDieAlternative
             enemiesInDespawnProcess.Clear();
             immortalEnemies.Clear();
             enemyInstanceCache.Clear();
+            enemyByNetworkId.Clear();
+            sanitizedEnemyNames.Clear();
             pendingDamage.Clear();
             lastBatchTime = 0f;
 
@@ -165,14 +173,30 @@ namespace EverythingCanDieAlternative
             }
         }
 
-        // Helper method to find enemy by index
+        // Get the sanitized + uppercase name for an enemy, caching it per instance to avoid re-sanitizing
+        public static string GetSanitizedName(EnemyAI enemy)
+        {
+            if (enemy == null || enemy.enemyType == null) return string.Empty;
+            int id = enemy.GetInstanceID();
+            if (sanitizedEnemyNames.TryGetValue(id, out string cached))
+                return cached;
+            string sanitized = Plugin.RemoveInvalidCharacters(enemy.enemyType.enemyName).ToUpper();
+            sanitizedEnemyNames[id] = sanitized;
+            return sanitized;
+        }
+
+        // Helper method to find enemy by index — prefers RoundManager.SpawnedEnemies over a full scene scan
         private static EnemyAI FindEnemyByIndex(int index)
         {
-            foreach (var enemy in UnityEngine.Object.FindObjectsOfType<EnemyAI>())
+            var roundManager = RoundManager.Instance;
+            if (roundManager?.SpawnedEnemies != null)
             {
-                if (enemy.thisEnemyIndex == index)
+                foreach (var enemy in roundManager.SpawnedEnemies)
                 {
-                    return enemy;
+                    if (enemy != null && enemy.thisEnemyIndex == index)
+                    {
+                        return enemy;
+                    }
                 }
             }
             return null;
@@ -181,50 +205,53 @@ namespace EverythingCanDieAlternative
         // Use multiple methods to find the enemy across network boundaries
         private static EnemyAI FindEnemyMultiMethod(HitData hitData)
         {
-            // Method 1: Try using thisEnemyIndex (most reliable)
+            // Method 1: NetworkObjectId via O(1) dict lookup (populated in SetupEnemy)
+            if (hitData.EnemyNetworkId != 0 &&
+                enemyByNetworkId.TryGetValue(hitData.EnemyNetworkId, out var byNet) &&
+                byNet != null)
+            {
+                Plugin.LogInfo($"Found enemy by NetworkObjectId (cache): {hitData.EnemyNetworkId}");
+                return byNet;
+            }
+
+            // Method 2: thisEnemyIndex via RoundManager.SpawnedEnemies (small, already-tracked list)
             if (hitData.EnemyIndex >= 0)
             {
-                foreach (var enemy in RoundManager.Instance.SpawnedEnemies)
+                var byIndex = FindEnemyByIndex(hitData.EnemyIndex);
+                if (byIndex != null)
                 {
-                    if (enemy.thisEnemyIndex == hitData.EnemyIndex)
-                    {
-                        Plugin.LogInfo($"Found enemy by index: {hitData.EnemyIndex}");
-                        return enemy;
-                    }
+                    Plugin.LogInfo($"Found enemy by index: {hitData.EnemyIndex}");
+                    return byIndex;
                 }
             }
 
-            // Method 2: Try using NetworkObjectId if available
-            if (hitData.EnemyNetworkId != 0)
-            {
-                foreach (var enemy in UnityEngine.Object.FindObjectsOfType<EnemyAI>())
-                {
-                    if (enemy.NetworkObjectId == hitData.EnemyNetworkId)
-                    {
-                        Plugin.LogInfo($"Found enemy by NetworkObjectId: {hitData.EnemyNetworkId}");
-                        return enemy;
-                    }
-                }
-            }
-
-            // Method 3: Try name matching as last resort
+            // Method 3: name fallback (still uses SpawnedEnemies — no full scene scan)
             if (!string.IsNullOrEmpty(hitData.EnemyName))
             {
-                foreach (var enemy in UnityEngine.Object.FindObjectsOfType<EnemyAI>())
+                var roundManager = RoundManager.Instance;
+                if (roundManager?.SpawnedEnemies != null)
                 {
-                    if (enemy.enemyType.enemyName == hitData.EnemyName)
+                    foreach (var enemy in roundManager.SpawnedEnemies)
                     {
-                        Plugin.LogInfo($"Found enemy by name: {hitData.EnemyName}");
-                        return enemy;
+                        if (enemy != null && enemy.enemyType != null && enemy.enemyType.enemyName == hitData.EnemyName)
+                        {
+                            Plugin.LogInfo($"Found enemy by name: {hitData.EnemyName}");
+                            return enemy;
+                        }
                     }
                 }
             }
 
-            // Log diagnostic information
-            Plugin.Log.LogWarning($"Could not find enemy. All enemies in scene:");
-            foreach (var enemy in UnityEngine.Object.FindObjectsOfType<EnemyAI>())
+            // Log diagnostic information from the tracked spawn list rather than the entire scene
+            Plugin.Log.LogWarning($"Could not find enemy. SpawnedEnemies in round:");
+            var rm = RoundManager.Instance;
+            if (rm?.SpawnedEnemies != null)
             {
-                Plugin.Log.LogWarning($"  - {enemy.enemyType.enemyName}, Index: {enemy.thisEnemyIndex}, NetworkId: {enemy.NetworkObjectId}");
+                foreach (var enemy in rm.SpawnedEnemies)
+                {
+                    if (enemy != null)
+                        Plugin.Log.LogWarning($"  - {enemy.enemyType?.enemyName}, Index: {enemy.thisEnemyIndex}, NetworkId: {enemy.NetworkObjectId}");
+                }
             }
 
             return null;
@@ -245,17 +272,18 @@ namespace EverythingCanDieAlternative
                 if (enemy.NetworkObject != null)
                 {
                     enemyNetworkIds[instanceId] = enemy.NetworkObjectId;
+                    enemyByNetworkId[enemy.NetworkObjectId] = enemy;
                 }
 
                 // Check if we've already processed this enemy by instance ID
-                if (processedEnemies.ContainsKey(instanceId) && processedEnemies[instanceId])
+                if (processedEnemies.TryGetValue(instanceId, out bool alreadyProcessed) && alreadyProcessed)
                 {
                     Plugin.LogInfo($"Enemy {enemy.enemyType.enemyName} (ID: {instanceId}) already processed, skipping setup");
                     return;
                 }
 
                 string enemyName = enemy.enemyType.enemyName;
-                string sanitizedName = Plugin.RemoveInvalidCharacters(enemyName).ToUpper();
+                string sanitizedName = GetSanitizedName(enemy);
 
                 // Check if mod is enabled for this enemy from the control configuration
                 if (!Plugin.IsModEnabledForEnemy(sanitizedName))
@@ -274,7 +302,7 @@ namespace EverythingCanDieAlternative
                     float configHealth = Plugin.GetMobHealth(sanitizedName, enemy.enemyHP);
 
                     // Apply bonus health from BrutalCompanyMinus if installed
-                    var brutalCompanyHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.BrutalCompanyMinusCompatibility>("SoftDiamond.BrutalCompanyMinusExtraReborn");
+                    var brutalCompanyHandler = ModCompatibilityManager.Instance.BrutalCompanyMinus;
                     if (brutalCompanyHandler != null && brutalCompanyHandler.IsInstalled)
                     {
                         configHealth = brutalCompanyHandler.ApplyBonusHp(configHealth);
@@ -291,7 +319,7 @@ namespace EverythingCanDieAlternative
 
                     // Create the health variable
                     LNetworkVariable<float> healthVar;
-                    if (!enemyHealthVars.ContainsKey(instanceId))
+                    if (!enemyHealthVars.TryGetValue(instanceId, out healthVar))
                     {
                         try
                         {
@@ -322,7 +350,7 @@ namespace EverythingCanDieAlternative
                     }
                     else
                     {
-                        healthVar = enemyHealthVars[instanceId];
+                        // healthVar already populated by TryGetValue above
                         Plugin.LogInfo($"Using existing health variable for enemy {enemyName} (ID: {instanceId})");
                     }
 
@@ -395,7 +423,7 @@ namespace EverythingCanDieAlternative
             if (newHealth <= 0 && !enemy.isEnemyDead && StartOfRound.Instance.IsHost)
             {
                 // Check for Hitmarker compatibility and notify it of the kill
-                var hitmarkerHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.HitmarkerCompatibility>("com.github.zehsteam.Hitmarker");
+                var hitmarkerHandler = ModCompatibilityManager.Instance.Hitmarker;
                 if (hitmarkerHandler != null && hitmarkerHandler.IsInstalled)
                 {
                     // Get the player who caused the last damage
@@ -445,7 +473,7 @@ namespace EverythingCanDieAlternative
             int instanceId = enemy.GetInstanceID();
 
             // Check if mod is enabled for this enemy from the control configuration
-            string sanitizedName = Plugin.RemoveInvalidCharacters(enemy.enemyType.enemyName).ToUpper();
+            string sanitizedName = GetSanitizedName(enemy);
             if (!Plugin.IsModEnabledForEnemy(sanitizedName))
             {
                 Plugin.LogInfo($"Mod disabled for enemy {enemy.enemyType.enemyName}, not processing hit");
@@ -462,7 +490,7 @@ namespace EverythingCanDieAlternative
             }
 
             // Check for LethalHands compatibility to handle special punch damage (-22)
-            var lethalHandsHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.LethalHandsCompatibility>("SlapitNow.LethalHands");
+            var lethalHandsHandler = ModCompatibilityManager.Instance.LethalHands;
             if (lethalHandsHandler != null && lethalHandsHandler.IsInstalled && damage == -22)
             {
                 damage = lethalHandsHandler.ConvertPunchForceToDamage(damage);
@@ -487,18 +515,16 @@ namespace EverythingCanDieAlternative
             else
             {
                 // Batch damage for non-host clients
-                if (!pendingDamage.ContainsKey(instanceId))
-                    pendingDamage[instanceId] = 0f;
-                
-                pendingDamage[instanceId] += damage;
+                pendingDamage.TryGetValue(instanceId, out float current);
+                pendingDamage[instanceId] = current + damage;
                 
                 // Track the player who hit
-                var hitmarkerHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.HitmarkerCompatibility>("com.github.zehsteam.Hitmarker");
+                var hitmarkerHandler = ModCompatibilityManager.Instance.Hitmarker;
                 if (hitmarkerHandler != null && hitmarkerHandler.IsInstalled && playerWhoHit != null)
                 {
                     hitmarkerHandler.TrackDamageSource(instanceId, playerWhoHit);
                 }
-                
+
                 // Check if we should send batch
                 if (Time.time - lastBatchTime >= BATCH_INTERVAL)
                 {
@@ -556,7 +582,7 @@ namespace EverythingCanDieAlternative
             int instanceId = enemy.GetInstanceID();
 
             // Check if mod is enabled for this enemy from the control configuration
-            string sanitizedName = Plugin.RemoveInvalidCharacters(enemy.enemyType.enemyName).ToUpper();
+            string sanitizedName = GetSanitizedName(enemy);
             if (!Plugin.IsModEnabledForEnemy(sanitizedName))
             {
                 Plugin.LogInfo($"Mod disabled for enemy {enemy.enemyType.enemyName}, not processing damage");
@@ -566,7 +592,7 @@ namespace EverythingCanDieAlternative
             // Check for Hitmarker compatibility and track the player who caused this damage
             if (playerWhoHit != null)
             {
-                var hitmarkerHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.HitmarkerCompatibility>("com.github.zehsteam.Hitmarker");
+                var hitmarkerHandler = ModCompatibilityManager.Instance.Hitmarker;
                 if (hitmarkerHandler != null && hitmarkerHandler.IsInstalled)
                 {
                     hitmarkerHandler.TrackDamageSource(instanceId, playerWhoHit);
@@ -583,7 +609,7 @@ namespace EverythingCanDieAlternative
             }
 
             // Ensure enemy is set up
-            if (!processedEnemies.ContainsKey(instanceId) || !processedEnemies[instanceId])
+            if (!processedEnemies.TryGetValue(instanceId, out bool isProcessed) || !isProcessed)
             {
                 SetupEnemy(enemy);
             }
@@ -622,7 +648,7 @@ namespace EverythingCanDieAlternative
             Plugin.LogInfo($"Killing enemy {enemy.enemyType.enemyName}");
 
             // Check for special handling for problematic enemies with SellBodies
-            var sellBodiesHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.SellBodiesCompatibility>("Entity378.sellbodies");
+            var sellBodiesHandler = ModCompatibilityManager.Instance.SellBodies;
             if (sellBodiesHandler != null && sellBodiesHandler.IsInstalled &&
                 sellBodiesHandler.IsProblemEnemy(enemy.enemyType.enemyName))
             {
@@ -639,7 +665,7 @@ namespace EverythingCanDieAlternative
             }
 
             // Use our new LastResortKiller compatibility handler for robust killing
-            var lastResortKiller = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.LastResortKillerCompatibility>("nwnt.EverythingCanDieAlternative.LastResortKiller");
+            var lastResortKiller = ModCompatibilityManager.Instance.LastResortKiller;
             if (lastResortKiller != null)
             {
                 // Check if this enemy should despawn after death
@@ -758,7 +784,7 @@ namespace EverythingCanDieAlternative
             int instanceId = enemy.GetInstanceID();
 
             // Check if we're already despawning this enemy
-            if (enemiesInDespawnProcess.ContainsKey(instanceId) && enemiesInDespawnProcess[instanceId])
+            if (enemiesInDespawnProcess.TryGetValue(instanceId, out bool inProcess) && inProcess)
             {
                 return;
             }
@@ -787,7 +813,7 @@ namespace EverythingCanDieAlternative
             float waitTime = 0.5f; // Default delay without any compatibility
 
             // Check for SellBodies compatibility using the framework
-            var sellBodiesHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.SellBodiesCompatibility>("Entity378.sellbodies");
+            var sellBodiesHandler = ModCompatibilityManager.Instance.SellBodies;
             if (sellBodiesHandler != null && sellBodiesHandler.IsInstalled)
             {
                 waitTime = sellBodiesHandler.GetDespawnDelay();
@@ -807,9 +833,8 @@ namespace EverythingCanDieAlternative
                 GameObject.Destroy(enemy.gameObject);
             }
 
-            // Clear tracking flag
-            if (enemiesInDespawnProcess.ContainsKey(instanceId))
-                enemiesInDespawnProcess.Remove(instanceId);
+            // Clear tracking flag (Remove returns false if missing — no need to pre-check)
+            enemiesInDespawnProcess.Remove(instanceId);
         }
 
         public static float GetEnemyHealth(EnemyAI enemy)
@@ -860,7 +885,7 @@ namespace EverythingCanDieAlternative
             }
 
             // Track damage source for hitmarker compatibility
-            var hitmarkerHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.HitmarkerCompatibility>("com.github.zehsteam.Hitmarker");
+            var hitmarkerHandler = ModCompatibilityManager.Instance.Hitmarker;
             if (hitmarkerHandler != null && hitmarkerHandler.IsInstalled && playerWhoHit != null)
             {
                 hitmarkerHandler.TrackDamageSource(instanceId, playerWhoHit);
@@ -885,21 +910,19 @@ namespace EverythingCanDieAlternative
 
             int instanceId = enemy.GetInstanceID();
 
-            // Clean up our tracking dictionaries
-            if (enemyHealthVars.ContainsKey(instanceId))
-                enemyHealthVars.Remove(instanceId);
-            if (enemyMaxHealth.ContainsKey(instanceId))
-                enemyMaxHealth.Remove(instanceId);
-            if (processedEnemies.ContainsKey(instanceId))
-                processedEnemies.Remove(instanceId);
-            if (enemyNetworkIds.ContainsKey(instanceId))
+            // Clean up our tracking dictionaries — Dictionary.Remove is a no-op if missing
+            enemyHealthVars.Remove(instanceId);
+            enemyMaxHealth.Remove(instanceId);
+            processedEnemies.Remove(instanceId);
+            if (enemyNetworkIds.TryGetValue(instanceId, out ulong netId))
+            {
                 enemyNetworkIds.Remove(instanceId);
-            if (enemyNetworkVarNames.ContainsKey(instanceId))
-                enemyNetworkVarNames.Remove(instanceId);
-            if (immortalEnemies.ContainsKey(instanceId))
-                immortalEnemies.Remove(instanceId);
-            if (enemyInstanceCache.ContainsKey(instanceId))
-                enemyInstanceCache.Remove(instanceId);
+                enemyByNetworkId.Remove(netId);
+            }
+            enemyNetworkVarNames.Remove(instanceId);
+            immortalEnemies.Remove(instanceId);
+            enemyInstanceCache.Remove(instanceId);
+            sanitizedEnemyNames.Remove(instanceId);
 
             Plugin.LogInfo($"Cleaned up tracking data for externally killed enemy {enemy.enemyType.enemyName}");
         }

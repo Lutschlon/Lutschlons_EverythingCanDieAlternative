@@ -87,6 +87,7 @@ namespace EverythingCanDieAlternative
 
                 // Reload ALL config files
                 Plugin.Instance.Config.Reload();
+                Plugin.InvalidateConfigKeyIndex();
                 EnemyControlConfiguration.Instance.ReloadConfig();
                 DespawnConfiguration.Instance.ReloadConfig();
                 Plugin.LogInfo("All configurations reloaded from files");
@@ -239,7 +240,7 @@ namespace EverythingCanDieAlternative
                 Plugin.LogInfo($"Local hit detected on {__instance.enemyType.enemyName} from {(playerWhoHit?.playerUsername ?? "unknown")} with force {force}");
 
                 // Check for LethalHands compatibility
-                var lethalHandsHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.LethalHandsCompatibility>("SlapitNow.LethalHands");
+                var lethalHandsHandler = ModCompatibilityManager.Instance.LethalHands;
                 bool isLethalHandsPunch = (lethalHandsHandler != null && lethalHandsHandler.IsInstalled && force == -22);
 
                 if (isLethalHandsPunch)
@@ -276,7 +277,7 @@ namespace EverythingCanDieAlternative
             {
 
                 string enemyName = __instance.enemyType.enemyName;
-                string sanitizedName = Plugin.RemoveInvalidCharacters(enemyName).ToUpper();
+                string sanitizedName = HealthManager.GetSanitizedName(__instance);
 
                 // Only handle enemies that are enabled but set as immortal (Unimmortal=false)
                 if (Plugin.IsModEnabledForEnemy(sanitizedName) && !Plugin.CanMob(".Unimmortal", sanitizedName))
@@ -314,7 +315,7 @@ namespace EverythingCanDieAlternative
                 if (enemy == null || enemy.isEnemyDead) return true;
 
                 string enemyName = enemy.enemyType.enemyName;
-                string sanitizedName = Plugin.RemoveInvalidCharacters(enemyName).ToUpper();
+                string sanitizedName = HealthManager.GetSanitizedName(enemy);
 
                 // Check if this enemy is managed by our mod
                 if (!Plugin.IsModEnabledForEnemy(sanitizedName))
@@ -399,7 +400,7 @@ namespace EverythingCanDieAlternative
         private static float GetDespawnDelay()
         {
             // Check for SellBodies compatibility
-            var sellBodiesHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.SellBodiesCompatibility>("Entity378.sellbodies");
+            var sellBodiesHandler = ModCompatibilityManager.Instance.SellBodies;
             if (sellBodiesHandler != null && sellBodiesHandler.IsInstalled)
             {
                 return sellBodiesHandler.GetDespawnDelay();
@@ -411,7 +412,7 @@ namespace EverythingCanDieAlternative
         private static void HandleKillCompatibility(EnemyAI enemy, int instanceId, string enemyName)
         {
             // SellBodies compatibility
-            var sellBodiesHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.SellBodiesCompatibility>("Entity378.sellbodies");
+            var sellBodiesHandler = ModCompatibilityManager.Instance.SellBodies;
             if (sellBodiesHandler != null && sellBodiesHandler.IsInstalled &&
                 sellBodiesHandler.IsProblemEnemy(enemyName))
             {
@@ -419,7 +420,7 @@ namespace EverythingCanDieAlternative
             }
 
             // Hitmarker compatibility
-            var hitmarkerHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.HitmarkerCompatibility>("com.github.zehsteam.Hitmarker");
+            var hitmarkerHandler = ModCompatibilityManager.Instance.Hitmarker;
             if (hitmarkerHandler != null && hitmarkerHandler.IsInstalled)
             {
                 PlayerControllerB lastDamageSource = hitmarkerHandler.GetLastDamageSource(instanceId);
@@ -436,7 +437,7 @@ namespace EverythingCanDieAlternative
             try
             {
                 // Clear Hitmarker compatibility tracking data
-                var hitmarkerHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.HitmarkerCompatibility>("com.github.zehsteam.Hitmarker");
+                var hitmarkerHandler = ModCompatibilityManager.Instance.Hitmarker;
                 if (hitmarkerHandler != null && hitmarkerHandler.IsInstalled)
                 {
                     Plugin.LogInfo("Clearing Hitmarker compatibility data on level unload");
@@ -454,7 +455,7 @@ namespace EverythingCanDieAlternative
             try
             {
                 // Refresh BrutalCompanyMinus bonus HP cache when a new level is generated
-                var brutalCompanyHandler = ModCompatibilityManager.Instance.GetHandler<ModCompatibility.Handlers.BrutalCompanyMinusCompatibility>("SoftDiamond.BrutalCompanyMinusExtraReborn");
+                var brutalCompanyHandler = ModCompatibilityManager.Instance.BrutalCompanyMinus;
                 if (brutalCompanyHandler != null && brutalCompanyHandler.IsInstalled)
                 {
                     Plugin.LogInfo("Refreshing BrutalCompanyMinus compatibility data after level generation");

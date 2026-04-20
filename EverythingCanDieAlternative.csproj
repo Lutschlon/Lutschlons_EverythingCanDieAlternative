@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
@@ -46,11 +46,11 @@
   <!-- Mod Dependencies -->
   <ItemGroup>
     <Reference Include="com.github.zehsteam.Hitmarker">
-      <HintPath>D:\Lethal_Comp\Modding\Dependencies\Zehs-Hitmarker-1.2.3\com.github.zehsteam.Hitmarker.dll</HintPath>
+      <HintPath>D:\Lethal_Comp\Modding\Dependencies\Zehs-Hitmarker\com.github.zehsteam.Hitmarker.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="LethalConfig">
-      <HintPath>D:\Lethal_Comp\Modding\Dependencies\AinaVT-LethalConfig-1.4.6\plugins\LethalConfig\LethalConfig.dll</HintPath>
+      <HintPath>D:\Lethal_Comp\Modding\Dependencies\AinaVT-LethalConfig\LethalConfig\LethalConfig.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="LethalNetworkAPI">
@@ -58,15 +58,15 @@
       <Private>false</Private>
     </Reference>
     <Reference Include="NoteBoxz.EnemyHealthBars">
-      <HintPath>D:\Lethal_Comp\Modding\Dependencies\NotezyTeam-EnemyHealthBars-1.2.0\NoteBoxz.EnemyHealthBars.dll</HintPath>
+      <HintPath>D:\Lethal_Comp\Modding\Dependencies\NotezyTeam-EnemyHealthBars\NoteBoxz.EnemyHealthBars.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="SellBodies">
-      <HintPath>D:\Lethal_Comp\Modding\Dependencies\Entity378-SellBodiesFixed-1.12.1\BepInEx\plugins\SellBodies\SellBodies.dll</HintPath>
+      <HintPath>D:\Lethal_Comp\Modding\Dependencies\Entity378-SellBodiesFixed\SellBodies\SellBodies.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="NoteBoxz.LethalMin">
-      <HintPath>D:\Lethal_Comp\Modding\Dependencies\NotezyTeam-LethalMin-1.0.21\NoteBoxz.LethalMin.dll</HintPath>
+      <HintPath>D:\Lethal_Comp\Modding\Dependencies\NotezyTeam-LethalMin\NoteBoxz.LethalMin.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

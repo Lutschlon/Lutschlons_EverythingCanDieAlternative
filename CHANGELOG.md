@@ -1,3 +1,7 @@
+## 1.1.71
+- Recompiled for V81 with updated dependencies
+- Optimized some under the hood systems for better performance
+
 ## 1.1.70
 - Improved the `Search enemies` search bar in the configuration ui, to also find enemies based on their in-game scan name. This works dynamically with all vanilla and modded enemies. 
 The scan-name will also be displayed in the config ui. This should make finding enemies easier.<details><summary>Click for examples</summary>Spring can now also be found by searching Coil-Head, RADMECH can now also be found by searching Old Bird, and so on.</details>
