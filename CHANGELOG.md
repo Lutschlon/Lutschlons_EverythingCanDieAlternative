@@ -1,3 +1,8 @@
+## 1.1.72
+- Added a new feature found in the global settings: `Enemy health bar` with the options `Off` `Number` `Bar` `Both` that displays a health bar for near enemies, default is `Off`
+<br>Size can be configured with the global setting `Health bar size` with the options `Small` `Medium` `Large`
+- Added beta compatibility for [NaturalSelection](https://thunderstore.io/c/lethal-company/p/Fandovec03/Natural_selection/) by Fandovec03 <details><summary>Click for details</summary>Enemies like Blob and Spider can now damage other enemies<br>Thanks to `SpinoRavenger` for reporting it on Discord!</details>
+
 ## 1.1.71
 - Recompiled for V81 with updated dependencies
 - Optimized some under the hood systems for better performance
