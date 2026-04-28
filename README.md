@@ -1,4 +1,4 @@
-# EverythingCanDieAlternative 1.1.71
+# EverythingCanDieAlternative 1.1.72
 
 This mod makes every enemy in the game killable with configurable HP. It aims to work with any modded weapon and any modded enemy.
 - Easily configurable via in game configuration menu
