@@ -3,7 +3,7 @@
 This mod makes every enemy in the game killable with configurable HP. It aims to work with any modded weapon and any modded enemy.
 - Easily configurable via in game configuration menu
 - You can configure the enemies health or leave enemies immortal to achieve the right balance, you can also disable my mod for enemies if you want to 100% preserve their original behaviour
-- This mod removes dead enemies' corpses (configurable and compatable with mod-drop mods)
+- This mod removes dead enemies' corpses (configurable and compatible with mod-drop mods)
 - You can activate enemy health bars as well
 
 > <details><summary> Differences from Original Mod</summary>- No separate shotgun/melee weapon settings<br>- No Explosion Effects on death<br>- An alternative version of the EverythingCanDie mod from TheFluff as it did not work for me with a few modded enemies</details>
