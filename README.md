@@ -6,7 +6,7 @@ This mod makes every enemy in the game killable with configurable HP. It aims to
 - This mod removes dead enemies' corpses by itself, so you wont be left with a frozen for enemies without death animation (configurable)
 - You can activate enemy health bars as well
 
-<details><summary> Differences from Original Mod</summary>- No separate shotgun/melee weapon settings<br>- No Explosion Effects on death<br>- An alternative version of the EverythingCanDie mod from TheFluff as it did not work for me with a few modded enemies</details>
+> <details><summary> Differences from Original Mod</summary>- No separate shotgun/melee weapon settings<br>- No Explosion Effects on death<br>- An alternative version of the EverythingCanDie mod from TheFluff as it did not work for me with a few modded enemies</details>
 
 ## Configuration Menu
 - Start the game > host a lobby > quit the lobby > check out the EverythingCanDieAlt menu or the .cfg files<br>
@@ -28,17 +28,24 @@ This mod makes every enemy in the game killable with configurable HP. It aims to
 
 ![](https://i.imgur.com/zGJuwhw.png)
 
+<br>
 <details>
-<summary>See detailed info on the health bar configuration:</summary>
+<summary>Click to see example images from the health bar</summary>
+<br>
+  
+- This is how the health bar set to `Both` looks like with different sizes:
 
-Some text
+![](https://i.imgur.com/H5SNKmT.gif)
 
-![](https://i.imgur.com/BFZP4WC.png)
+- This is the maximum Health bar range from `Close` to `Medium` to `Far` shown from above and shown from POV looks like:
 
+![](https://i.imgur.com/TRTo3Zm.png)
+
+![](https://i.imgur.com/vOCmd7e.png)
 </details>
 
 ---------
-- The menu can be hidden / shown with `LethalConfig` or inside the `nwnt.EverythingCanDieAlternative.cfg` under `EnableConfigMenu`
+- The config menu can be hidden / shown from the main menu with `LethalConfig` or inside the `nwnt.EverythingCanDieAlternative.cfg` under `EnableConfigMenu`
 - Many Global Settings can be configured in `LethalConfig` while being inside a live round, the health bar can be configured on the fly without any issues, changing any of the rules isn`t tested and milage may vary
 - Everyone needs to have this mod installed for it to work
 
