@@ -1,7 +1,7 @@
 ## 1.1.80
 - Added a feature to show a health bar above enemies, the healtbar is NOT shown by default, its settings are found in the `Global Settings` under `Health Bar` (more info can be found in the ReadMe)
 - Added beta compatibility for [NaturalSelection](https://thunderstore.io/c/lethal-company/p/Fandovec03/Natural_selection/) by Fandovec03 <details><summary>Click for details</summary>Enemies like Blob and Spider can now damage other enemies, iam not sure if every interaction is working properly yet<br>Thanks to `SpinoRavenger` for reporting it on Discord!</details>
-- Updated the Configuration-UI to better display different `Global Settings`
+- Updated the Configuration-UI to better display different `Global Settings`, the UI can now also be closed by pressing ESC
 - Updated ReadMe
 
 ## 1.1.71
