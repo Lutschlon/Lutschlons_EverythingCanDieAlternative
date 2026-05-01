@@ -17,7 +17,7 @@ This mod makes every enemy in the game killable with configurable HP. It aims to
 ![](https://i.imgur.com/WbsX6kk.png)
 
 <details>
-<summary>Further configuration examples</summary>
+<summary>🔴 Further configuration examples</summary>
   
 #### Make an Enemy Immortal
 ![](https://i.imgur.com/K9GzuMu.png)
@@ -36,12 +36,12 @@ This mod makes every enemy in the game killable with configurable HP. It aims to
 
 <br>
 
-<details><summary>Click to see example images from the health bar</summary>
+<details><summary>🔴 Click to see example images from the health bar</summary>
 <br>
   
 - `Enemy Health Bar` is set to `Both` for these images, default is `Off`
 - `Hide Health Bar for full HP Enemies` is set to `No` for these images, default is `Yes`
-- These are the different Health Bar sizes
+- These are the different Health Bar sizes:
 
 ![](https://i.imgur.com/H5SNKmT.gif)
 
