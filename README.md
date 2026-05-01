@@ -15,10 +15,16 @@ This mod makes every enemy in the game killable with configurable HP. It aims to
 
 #### Killable Spring with 3 health
 ![](https://i.imgur.com/WbsX6kk.png)
-#### Make Enemies Immortal
+
+<details>
+<summary>Further configuration examples</summary>
+  
+#### Make an Enemy Immortal
 ![](https://i.imgur.com/K9GzuMu.png)
 #### Disable ECDA For An Enemy
 ![](https://i.imgur.com/BFZP4WC.png)
+</details>
+
 
 ---------
 ## Global Settings
@@ -29,15 +35,17 @@ This mod makes every enemy in the game killable with configurable HP. It aims to
 ![](https://i.imgur.com/zGJuwhw.png)
 
 <br>
-<details>
-<summary>Click to see example images from the health bar</summary>
+
+<details><summary>Click to see example images from the health bar</summary>
 <br>
   
-- This is how the health bar set to `Both` looks like with different sizes:
+- `Enemy Health Bar` is set to `Both` for these images, default is `Off`
+- `Hide Health Bar for full HP Enemies` is set to `No` for these images, default is `Yes`
+- These are the different Health Bar sizes
 
 ![](https://i.imgur.com/H5SNKmT.gif)
 
-- This is the maximum Health bar range from `Close` to `Medium` to `Far` shown from above and shown from POV looks like:
+- This is the maximum Health Bar range from `Close` to `Medium` to `Far` shown from above and shown from POV:
 
 ![](https://i.imgur.com/TRTo3Zm.png)
 
