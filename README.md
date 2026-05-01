@@ -2,8 +2,8 @@
 
 This mod makes every enemy in the game killable with configurable HP. It aims to work with any modded weapon and any modded enemy.
 - Easily configurable via in game configuration menu
-- You can configure the enemies health or leave enemies immortal to achive the right balance, you can also disable my mod for enemies if you want to 100% preserve their original behaviour
-- This mod removes dead enemies' corpses by itself, so you wont be left with a frozen for enemies without death animation (configurable)
+- You can configure the enemies health or leave enemies immortal to achieve the right balance, you can also disable my mod for enemies if you want to 100% preserve their original behaviour
+- This mod removes dead enemies' corpses (configurable and compatable with mod-drop mods)
 - You can activate enemy health bars as well
 
 > <details><summary> Differences from Original Mod</summary>- No separate shotgun/melee weapon settings<br>- No Explosion Effects on death<br>- An alternative version of the EverythingCanDie mod from TheFluff as it did not work for me with a few modded enemies</details>
@@ -46,7 +46,7 @@ This mod makes every enemy in the game killable with configurable HP. It aims to
 
 ---------
 - The config menu can be hidden / shown from the main menu with `LethalConfig` or inside the `nwnt.EverythingCanDieAlternative.cfg` under `EnableConfigMenu`
-- Many Global Settings can be configured in `LethalConfig` while being inside a live round, the health bar can be configured on the fly without any issues, changing any of the rules isn`t tested and milage may vary
+- Many Global Settings can be configured in `LethalConfig` while being inside a live round, the health bar can be configured on the fly without any issues, changing any of the rules isn't tested and mileage may vary
 - Everyone needs to have this mod installed for it to work
 
 ## Mod Compatibilities
