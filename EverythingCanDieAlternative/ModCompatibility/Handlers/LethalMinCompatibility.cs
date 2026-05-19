@@ -35,8 +35,6 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
 
         protected override void OnModInitialize()
         {
-            Plugin.LogInfo($"{ModName} compatibility initialized");
-
             try
             {
                 var lethalMinPlugin = BepInEx.Bootstrap.Chainloader.PluginInfos["NoteBoxz.LethalMin"];
