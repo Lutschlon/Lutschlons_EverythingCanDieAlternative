@@ -26,8 +26,7 @@ namespace EverythingCanDieAlternative.ModCompatibility.Handlers
 
         protected override void OnModInitialize()
         {
-            Plugin.LogInfo($"{ModName} compatibility initialized (detection-only mode)");
-            // No patching needed - we'll detect shotgun damage in EnemyVsEnemyCompatibility
+            // No patching needed - we detect shotgun damage in EnemyVsEnemyCompatibility
         }
 
         /// <summary>

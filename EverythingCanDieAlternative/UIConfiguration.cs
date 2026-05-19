@@ -6,10 +6,36 @@ namespace EverythingCanDieAlternative.UI
     // Configuration class for UI settings
     public class UIConfiguration
     {
+        public enum HealthBarDisplayMode
+        {
+            Off,
+            NumberOnly,
+            BarOnly,
+            Both
+        }
+
+        public enum HealthBarSize
+        {
+            Small,
+            Medium,
+            Large
+        }
+
+        public enum HealthBarVisibilityDistance
+        {
+            Close,
+            Medium,
+            Far
+        }
+
         // Static config entries that LethalConfig will automatically detect
         public static ConfigEntry<bool> EnableConfigMenu;
         public static ConfigEntry<bool> EnableInfoLogs;
         public static ConfigEntry<bool> ShowEnemyImages;
+        public static ConfigEntry<HealthBarDisplayMode> HealthBarMode;
+        public static ConfigEntry<HealthBarSize> HealthBarSizeOption;
+        public static ConfigEntry<bool> HideHealthBarForFullHpEnemies;
+        public static ConfigEntry<HealthBarVisibilityDistance> HealthBarRange;
 
         // Private instance
         private static UIConfiguration _instance;
@@ -42,6 +68,34 @@ namespace EverythingCanDieAlternative.UI
                     "ShowEnemyImages",
                     false,
                     "If set to true, preview images for enemies will be shown in the config menu if available"
+                );
+
+                HealthBarMode = Plugin.Instance.Config.Bind(
+                    "General",
+                    "EnemyHealthBar",
+                    HealthBarDisplayMode.Off,
+                    "Show enemy health above damageable enemies. Off / NumberOnly / BarOnly / Both"
+                );
+
+                HealthBarSizeOption = Plugin.Instance.Config.Bind(
+                    "General",
+                    "EnemyHealthBarSize",
+                    HealthBarSize.Medium,
+                    "Size of the floating enemy health bar and number. Small / Medium / Large"
+                );
+
+                HideHealthBarForFullHpEnemies = Plugin.Instance.Config.Bind(
+                    "General",
+                    "HideHealthBarForFullHpEnemies",
+                    true,
+                    "If true, the floating health bar is only shown after the enemy has taken damage. Prevents giving away hiding enemies."
+                );
+
+                HealthBarRange = Plugin.Instance.Config.Bind(
+                    "General",
+                    "EnemyHealthBarRange",
+                    HealthBarVisibilityDistance.Close,
+                    "Maximum distance at which the floating health bar is visible. Close / Medium / Far"
                 );
 
                 //Plugin.Log.LogInfo("UI configuration loaded from plugin config");
@@ -111,6 +165,66 @@ namespace EverythingCanDieAlternative.UI
             {
                 ShowEnemyImages.Value = enabled;
                 Plugin.Log.LogInfo($"Enemy images {(enabled ? "enabled" : "disabled")}");
+            }
+        }
+
+        public HealthBarDisplayMode GetHealthBarMode()
+        {
+            if (!IsInitialized || HealthBarMode == null) return HealthBarDisplayMode.Off;
+            return HealthBarMode.Value;
+        }
+
+        public void SetHealthBarMode(HealthBarDisplayMode mode)
+        {
+            if (IsInitialized && HealthBarMode != null)
+            {
+                HealthBarMode.Value = mode;
+                Plugin.Log.LogInfo($"Enemy health bar mode set to {mode}");
+            }
+        }
+
+        public HealthBarSize GetHealthBarSize()
+        {
+            if (!IsInitialized || HealthBarSizeOption == null) return HealthBarSize.Medium;
+            return HealthBarSizeOption.Value;
+        }
+
+        public void SetHealthBarSize(HealthBarSize size)
+        {
+            if (IsInitialized && HealthBarSizeOption != null)
+            {
+                HealthBarSizeOption.Value = size;
+                Plugin.Log.LogInfo($"Enemy health bar size set to {size}");
+            }
+        }
+
+        public bool ShouldHideHealthBarForFullHp()
+        {
+            if (!IsInitialized || HideHealthBarForFullHpEnemies == null) return true;
+            return HideHealthBarForFullHpEnemies.Value;
+        }
+
+        public void SetHideHealthBarForFullHp(bool hide)
+        {
+            if (IsInitialized && HideHealthBarForFullHpEnemies != null)
+            {
+                HideHealthBarForFullHpEnemies.Value = hide;
+                Plugin.Log.LogInfo($"Hide health bar for full HP enemies {(hide ? "enabled" : "disabled")}");
+            }
+        }
+
+        public HealthBarVisibilityDistance GetHealthBarRange()
+        {
+            if (!IsInitialized || HealthBarRange == null) return HealthBarVisibilityDistance.Close;
+            return HealthBarRange.Value;
+        }
+
+        public void SetHealthBarRange(HealthBarVisibilityDistance range)
+        {
+            if (IsInitialized && HealthBarRange != null)
+            {
+                HealthBarRange.Value = range;
+                Plugin.Log.LogInfo($"Enemy health bar range set to {range}");
             }
         }
 

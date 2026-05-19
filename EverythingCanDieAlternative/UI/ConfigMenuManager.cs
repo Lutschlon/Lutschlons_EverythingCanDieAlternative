@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using TMPro;
 using System.Linq;
@@ -19,6 +20,13 @@ namespace EverythingCanDieAlternative.UI
         private GameObject enemyConfigPanel;
         private GameObject globalSettingsButton;
         private bool isShowingGlobalSettings = false;
+
+        private enum GlobalSettingsTab { Rules, HealthBar, BulkConfig }
+        private GlobalSettingsTab selectedGlobalTab = GlobalSettingsTab.Rules;
+        private GameObject globalRulesTabButton;
+        private GameObject globalHealthBarTabButton;
+        private GameObject globalBulkTabButton;
+        private GameObject globalSettingsContentRoot; // Viewport/Content of the global settings scroll view
 
         // Configuration data
         private List<EnemyConfigData> enemyConfigs = new List<EnemyConfigData>();
@@ -135,6 +143,61 @@ namespace EverythingCanDieAlternative.UI
             }
         }
 
+        // Closes the menu and resets transient view state so the next open starts fresh.
+        // (Used by the X button, the ESC key, and any other dismiss path.)
+        public static void CloseConfigMenu(bool playSfx = true)
+        {
+            if (menuPrefab == null || !menuPrefab.activeSelf) return;
+            if (playSfx) PlayCancelSFX();
+
+            var manager = menuPrefab.GetComponent<ConfigMenuManager>();
+            if (manager != null)
+            {
+                manager.ResetViewState();
+            }
+
+            menuPrefab.SetActive(false);
+        }
+
+        // Resets the right-pane view back to the default "no enemy selected" state and
+        // un-highlights the Global Settings button.
+        private void ResetViewState()
+        {
+            try
+            {
+                if (isShowingGlobalSettings)
+                {
+                    isShowingGlobalSettings = false;
+                    UpdateGlobalSettingsButtonStyle(false);
+                }
+                // Always start back on the Rules tab next time global settings is opened
+                selectedGlobalTab = GlobalSettingsTab.Rules;
+                if (selectedEnemyName != null)
+                {
+                    selectedEnemyName = null;
+                }
+                if (enemyConfigPanel != null)
+                {
+                    UpdateConfigPanel();
+                }
+            }
+            catch (Exception ex)
+            {
+                Plugin.LogError($"Error resetting menu view state: {ex.Message}");
+            }
+        }
+
+        // Closes the menu when the player presses Escape while it's open.
+        // Uses the new Input System since Lethal Company has the legacy Input class disabled.
+        private void Update()
+        {
+            var kb = Keyboard.current;
+            if (kb != null && kb.escapeKey.wasPressedThisFrame)
+            {
+                CloseConfigMenu(playSfx: true);
+            }
+        }
+
         public static void ToggleConfigMenu()
         {
             // Check if the config menu is enabled in settings
@@ -154,10 +217,15 @@ namespace EverythingCanDieAlternative.UI
 
             // Toggle menu visibility
             bool wasActive = menuPrefab.activeSelf;
-            menuPrefab.SetActive(!wasActive);
+            if (wasActive)
+            {
+                // Reset view state when closing via toggle as well
+                CloseConfigMenu(playSfx: false);
+                return;
+            }
+            menuPrefab.SetActive(true);
 
             // Refresh enemy data when opening
-            if (!wasActive)
             {
                 Plugin.LogInfo("Menu opened, scheduling refresh");
                 var menuManager = menuPrefab.GetComponent<ConfigMenuManager>();
@@ -230,9 +298,7 @@ namespace EverythingCanDieAlternative.UI
 
                 // Create close button styled like in-game
                 var closeButtonObj = UIHelper.CreateButton(mainPanelObj.transform, "CloseButton", "X", () => {
-                    // Play cancel sound when closing
-                    PlayCancelSFX();
-                    menuPrefab.SetActive(false);
+                    CloseConfigMenu(playSfx: true);
                 });
 
                 if (closeButtonObj != null)
@@ -716,18 +782,53 @@ namespace EverythingCanDieAlternative.UI
                     }
                 }
 
-                // Create scroll view to hold all global settings
-                    var scrollView = UIHelper.CreateScrollView(enemyConfigPanel.transform, "GlobalSettingsScrollView", new Vector2(480, 420));
+                // Create the tab row (Rules / Health Bar / Bulk Config) below the title
+                var tabRow = new GameObject("GlobalTabRow", typeof(RectTransform));
+                tabRow.transform.SetParent(enemyConfigPanel.transform, false);
+                var tabRowRT = (RectTransform)tabRow.transform;
+                tabRowRT.anchorMin = new Vector2(0, 1);
+                tabRowRT.anchorMax = new Vector2(1, 1);
+                tabRowRT.pivot = new Vector2(0.5f, 1);
+                tabRowRT.sizeDelta = new Vector2(-20, 32);
+                tabRowRT.anchoredPosition = new Vector2(0, -45);
+                var tabRowLayout = tabRow.AddComponent<HorizontalLayoutGroup>();
+                tabRowLayout.spacing = 6;
+                tabRowLayout.childForceExpandWidth = true;
+                tabRowLayout.childForceExpandHeight = true;
+                tabRowLayout.childControlWidth = true;
+                tabRowLayout.childControlHeight = true;
+                tabRowLayout.childAlignment = TextAnchor.MiddleCenter;
+                tabRowLayout.padding = new RectOffset(0, 0, 0, 0);
+
+                globalRulesTabButton = UIHelper.CreateButton(tabRow.transform, "TabRules", "Rules", () => SetGlobalSettingsTab(GlobalSettingsTab.Rules));
+                globalHealthBarTabButton = UIHelper.CreateButton(tabRow.transform, "TabHealthBar", "Health Bar", () => SetGlobalSettingsTab(GlobalSettingsTab.HealthBar));
+                globalBulkTabButton = UIHelper.CreateButton(tabRow.transform, "TabBulk", "Bulk Config", () => SetGlobalSettingsTab(GlobalSettingsTab.BulkConfig));
+
+                // Create scroll view to hold the active tab's settings (now starts further down to make room for the tab row)
+                    var scrollView = UIHelper.CreateScrollView(enemyConfigPanel.transform, "GlobalSettingsScrollView", new Vector2(480, 380));
                     if (scrollView == null) return;
 
                     var scrollRectTransform = scrollView.GetComponent<RectTransform>();
                     scrollRectTransform.anchorMin = new Vector2(0.5f, 0.5f);
                     scrollRectTransform.anchorMax = new Vector2(0.5f, 0.5f);
                     scrollRectTransform.pivot = new Vector2(0.5f, 0.5f);
-                    scrollRectTransform.anchoredPosition = new Vector2(0, -10);
-                    scrollRectTransform.sizeDelta = new Vector2(480, 420);
+                    scrollRectTransform.anchoredPosition = new Vector2(8, -30); // shift right for the scrollbar, down for the tab row
+                    scrollRectTransform.sizeDelta = new Vector2(464, 380);
 
                     NormalizedScrollRect.ApplyTo(scrollView, scrollSpeed: 0.08f, maxDelta: 0.08f);
+
+                    // Vertical scrollbar to the LEFT of the scroll view
+                    var scrollRectComp = scrollView.GetComponent<ScrollRect>();
+                    var scrollbarObj = UIHelper.CreateVerticalScrollbar(enemyConfigPanel.transform, "GlobalSettingsScrollbar", scrollRectComp);
+                    if (scrollbarObj != null)
+                    {
+                        var sbRT = scrollbarObj.GetComponent<RectTransform>();
+                        sbRT.anchorMin = new Vector2(0.5f, 0.5f);
+                        sbRT.anchorMax = new Vector2(0.5f, 0.5f);
+                        sbRT.pivot = new Vector2(1f, 0.5f);
+                        sbRT.sizeDelta = new Vector2(10f, 380f);
+                        sbRT.anchoredPosition = new Vector2(scrollRectTransform.anchoredPosition.x - scrollRectTransform.sizeDelta.x * 0.5f - 4f, scrollRectTransform.anchoredPosition.y);
+                    }
 
                     var globalSettingsPanel = scrollView.transform.Find("Viewport/Content")?.gameObject;
                     if (globalSettingsPanel == null)
@@ -735,6 +836,7 @@ namespace EverythingCanDieAlternative.UI
                         Plugin.LogError("GlobalSettings: Could not find Viewport/Content");
                         return;
                     }
+                    globalSettingsContentRoot = globalSettingsPanel;
 
                     // Override the default tight layout from CreateScrollView
                     var layout = globalSettingsPanel.GetComponent<VerticalLayoutGroup>();
@@ -744,167 +846,209 @@ namespace EverythingCanDieAlternative.UI
                         layout.spacing = 20;
                     }
 
-                    // Spike traps setting
-                    var spikeTrapsSelector = UIHelper.CreateYesNoSelector(globalSettingsPanel.transform, "SpikeTrapsSelector",
-                        "Allow spike traps to kill enemies:", Plugin.AllowSpikeTrapsToKillEnemies.Value, (allowSpikeTraps) => {
-                            Plugin.AllowSpikeTrapsToKillEnemies.Value = allowSpikeTraps;
-                            Plugin.Instance.Config.Save();
-                            PlayConfirmSFX();
-                            Plugin.LogInfo($"Spike trap kills {(allowSpikeTraps ? "enabled" : "disabled")}");
-                        });
-
-                    if (spikeTrapsSelector != null)
-                    {
-                        var spikeTrapsRect = spikeTrapsSelector.GetComponent<RectTransform>();
-                        spikeTrapsRect.sizeDelta = new Vector2(0, 30);
-                    }
-
-                    var spikeDescPanel = new GameObject("SpikeDescPanel");
-                    spikeDescPanel.transform.SetParent(globalSettingsPanel.transform, false);
-                    var spikeDescRect = spikeDescPanel.AddComponent<RectTransform>();
-                    spikeDescRect.sizeDelta = new Vector2(0, 40);
-                    var spikeDescText = UIHelper.CreateText(spikeDescPanel.transform, "SpikeDescText",
-                        "When disabled, spike roof traps will not be able to kill enemies managed by this mod.",
-                        TextAlignmentOptions.Left);
-                    var spikeDescTextComp = spikeDescText?.GetComponent<TextMeshProUGUI>();
-                    if (spikeDescTextComp != null)
-                    {
-                        spikeDescTextComp.fontSize = 12;
-                        spikeDescTextComp.color = new Color(0.7f, 0.7f, 0.7f, 1f);
-                        spikeDescTextComp.fontStyle = FontStyles.Italic;
-                    }
-
-                    // Immortal enemy protection setting
-                    var immortalProtectionSelector = UIHelper.CreateYesNoSelector(globalSettingsPanel.transform, "ImmortalProtectionSelector",
-                        "Protect immortal enemies from insta-kill effects:", Plugin.ProtectImmortalEnemiesFromInstaKill.Value, (protectImmortals) => {
-                            Plugin.ProtectImmortalEnemiesFromInstaKill.Value = protectImmortals;
-                            Plugin.Instance.Config.Save();
-                            PlayConfirmSFX();
-                            Plugin.LogInfo($"Immortal enemy insta-kill protection {(protectImmortals ? "enabled" : "disabled")}");
-                        });
-
-                    if (immortalProtectionSelector != null)
-                    {
-                        var immortalProtectionRect = immortalProtectionSelector.GetComponent<RectTransform>();
-                        immortalProtectionRect.sizeDelta = new Vector2(0, 30);
-                    }
-
-                    var immortalDescPanel = new GameObject("ImmortalDescPanel");
-                    immortalDescPanel.transform.SetParent(globalSettingsPanel.transform, false);
-                    var immortalDescRect = immortalDescPanel.AddComponent<RectTransform>();
-                    immortalDescRect.sizeDelta = new Vector2(0, 40);
-                    var immortalDescText = UIHelper.CreateText(immortalDescPanel.transform, "ImmortalDescText",
-                        "When disabled, immortal enemies can still be killed by insta-kill effects like spike traps.",
-                        TextAlignmentOptions.Left);
-                    var immortalDescTextComp = immortalDescText?.GetComponent<TextMeshProUGUI>();
-                    if (immortalDescTextComp != null)
-                    {
-                        immortalDescTextComp.fontSize = 12;
-                        immortalDescTextComp.color = new Color(0.7f, 0.7f, 0.7f, 1f);
-                        immortalDescTextComp.fontStyle = FontStyles.Italic;
-                    }
-
-                    // Old Birds protection setting
-                    var oldBirdsProtectionSelector = UIHelper.CreateYesNoSelector(globalSettingsPanel.transform, "OldBirdsProtectionSelector",
-                        "Protect Old Birds from their own rockets:", Plugin.ProtectOldBirdsFromOwnRockets.Value, (protectOldBirds) => {
-                            Plugin.ProtectOldBirdsFromOwnRockets.Value = protectOldBirds;
-                            Plugin.Instance.Config.Save();
-                            PlayConfirmSFX();
-                            Plugin.LogInfo($"Old Birds rocket self-damage protection {(protectOldBirds ? "enabled" : "disabled")}");
-                        });
-
-                    if (oldBirdsProtectionSelector != null)
-                    {
-                        var oldBirdsRect = oldBirdsProtectionSelector.GetComponent<RectTransform>();
-                        oldBirdsRect.sizeDelta = new Vector2(0, 30);
-                    }
-
-                    var oldBirdDescPanel = new GameObject("OldBirdDescPanel");
-                    oldBirdDescPanel.transform.SetParent(globalSettingsPanel.transform, false);
-                    var oldBirdDescRect = oldBirdDescPanel.AddComponent<RectTransform>();
-                    oldBirdDescRect.sizeDelta = new Vector2(0, 40);
-                    var oldBirdDescText = UIHelper.CreateText(oldBirdDescPanel.transform, "OldBirdDescText",
-                        "When enabled, Old Birds will not take damage from their own rocket explosions. Works with FairAI.",
-                        TextAlignmentOptions.Left);
-                    var oldBirdDescTextComp = oldBirdDescText?.GetComponent<TextMeshProUGUI>();
-                    if (oldBirdDescTextComp != null)
-                    {
-                        oldBirdDescTextComp.fontSize = 12;
-                        oldBirdDescTextComp.color = new Color(0.7f, 0.7f, 0.7f, 1f);
-                        oldBirdDescTextComp.fontStyle = FontStyles.Italic;
-                    }
-
-                    // Mute dead enemies setting
-                    var muteDeadEnemiesSelector = UIHelper.CreateYesNoSelector(globalSettingsPanel.transform, "MuteDeadEnemiesSelector",
-                        "Mute dead enemies:", Plugin.MuteDeadEnemies.Value, (mute) => {
-                            Plugin.MuteDeadEnemies.Value = mute;
-                            Plugin.Instance.Config.Save();
-                            PlayConfirmSFX();
-                            Plugin.LogInfo($"Mute dead enemies {(mute ? "enabled" : "disabled")}");
-                        });
-
-                    if (muteDeadEnemiesSelector != null)
-                    {
-                        var muteRect = muteDeadEnemiesSelector.GetComponent<RectTransform>();
-                        muteRect.sizeDelta = new Vector2(0, 30);
-                    }
-
-                    var muteDescPanel = new GameObject("MuteDescPanel");
-                    muteDescPanel.transform.SetParent(globalSettingsPanel.transform, false);
-                    var muteDescRect = muteDescPanel.AddComponent<RectTransform>();
-                    muteDescRect.sizeDelta = new Vector2(0, 40);
-                    var muteDescText = UIHelper.CreateText(muteDescPanel.transform, "MuteDescText",
-                        "When enabled, all audio sources on enemy corpses will be silenced. Only applies when despawn is disabled.",
-                        TextAlignmentOptions.Left);
-                    var muteDescTextComp = muteDescText?.GetComponent<TextMeshProUGUI>();
-                    if (muteDescTextComp != null)
-                    {
-                        muteDescTextComp.fontSize = 12;
-                        muteDescTextComp.color = new Color(0.7f, 0.7f, 0.7f, 1f);
-                        muteDescTextComp.fontStyle = FontStyles.Italic;
-                    }
-
-                    // Bulk action selectors
-                    var bulkEnabledSelector = UIHelper.CreateBulkActionSelector(globalSettingsPanel.transform, "BulkEnabledSelector",
-                        "Set ALL Enemies to:", "Affected", "Unaffected",
-                        (option) => { ShowBulkActionConfirmation("Set ALL Enemies to: Affected", () => { SetAllEnemiesEnabled(true); }); },
-                        (option) => { ShowBulkActionConfirmation("Set ALL Enemies to: Unaffected", () => { SetAllEnemiesEnabled(false); }); });
-
-                    if (bulkEnabledSelector != null)
-                    {
-                        var bulkEnabledRect = bulkEnabledSelector.GetComponent<RectTransform>();
-                        bulkEnabledRect.sizeDelta = new Vector2(0, 30);
-                    }
-
-                    var bulkKillableSelector = UIHelper.CreateBulkActionSelector(globalSettingsPanel.transform, "BulkKillableSelector",
-                        "Set ALL Enemies to:", "Killable", "Unkillable",
-                        (option) => { ShowBulkActionConfirmation("Set ALL Enemies to: Killable", () => { SetAllEnemiesKillable(true); }); },
-                        (option) => { ShowBulkActionConfirmation("Set ALL Enemies to: Unkillable", () => { SetAllEnemiesKillable(false); }); });
-
-                    if (bulkKillableSelector != null)
-                    {
-                        var bulkKillableRect = bulkKillableSelector.GetComponent<RectTransform>();
-                        bulkKillableRect.sizeDelta = new Vector2(0, 30);
-                    }
-
-                    var bulkDespawnSelector = UIHelper.CreateBulkActionSelector(globalSettingsPanel.transform, "BulkDespawnSelector",
-                        "Set ALL Enemies corpses to:", "Despawn", "Keep",
-                        (option) => { ShowBulkActionConfirmation("Set ALL Enemies corpses to: Despawn", () => { SetAllEnemiesDespawn(true); }); },
-                        (option) => { ShowBulkActionConfirmation("Set ALL Enemies corpses to: Keep", () => { SetAllEnemiesDespawn(false); }); });
-
-                    if (bulkDespawnSelector != null)
-                    {
-                        var bulkDespawnRect = bulkDespawnSelector.GetComponent<RectTransform>();
-                        bulkDespawnRect.sizeDelta = new Vector2(0, 30);
-                    }
-
-                    Plugin.LogInfo("Global settings panel created successfully");
+                    // Populate the currently selected tab (defaults to Rules)
+                    SetGlobalSettingsTab(selectedGlobalTab);
             }
             catch (Exception ex)
             {
                 Plugin.LogError($"Error creating global settings panel: {ex.Message}");
             }
         }
+
+        private void SetGlobalSettingsTab(GlobalSettingsTab tab)
+        {
+            selectedGlobalTab = tab;
+            UpdateGlobalTabButtonStyles();
+            if (globalSettingsContentRoot == null) return;
+
+            // Wipe the previous tab's controls
+            for (int i = globalSettingsContentRoot.transform.childCount - 1; i >= 0; i--)
+            {
+                Destroy(globalSettingsContentRoot.transform.GetChild(i).gameObject);
+            }
+
+            switch (tab)
+            {
+                case GlobalSettingsTab.Rules: PopulateRulesTab(globalSettingsContentRoot); break;
+                case GlobalSettingsTab.HealthBar: PopulateHealthBarTab(globalSettingsContentRoot); break;
+                case GlobalSettingsTab.BulkConfig: PopulateBulkConfigTab(globalSettingsContentRoot); break;
+            }
+
+            PlayConfirmSFX();
+
+            // Reset scroll back to top whenever the tab changes
+            var sr = globalSettingsContentRoot.GetComponentInParent<ScrollRect>();
+            if (sr != null) sr.verticalNormalizedPosition = 1f;
+        }
+
+        private void UpdateGlobalTabButtonStyles()
+        {
+            ApplyTabStyle(globalRulesTabButton, selectedGlobalTab == GlobalSettingsTab.Rules);
+            ApplyTabStyle(globalHealthBarTabButton, selectedGlobalTab == GlobalSettingsTab.HealthBar);
+            ApplyTabStyle(globalBulkTabButton, selectedGlobalTab == GlobalSettingsTab.BulkConfig);
+        }
+
+        private static void ApplyTabStyle(GameObject buttonObj, bool active)
+        {
+            if (buttonObj == null) return;
+            var button = buttonObj.GetComponent<Button>();
+            var label = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
+            if (button != null)
+            {
+                ColorBlock c = button.colors;
+                c.normalColor = active ? new Color(0.5f, 0.5f, 0.5f, 1f) : new Color(0.2f, 0.2f, 0.2f, 1f);
+                c.highlightedColor = active ? new Color(0.6f, 0.6f, 0.6f, 1f) : new Color(0.3f, 0.3f, 0.3f, 1f);
+                button.colors = c;
+            }
+            if (label != null)
+            {
+                label.color = active ? Color.white : new Color(1f, 0.9f, 0.5f, 1f);
+                label.fontStyle = active ? FontStyles.Bold : FontStyles.Normal;
+            }
+        }
+
+        // Helper that adds a description line below a setting row.
+        private static void AddDescription(GameObject parent, string name, string text)
+        {
+            var descPanel = new GameObject(name);
+            descPanel.transform.SetParent(parent.transform, false);
+            var descRect = descPanel.AddComponent<RectTransform>();
+            descRect.sizeDelta = new Vector2(0, 40);
+            var descText = UIHelper.CreateText(descPanel.transform, name + "Text", text, TextAlignmentOptions.Left);
+            var tmp = descText?.GetComponent<TextMeshProUGUI>();
+            if (tmp != null)
+            {
+                tmp.fontSize = 12;
+                tmp.color = new Color(0.7f, 0.7f, 0.7f, 1f);
+                tmp.fontStyle = FontStyles.Italic;
+            }
+        }
+
+        private void PopulateRulesTab(GameObject content)
+        {
+            // Spike traps setting
+            var spikeTrapsSelector = UIHelper.CreateYesNoSelector(content.transform, "SpikeTrapsSelector",
+                "Allow spike traps to kill enemies:", Plugin.AllowSpikeTrapsToKillEnemies.Value, (allowSpikeTraps) => {
+                    Plugin.AllowSpikeTrapsToKillEnemies.Value = allowSpikeTraps;
+                    Plugin.Instance.Config.Save();
+                    PlayConfirmSFX();
+                    Plugin.LogInfo($"Spike trap kills {(allowSpikeTraps ? "enabled" : "disabled")}");
+                });
+            if (spikeTrapsSelector != null) spikeTrapsSelector.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 30);
+            AddDescription(content, "SpikeDescPanel",
+                "When disabled, spike roof traps will not be able to kill enemies managed by this mod.");
+
+            // Immortal enemy protection setting
+            var immortalProtectionSelector = UIHelper.CreateYesNoSelector(content.transform, "ImmortalProtectionSelector",
+                "Protect immortal enemies from insta-kill effects:", Plugin.ProtectImmortalEnemiesFromInstaKill.Value, (protectImmortals) => {
+                    Plugin.ProtectImmortalEnemiesFromInstaKill.Value = protectImmortals;
+                    Plugin.Instance.Config.Save();
+                    PlayConfirmSFX();
+                    Plugin.LogInfo($"Immortal enemy insta-kill protection {(protectImmortals ? "enabled" : "disabled")}");
+                });
+            if (immortalProtectionSelector != null) immortalProtectionSelector.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 30);
+            AddDescription(content, "ImmortalDescPanel",
+                "When disabled, immortal enemies can still be killed by insta-kill effects like spike traps.");
+
+            // Old Birds protection setting
+            var oldBirdsProtectionSelector = UIHelper.CreateYesNoSelector(content.transform, "OldBirdsProtectionSelector",
+                "Protect Old Birds from their own rockets:", Plugin.ProtectOldBirdsFromOwnRockets.Value, (protectOldBirds) => {
+                    Plugin.ProtectOldBirdsFromOwnRockets.Value = protectOldBirds;
+                    Plugin.Instance.Config.Save();
+                    PlayConfirmSFX();
+                    Plugin.LogInfo($"Old Birds rocket self-damage protection {(protectOldBirds ? "enabled" : "disabled")}");
+                });
+            if (oldBirdsProtectionSelector != null) oldBirdsProtectionSelector.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 30);
+            AddDescription(content, "OldBirdDescPanel",
+                "When enabled, Old Birds will not take damage from their own rocket explosions. Works with FairAI.");
+
+            // Mute dead enemies setting
+            var muteDeadEnemiesSelector = UIHelper.CreateYesNoSelector(content.transform, "MuteDeadEnemiesSelector",
+                "Mute dead enemies:", Plugin.MuteDeadEnemies.Value, (mute) => {
+                    Plugin.MuteDeadEnemies.Value = mute;
+                    Plugin.Instance.Config.Save();
+                    PlayConfirmSFX();
+                    Plugin.LogInfo($"Mute dead enemies {(mute ? "enabled" : "disabled")}");
+                });
+            if (muteDeadEnemiesSelector != null) muteDeadEnemiesSelector.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 30);
+            AddDescription(content, "MuteDescPanel",
+                "When enabled, all audio sources on enemy corpses will be silenced. Only applies when despawn is disabled.");
+        }
+
+        private void PopulateHealthBarTab(GameObject content)
+        {
+            // Enemy health bar display setting
+            var hpModeNames = new[] { "Off", "Number", "Bar", "Both" };
+            int currentHpModeIndex = (int)UIConfiguration.Instance.GetHealthBarMode();
+            var healthBarSelector = UIHelper.CreateCycleSelector(content.transform, "HealthBarSelector",
+                "Enemy health bar:", hpModeNames, currentHpModeIndex, (newIndex) => {
+                    UIConfiguration.Instance.SetHealthBarMode((UIConfiguration.HealthBarDisplayMode)newIndex);
+                    Plugin.Instance.Config.Save();
+                    PlayConfirmSFX();
+                });
+            if (healthBarSelector != null) healthBarSelector.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 30);
+            AddDescription(content, "HealthBarDescPanel",
+                "Show a floating health indicator above damageable enemies. Click to cycle: Off / Number / Bar / Both.");
+
+            // Health bar size setting
+            var hpSizeNames = new[] { "Small", "Medium", "Large" };
+            int currentHpSizeIndex = (int)UIConfiguration.Instance.GetHealthBarSize();
+            var healthBarSizeSelector = UIHelper.CreateCycleSelector(content.transform, "HealthBarSizeSelector",
+                "Health bar size:", hpSizeNames, currentHpSizeIndex, (newIndex) => {
+                    UIConfiguration.Instance.SetHealthBarSize((UIConfiguration.HealthBarSize)newIndex);
+                    Plugin.Instance.Config.Save();
+                    PlayConfirmSFX();
+                });
+            if (healthBarSizeSelector != null) healthBarSizeSelector.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 30);
+            AddDescription(content, "HealthBarSizeDescPanel",
+                "Scales both the bar and the number together. Click to cycle: Small / Medium / Large.");
+
+            // Hide health bar for full HP enemies setting
+            var hideFullHpSelector = UIHelper.CreateYesNoSelector(content.transform, "HideFullHpSelector",
+                "Hide Health Bar for full HP Enemies:", UIConfiguration.Instance.ShouldHideHealthBarForFullHp(), (hide) => {
+                    UIConfiguration.Instance.SetHideHealthBarForFullHp(hide);
+                    Plugin.Instance.Config.Save();
+                    PlayConfirmSFX();
+                });
+            if (hideFullHpSelector != null) hideFullHpSelector.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 30);
+            AddDescription(content, "HideFullHpDescPanel",
+                "When enabled, the health bar only appears once an enemy has taken damage. Avoids revealing enemies that are hiding.");
+
+            // Health bar visibility range setting
+            var hpRangeNames = new[] { "Close", "Medium", "Far" };
+            int currentHpRangeIndex = (int)UIConfiguration.Instance.GetHealthBarRange();
+            var healthBarRangeSelector = UIHelper.CreateCycleSelector(content.transform, "HealthBarRangeSelector",
+                "Health bar range:", hpRangeNames, currentHpRangeIndex, (newIndex) => {
+                    UIConfiguration.Instance.SetHealthBarRange((UIConfiguration.HealthBarVisibilityDistance)newIndex);
+                    Plugin.Instance.Config.Save();
+                    PlayConfirmSFX();
+                });
+            if (healthBarRangeSelector != null) healthBarRangeSelector.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 30);
+            AddDescription(content, "HealthBarRangeDescPanel",
+                "Maximum distance at which the health bar is visible. Click to cycle: Close / Medium / Far.");
+        }
+
+        private void PopulateBulkConfigTab(GameObject content)
+        {
+            var bulkEnabledSelector = UIHelper.CreateBulkActionSelector(content.transform, "BulkEnabledSelector",
+                "Set ALL Enemies to:", "Affected", "Unaffected",
+                (option) => { ShowBulkActionConfirmation("Set ALL Enemies to: Affected", () => { SetAllEnemiesEnabled(true); }); },
+                (option) => { ShowBulkActionConfirmation("Set ALL Enemies to: Unaffected", () => { SetAllEnemiesEnabled(false); }); });
+            if (bulkEnabledSelector != null) bulkEnabledSelector.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 30);
+
+            var bulkKillableSelector = UIHelper.CreateBulkActionSelector(content.transform, "BulkKillableSelector",
+                "Set ALL Enemies to:", "Killable", "Unkillable",
+                (option) => { ShowBulkActionConfirmation("Set ALL Enemies to: Killable", () => { SetAllEnemiesKillable(true); }); },
+                (option) => { ShowBulkActionConfirmation("Set ALL Enemies to: Unkillable", () => { SetAllEnemiesKillable(false); }); });
+            if (bulkKillableSelector != null) bulkKillableSelector.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 30);
+
+            var bulkDespawnSelector = UIHelper.CreateBulkActionSelector(content.transform, "BulkDespawnSelector",
+                "Set ALL Enemies corpses to:", "Despawn", "Keep",
+                (option) => { ShowBulkActionConfirmation("Set ALL Enemies corpses to: Despawn", () => { SetAllEnemiesDespawn(true); }); },
+                (option) => { ShowBulkActionConfirmation("Set ALL Enemies corpses to: Keep", () => { SetAllEnemiesDespawn(false); }); });
+            if (bulkDespawnSelector != null) bulkDespawnSelector.GetComponent<RectTransform>().sizeDelta = new Vector2(0, 30);
+        }
+
         private void CreateEnemyListEntry(EnemyConfigData config)
         {
             GameObject entryObj;

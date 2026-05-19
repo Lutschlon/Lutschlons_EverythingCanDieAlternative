@@ -8,6 +8,7 @@ using Unity.Netcode;
 using LethalNetworkAPI;
 using EverythingCanDieAlternative.ModCompatibility;
 using EverythingCanDieAlternative.ModCompatibility.Handlers;
+using EverythingCanDieAlternative.UI;
 using static EverythingCanDieAlternative.Plugin;
 
 namespace EverythingCanDieAlternative
@@ -369,6 +370,10 @@ namespace EverythingCanDieAlternative
 
                     // Not immortal
                     immortalEnemies[instanceId] = false;
+
+                    // Attach the floating health bar UI (visibility is gated by config at runtime)
+                    try { EnemyHealthBarUI.Attach(enemy); }
+                    catch (Exception uiEx) { Plugin.Log.LogWarning($"Failed to attach health bar UI to {enemyName}: {uiEx.Message}"); }
 
                     Plugin.LogInfo($"Setup enemy {enemyName} (ID: {instanceId}, NetID: {enemy.NetworkObjectId}, Index: {enemy.thisEnemyIndex}) with {configHealth} networked health");
                 }

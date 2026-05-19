@@ -22,6 +22,7 @@ namespace EverythingCanDieAlternative
     [BepInDependency("com.github.zehsteam.Hitmarker", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("LethalMin", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("HexiBetterShotgunFixed", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("fandovec03.NaturalSelection", BepInDependency.DependencyFlags.SoftDependency)]
     public class Plugin : BaseUnityPlugin
     {
         public static Plugin Instance { get; private set; }
@@ -328,6 +329,6 @@ namespace EverythingCanDieAlternative
     {
         public const string PLUGIN_GUID = "nwnt.EverythingCanDieAlternative";
         public const string PLUGIN_NAME = "EverythingCanDieAlternative";
-        public const string PLUGIN_VERSION = "1.1.71";
+        public const string PLUGIN_VERSION = "1.1.81";
     }
 }

@@ -19,6 +19,7 @@ namespace EverythingCanDieAlternative.ModCompatibility
         public Handlers.SellBodiesCompatibility SellBodies { get; private set; }
         public Handlers.BrutalCompanyMinusCompatibility BrutalCompanyMinus { get; private set; }
         public Handlers.LastResortKillerCompatibility LastResortKiller { get; private set; }
+        public Handlers.NaturalSelectionCompatibility NaturalSelection { get; private set; }
 
         private ModCompatibilityManager()
         {
@@ -41,19 +42,20 @@ namespace EverythingCanDieAlternative.ModCompatibility
                 SellBodies = GetHandler<Handlers.SellBodiesCompatibility>("Entity378.sellbodies");
                 BrutalCompanyMinus = GetHandler<Handlers.BrutalCompanyMinusCompatibility>("SoftDiamond.BrutalCompanyMinusExtraReborn");
                 LastResortKiller = GetHandler<Handlers.LastResortKillerCompatibility>("nwnt.EverythingCanDieAlternative.LastResortKiller");
+                NaturalSelection = GetHandler<Handlers.NaturalSelectionCompatibility>("fandovec03.NaturalSelection");
 
                 // Initialize all registered handlers - with additional error handling
                 foreach (var handler in _handlers.Values)
                 {
                     try
                     {
-                        //Plugin.LogInfo($"Initializing {handler.ModName} compatibility handler...");
                         handler.Initialize();
-                        Plugin.LogInfo($"Successfully initialized {handler.ModName} compatibility handler");
+                        // Only log handlers that are actually detected/installed
+                        if (handler.IsInstalled)
+                            Plugin.Log.LogInfo($"[Compat] {handler.ModName} detected and active");
                     }
                     catch (Exception ex)
                     {
-                        // More detailed error logging
                         Plugin.Log.LogError($"Error initializing compatibility for {handler.ModName}: {ex.Message}");
                         Plugin.Log.LogError($"Stack trace: {ex.StackTrace}");
                     }
@@ -82,6 +84,7 @@ namespace EverythingCanDieAlternative.ModCompatibility
                 SafeRegisterHandler(() => new Handlers.HitmarkerCompatibility(), "Hitmarker");
                 SafeRegisterHandler(() => new Handlers.LethalMinCompatibility(), "NoteBoxz.LethalMin");
                 SafeRegisterHandler(() => new Handlers.HexiBetterShotgunCompatibility(), "HexiBetterShotgunFixed");
+                SafeRegisterHandler(() => new Handlers.NaturalSelectionCompatibility(), "fandovec03.NaturalSelection");
 
             }
             catch (Exception ex)
