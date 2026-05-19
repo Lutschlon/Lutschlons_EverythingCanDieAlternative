@@ -360,6 +360,130 @@ namespace EverythingCanDieAlternative.UI
             }
         }
 
+        // Creates a vertical scrollbar (track + handle) and links it to the given ScrollRect.
+        // Caller is responsible for positioning the returned object in its parent.
+        public static GameObject CreateVerticalScrollbar(Transform parent, string name, ScrollRect scrollRect)
+        {
+            GameObject sbObj = new GameObject(name, typeof(RectTransform));
+            sbObj.transform.SetParent(parent, false);
+
+            // Track background
+            Image trackImage = sbObj.AddComponent<Image>();
+            trackImage.color = new Color(0.05f, 0.05f, 0.05f, 0.6f);
+
+            Scrollbar scrollbar = sbObj.AddComponent<Scrollbar>();
+            scrollbar.direction = Scrollbar.Direction.BottomToTop;
+
+            // Sliding area fills the track with a small inset
+            GameObject slidingArea = new GameObject("Sliding Area", typeof(RectTransform));
+            slidingArea.transform.SetParent(sbObj.transform, false);
+            RectTransform saRT = (RectTransform)slidingArea.transform;
+            saRT.anchorMin = Vector2.zero;
+            saRT.anchorMax = Vector2.one;
+            saRT.pivot = new Vector2(0.5f, 0.5f);
+            saRT.offsetMin = new Vector2(2, 2);
+            saRT.offsetMax = new Vector2(-2, -2);
+
+            // Handle is sized/positioned by the Scrollbar component
+            GameObject handle = new GameObject("Handle", typeof(RectTransform));
+            handle.transform.SetParent(slidingArea.transform, false);
+            RectTransform hRT = (RectTransform)handle.transform;
+            hRT.anchorMin = Vector2.zero;
+            hRT.anchorMax = Vector2.one;
+            hRT.pivot = new Vector2(0.5f, 0.5f);
+            hRT.offsetMin = Vector2.zero;
+            hRT.offsetMax = Vector2.zero;
+            Image handleImage = handle.AddComponent<Image>();
+            handleImage.color = new Color(0.55f, 0.55f, 0.55f, 0.95f);
+
+            scrollbar.targetGraphic = handleImage;
+            scrollbar.handleRect = hRT;
+
+            ColorBlock sbColors = scrollbar.colors;
+            sbColors.normalColor = new Color(0.55f, 0.55f, 0.55f, 1f);
+            sbColors.highlightedColor = new Color(0.7f, 0.7f, 0.7f, 1f);
+            sbColors.pressedColor = new Color(0.4f, 0.4f, 0.4f, 1f);
+            scrollbar.colors = sbColors;
+
+            if (scrollRect != null)
+            {
+                scrollRect.verticalScrollbar = scrollbar;
+                scrollRect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.Permanent;
+            }
+
+            return sbObj;
+        }
+
+        // Creates a label + single button that cycles through the given options on click.
+        public static GameObject CreateCycleSelector(
+            Transform parent,
+            string name,
+            string label,
+            string[] options,
+            int initialIndex,
+            UnityEngine.Events.UnityAction<int> onValueChanged)
+        {
+            GameObject selectorObj = new GameObject(name);
+            selectorObj.transform.SetParent(parent, false);
+
+            RectTransform rectTransform = selectorObj.AddComponent<RectTransform>();
+            rectTransform.anchorMin = new Vector2(0, 0.5f);
+            rectTransform.anchorMax = new Vector2(1, 0.5f);
+            rectTransform.pivot = new Vector2(0, 0.5f);
+            rectTransform.sizeDelta = new Vector2(0, UITheme.InputHeight);
+
+            HorizontalLayoutGroup layout = selectorObj.AddComponent<HorizontalLayoutGroup>();
+            layout.spacing = 10;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = true;
+            layout.childControlWidth = false;
+            layout.childControlHeight = true;
+            layout.padding = new RectOffset(0, 0, 0, 0);
+
+            // Match the YES/NO selector dimensions so the cycle button's center aligns
+            // horizontally with the YES/NO button container's center (label 230 + spacing 10
+            // + button 120, button center at x=300).
+            GameObject labelObj = CreateText(selectorObj.transform, "Label", label, TextAlignmentOptions.Left);
+            RectTransform labelRect = labelObj.GetComponent<RectTransform>();
+            labelRect.sizeDelta = new Vector2(230, UITheme.InputHeight);
+
+            GameObject buttonObj = new GameObject("CycleButton");
+            buttonObj.transform.SetParent(selectorObj.transform, false);
+
+            RectTransform buttonRect = buttonObj.AddComponent<RectTransform>();
+            buttonRect.sizeDelta = new Vector2(120, UITheme.InputHeight);
+
+            Image buttonImage = buttonObj.AddComponent<Image>();
+            buttonImage.color = UITheme.ButtonColor;
+
+            Button button = buttonObj.AddComponent<Button>();
+            ColorBlock colors = button.colors;
+            colors.normalColor = UITheme.ButtonColor;
+            colors.highlightedColor = UITheme.ButtonHighlightColor;
+            colors.pressedColor = UITheme.ButtonPressedColor;
+            colors.disabledColor = UITheme.DisabledColor;
+            button.colors = colors;
+
+            int safeCount = (options != null && options.Length > 0) ? options.Length : 1;
+            int currentIndex = Mathf.Clamp(initialIndex, 0, safeCount - 1);
+            string initialText = (options != null && options.Length > 0) ? options[currentIndex] : string.Empty;
+
+            GameObject textObj = CreateText(buttonObj.transform, "Text", initialText, TextAlignmentOptions.Center);
+            TextMeshProUGUI buttonText = textObj.GetComponent<TextMeshProUGUI>();
+            buttonText.fontSize = UITheme.SmallFontSize;
+            buttonText.color = Color.white;
+
+            button.onClick.AddListener(() =>
+            {
+                if (options == null || options.Length == 0) return;
+                currentIndex = (currentIndex + 1) % options.Length;
+                buttonText.text = options[currentIndex];
+                onValueChanged?.Invoke(currentIndex);
+            });
+
+            return selectorObj;
+        }
+
         // Creates a numeric input field with up/down arrow buttons
         public static GameObject CreateNumericInputWithArrows(
     Transform parent,

@@ -83,7 +83,13 @@ namespace EverythingCanDieAlternative.UI
                 string value = trimmed.Substring(equalsPos + 1).Trim();
 
                 if (!string.IsNullOrWhiteSpace(key) && !string.IsNullOrWhiteSpace(value))
-                    _persistedScanNames[key.ToUpper()] = value.ToLower();
+                {
+                    // Sanitize so lookups (which always pass alphanumeric-only names) can find
+                    // entries that pre-existed in the config under the raw enemyName.
+                    string sanitizedKey = Plugin.RemoveInvalidCharacters(key).ToUpper();
+                    if (!string.IsNullOrEmpty(sanitizedKey))
+                        _persistedScanNames[sanitizedKey] = value.ToLower();
+                }
             }
 
             Plugin.LogInfo($"[EnemyAliases] Loaded {_persistedScanNames.Count} persisted scan names");
@@ -107,7 +113,13 @@ namespace EverythingCanDieAlternative.UI
                 string internalName = enemyType.enemyName;
                 if (string.IsNullOrWhiteSpace(internalName)) continue;
 
-                if (PersistedScanNames.ContainsKey(internalName.ToUpper())) continue;
+                // BepInEx forbids " = \\ \" ' \\n \\t [ ] " in config keys and rejects
+                // leading/trailing whitespace, Sanitize down to alphanumeric+upper, matching the convention
+                // used by config.Name elsewhere — keeps lookups consistent too.
+                string sanitizedKey = Plugin.RemoveInvalidCharacters(internalName).ToUpper();
+                if (string.IsNullOrEmpty(sanitizedKey)) continue;
+
+                if (PersistedScanNames.ContainsKey(sanitizedKey)) continue;
 
                 var scanNode = enemyType.enemyPrefab.GetComponentInChildren<ScanNodeProperties>();
                 if (scanNode == null || string.IsNullOrWhiteSpace(scanNode.headerText)) continue;
@@ -116,11 +128,11 @@ namespace EverythingCanDieAlternative.UI
 
                 Plugin.Instance.Config.Bind(
                     "EnemyAliases",
-                    internalName,
+                    sanitizedKey,
                     displayName,
                     $"Display name discovered from prefab for {internalName}. Used as a search alias.");
 
-                PersistedScanNames[internalName.ToUpper()] = displayName.ToLower();
+                PersistedScanNames[sanitizedKey] = displayName.ToLower();
 
                 //Plugin.LogInfo($"[EnemyAliases] Discovered: '{internalName}' → '{displayName}'");
                 newEntries++;
