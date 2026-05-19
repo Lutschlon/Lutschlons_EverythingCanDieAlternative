@@ -1,3 +1,13 @@
+## 1.1.81
+- Fixed an error during lobby start, that occured when an enemy name contained a special character, the error did not affect gameplay <details><summary>Click for details</summary>Error in StartOfRoundPostfix: Cannot use any of the following characters in section and key names: = \n \t \ " ' [ ]
+Parameter name: key <br>Example enemies: Doctor's Brain , Doctor's Corpse <br>  - Thanks to `Potato Boy` for reporting it on Discord!</details>
+
+## 1.1.80
+- Added a feature to show a health bar above enemies, the healtbar is NOT shown by default, its settings are found in the `Global Settings` under `Health Bar` (more info can be found in the ReadMe)
+- Added beta compatibility for [NaturalSelection](https://thunderstore.io/c/lethal-company/p/Fandovec03/Natural_selection/) by Fandovec03 <details><summary>Click for details</summary>Enemies like Blob and Spider can now damage other enemies, iam not sure if every interaction is working properly yet<br> - Thanks to `SpinoRavenger` for reporting it on Discord!</details>
+- Updated the Configuration-UI to better display different `Global Settings`, the UI can now also be closed by pressing ESC
+- Updated ReadMe
+
 ## 1.1.71
 - Recompiled for V81 with updated dependencies
 - Optimized some under the hood systems for better performance
