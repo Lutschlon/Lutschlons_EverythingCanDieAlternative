@@ -1,5 +1,5 @@
 ## 1.1.82
-- Added beta compatibility for [CodeRebirth](https://thunderstore.io/c/lethal-company/p/XuXiaolan/CodeRebirth/) by XuXiaolan <details><summary>Click for details</summary>The `Oxidizer` flamethrower now deals damage to enemies, respecting the ECDA settings. Both the sustained flame and the charged exhaust blast are tracked.<br> - Thanks to `SpinoRavenger` for reporting it on Discord!</details>
+- Added beta compatibility for [CodeRebirth](https://thunderstore.io/c/lethal-company/p/XuXiaolan/CodeRebirth/) by XuXiaolan <details><summary>Click for details</summary>The `Oxidizer` flamethrower primary fire now deals damage to enemies<br> - Thanks to `SpinoRavenger` for reporting it on Discord!</details>
 - `Known Issue: Health Bar doesnt work for clients, only for the host`
 - `Known Issue: Some Ghost Girl sounds remain after her death under certain circumstances`
 
