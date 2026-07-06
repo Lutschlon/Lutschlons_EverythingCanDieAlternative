@@ -1,4 +1,4 @@
-# EverythingCanDieAlternative 1.1.81
+# EverythingCanDieAlternative 1.1.82
 
 This mod makes every enemy in the game killable with configurable HP. It aims to work with any modded weapon and any modded enemy.
 - Easily configurable via in game configuration menu
@@ -68,6 +68,7 @@ I implemented some compatibilities for popular mods. Let me know if you have any
 |[LethalMin](https://thunderstore.io/c/lethal-company/p/NotezyTeam/LethalMin/)|||
 |[HexiBetterShotgunFixed](https://thunderstore.io/c/lethal-company/p/Entity378/HexiBetterShotgunFixed/)|||
 |[Natural selection](https://thunderstore.io/c/lethal-company/p/Fandovec03/Natural_selection/)|||
+|[CodeRebirth](https://thunderstore.io/c/lethal-company/p/XuXiaolan/CodeRebirth/)|||
 
 ## Report Bugs
 Found a bug? 

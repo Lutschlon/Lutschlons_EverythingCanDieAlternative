@@ -1,3 +1,8 @@
+## 1.1.82
+- Added compatibility for [CodeRebirth](https://thunderstore.io/c/lethal-company/p/XuXiaolan/CodeRebirth/) by XuXiaolan <details><summary>Click for details</summary>The `Oxidizer` flamethrower primary fire now deals damage to enemies<br> - Thanks to `SpinoRavenger` for reporting it on Discord!</details>
+- `Known Issue: Health Bar doesnt work for clients, only for the host`
+- `Known Issue: Some Ghost Girl sounds remain after her death under certain circumstances`
+
 ## 1.1.81
 - Fixed an error during lobby start, that occured when an enemy name contained a special character, the error did not affect gameplay <details><summary>Click for details</summary>Error in StartOfRoundPostfix: Cannot use any of the following characters in section and key names: = \n \t \ " ' [ ]
 Parameter name: key <br>Example enemies: Doctor's Brain , Doctor's Corpse <br>  - Thanks to `Potato Boy` for reporting it on Discord!</details>

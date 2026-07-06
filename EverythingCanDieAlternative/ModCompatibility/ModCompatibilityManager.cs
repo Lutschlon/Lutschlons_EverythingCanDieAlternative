@@ -85,6 +85,7 @@ namespace EverythingCanDieAlternative.ModCompatibility
                 SafeRegisterHandler(() => new Handlers.LethalMinCompatibility(), "NoteBoxz.LethalMin");
                 SafeRegisterHandler(() => new Handlers.HexiBetterShotgunCompatibility(), "HexiBetterShotgunFixed");
                 SafeRegisterHandler(() => new Handlers.NaturalSelectionCompatibility(), "fandovec03.NaturalSelection");
+                SafeRegisterHandler(() => new Handlers.CodeRebirthCompatibility(), "CodeRebirth");
 
             }
             catch (Exception ex)
