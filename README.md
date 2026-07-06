@@ -68,6 +68,7 @@ I implemented some compatibilities for popular mods. Let me know if you have any
 |[LethalMin](https://thunderstore.io/c/lethal-company/p/NotezyTeam/LethalMin/)|||
 |[HexiBetterShotgunFixed](https://thunderstore.io/c/lethal-company/p/Entity378/HexiBetterShotgunFixed/)|||
 |[Natural selection](https://thunderstore.io/c/lethal-company/p/Fandovec03/Natural_selection/)|||
+|[CodeRebirth](https://thunderstore.io/c/lethal-company/p/XuXiaolan/CodeRebirth/)|||
 
 ## Report Bugs
 Found a bug? 
