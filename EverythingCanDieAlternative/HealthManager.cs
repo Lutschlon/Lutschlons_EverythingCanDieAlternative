@@ -15,9 +15,6 @@ namespace EverythingCanDieAlternative
 {
     public static class HealthManager
     {
-        // Add a counter to ensure unique network variable names
-        private static int networkVarCounter = 0;
-
         // Dictionary to map enemy instance IDs to their NetworkVariables
         private static readonly Dictionary<int, LNetworkVariable<float>> enemyHealthVars = new Dictionary<int, LNetworkVariable<float>>();
 
@@ -80,6 +77,15 @@ namespace EverythingCanDieAlternative
 
         public static void Initialize()
         {
+            // Dispose old network variables so their identifiers are freed for reuse.
+            // NetworkObjectIds restart in a new lobby, so stale variables from a previous
+            // lobby would otherwise be picked up by Connect with outdated values.
+            foreach (var oldHealthVar in enemyHealthVars.Values)
+            {
+                try { oldHealthVar?.Dispose(); }
+                catch (Exception ex) { Plugin.Log.LogWarning($"Error disposing health variable: {ex.Message}"); }
+            }
+
             // Clear all dictionaries
             enemyHealthVars.Clear();
             enemyMaxHealth.Clear();
@@ -309,45 +315,40 @@ namespace EverythingCanDieAlternative
                         configHealth = brutalCompanyHandler.ApplyBonusHp(configHealth);
                     }
 
-                    // Create a unique identifier for this enemy's health
-                    // Add a counter to ensure uniqueness over multiple moons
-                    string varName = $"ECDA_Health_{enemy.thisEnemyIndex}_{networkVarCounter++}";
+                    // Deterministic identifier for this enemy's health variable.
+                    // LethalNetworkAPI links variables across machines purely by identifier,
+                    // so host and clients MUST derive the exact same name. NetworkObjectId is
+                    // assigned by Netcode and identical on every machine. (A machine-local
+                    // counter previously desynced the names between host and clients, which
+                    // left client-side health values stuck at their initial value.)
+                    string varName;
+                    if (enemy.NetworkObject != null && enemy.NetworkObjectId != 0)
+                    {
+                        varName = $"ECDA_Health_{enemy.NetworkObjectId}";
+                    }
+                    else
+                    {
+                        // Fallback: thisEnemyIndex is also assigned by the game and synced
+                        varName = $"ECDA_Health_Index_{enemy.thisEnemyIndex}";
+                        Plugin.Log.LogWarning($"Enemy {enemyName} has no NetworkObject, using fallback health variable name {varName}");
+                    }
 
                     // Store the variable name for this instance ID
                     enemyNetworkVarNames[instanceId] = varName;
 
-                    Plugin.LogInfo($"Creating network variable {varName} for enemy {enemyName} (ID: {instanceId})");
+                    Plugin.LogInfo($"Connecting network variable {varName} for enemy {enemyName} (ID: {instanceId})");
 
-                    // Create the health variable
+                    // Connect the health variable
                     LNetworkVariable<float> healthVar;
                     if (!enemyHealthVars.TryGetValue(instanceId, out healthVar))
                     {
-                        try
-                        {
-                            // Create a new NetworkVariable
-                            healthVar = LNetworkVariable<float>.Create(varName, configHealth);
+                        // Connect instead of Create: creates the variable if it doesn't exist
+                        // yet, otherwise attaches to the existing one. Host and clients can
+                        // therefore initialize in any order without duplicate-identifier errors.
+                        healthVar = LNetworkVariable<float>.Connect(varName, configHealth,
+                            onValueChanged: (oldHealth, newHealth) => HandleHealthChange(instanceId, newHealth));
 
-                            // Subscribe to value changes
-                            healthVar.OnValueChanged += (oldHealth, newHealth) => HandleHealthChange(instanceId, newHealth);
-
-                            enemyHealthVars[instanceId] = healthVar;
-                        }
-                        catch (Exception ex)
-                        {
-                            Plugin.Log.LogError($"Failed to create network variable {varName}: {ex.Message}");
-
-                            // Try with a different name if there was a duplicate
-                            varName = $"ECDA_Health_{enemy.thisEnemyIndex}_{networkVarCounter++}_Retry";
-                            Plugin.LogInfo($"Retrying with new variable name: {varName}");
-
-                            // Store the new variable name
-                            enemyNetworkVarNames[instanceId] = varName;
-
-                            // Create the variable with the new name
-                            healthVar = LNetworkVariable<float>.Create(varName, configHealth);
-                            healthVar.OnValueChanged += (oldHealth, newHealth) => HandleHealthChange(instanceId, newHealth);
-                            enemyHealthVars[instanceId] = healthVar;
-                        }
+                        enemyHealthVars[instanceId] = healthVar;
                     }
                     else
                     {
@@ -415,7 +416,9 @@ namespace EverythingCanDieAlternative
             }
         }
 
-        // Handle health changes from NetworkVariable updates
+        // Handle health changes from NetworkVariable updates.
+        // NOTE: on clients this callback does not reliably fire for mid-session variables.
+        // The health bar reads GetEnemyHealth() directly instead of relying on this.
         private static void HandleHealthChange(int instanceId, float newHealth)
         {
             // Get the enemy
@@ -693,19 +696,60 @@ namespace EverythingCanDieAlternative
             }
 
             // Check if this enemy should despawn after death
-            if (DespawnConfiguration.Instance.ShouldDespawnEnemy(enemy.enemyType.enemyName))
-            {
-                StartDespawnProcess(enemy);
-            }
-            else if (Plugin.MuteDeadEnemies.Value)
+            bool willDespawn = DespawnConfiguration.Instance.ShouldDespawnEnemy(enemy.enemyType.enemyName);
+
+            // Silence the enemy regardless of whether it despawns. Some enemies (notably the
+            // Ghost Girl) drive audio sources that are NOT children of their GameObject, so
+            // destroying the enemy does not stop those sounds.
+            if (Plugin.MuteDeadEnemies.Value)
             {
                 Plugin.LogInfo($"Starting audio fade for {enemy.enemyType.enemyName}");
                 SilenceDeadEnemy(enemy);
             }
-            else
+
+            if (willDespawn)
             {
-                Plugin.LogInfo($"Silence skipped: MuteDeadEnemies={Plugin.MuteDeadEnemies.Value}, Despawn={DespawnConfiguration.Instance.ShouldDespawnEnemy(enemy.enemyType.enemyName)}");
+                StartDespawnProcess(enemy);
             }
+        }
+
+        // Collect every AudioSource belonging to an enemy.
+        //
+        // GetComponentsInChildren only finds sources parented under the enemy. Some enemies
+        // reference audio sources that live elsewhere in the scene — the Ghost Girl's
+        // heartbeatMusic is the player's heartbeat and is not part of her hierarchy — so those
+        // are added explicitly from their typed fields.
+        private static AudioSource[] CollectEnemyAudioSources(EnemyAI enemy)
+        {
+            var sources = new List<AudioSource>();
+
+            if (enemy == null || enemy.gameObject == null) return sources.ToArray();
+
+            // Standard case: everything parented under the enemy
+            sources.AddRange(enemy.GetComponentsInChildren<AudioSource>(includeInactive: true));
+
+            // Generic EnemyAI audio fields — these usually are children, but not always
+            AddAudioSource(sources, enemy.creatureVoice);
+            AddAudioSource(sources, enemy.creatureSFX);
+
+            // Ghost Girl: heartbeatMusic is a separate AudioSource outside her hierarchy.
+            // Her Update() also stops lerping its volume once isEnemyDead is true, which
+            // freezes the heartbeat at whatever volume it had when she died.
+            // (The muffled mixer snapshot is reset separately in Patches.KillEnemyPostfix,
+            // since that is global audio state and must be reset regardless of this setting.)
+            if (enemy is DressGirlAI dressGirl)
+            {
+                AddAudioSource(sources, dressGirl.heartbeatMusic);
+            }
+
+            return sources.ToArray();
+        }
+
+        // Add an audio source if it exists and is not already in the list
+        private static void AddAudioSource(List<AudioSource> list, AudioSource source)
+        {
+            if (source != null && !list.Contains(source))
+                list.Add(source);
         }
 
         public static void SilenceDeadEnemy(EnemyAI enemy)
@@ -718,8 +762,19 @@ namespace EverythingCanDieAlternative
                     Plugin.Log.LogError("SilenceDeadEnemy: StartOfRound.Instance is null");
                     return;
                 }
-                StartOfRound.Instance.StartCoroutine(DelayedSilence(enemy));
-                //Plugin.LogInfo($"DelayedSilence coroutine started for {enemy.enemyType.enemyName}");
+
+                // Collect the sources NOW, while the enemy still exists. If the enemy is about
+                // to despawn, its GameObject may be destroyed before the fade starts — but
+                // external sources (e.g. the Ghost Girl's heartbeat) survive that destruction
+                // and still need fading.
+                AudioSource[] sources = CollectEnemyAudioSources(enemy);
+                if (sources.Length == 0)
+                {
+                    Plugin.LogInfo($"No audio sources found for {enemy.enemyType?.enemyName}");
+                    return;
+                }
+
+                StartOfRound.Instance.StartCoroutine(DelayedSilence(sources, enemy.enemyType?.enemyName));
             }
             catch (Exception ex)
             {
@@ -727,27 +782,14 @@ namespace EverythingCanDieAlternative
             }
         }
 
-        private static IEnumerator DelayedSilence(EnemyAI enemy)
+        private static IEnumerator DelayedSilence(AudioSource[] sources, string enemyName)
         {
-            Plugin.LogInfo($"DelayedSilence started for {enemy?.enemyType?.enemyName}");
+            Plugin.LogInfo($"DelayedSilence started for {enemyName} ({sources.Length} audio sources)");
+
+            // Brief delay so death sounds can play before the fade begins
             yield return new WaitForSeconds(0.5f);
 
-            //Plugin.LogInfo($"DelayedSilence woke up, enemy null: {enemy == null}");
-
-            // Unity objects can be "null" via destroyed GameObject even if C# reference exists
-            if (enemy == null || enemy.gameObject == null) yield break;
-
-            try
-            {
-                AudioSource[] sources = enemy.GetComponentsInChildren<AudioSource>(includeInactive: true);
-                //Plugin.LogInfo($"Found {sources.Length} audio sources on {enemy.enemyType.enemyName}");
-                if (sources.Length == 0) yield break;
-                StartOfRound.Instance.StartCoroutine(FadeOutEnemyAudio(sources, 1f));
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log.LogError($"Error silencing dead enemy {enemy?.enemyType?.enemyName}: {ex.Message}");
-            }
+            yield return FadeOutEnemyAudio(sources, 1f);
         }
 
         private static IEnumerator FadeOutEnemyAudio(AudioSource[] sources, float duration)
@@ -916,6 +958,11 @@ namespace EverythingCanDieAlternative
             int instanceId = enemy.GetInstanceID();
 
             // Clean up our tracking dictionaries — Dictionary.Remove is a no-op if missing
+            if (enemyHealthVars.TryGetValue(instanceId, out var healthVarToDispose))
+            {
+                try { healthVarToDispose.Dispose(); }
+                catch (Exception ex) { Plugin.Log.LogWarning($"Error disposing health variable: {ex.Message}"); }
+            }
             enemyHealthVars.Remove(instanceId);
             enemyMaxHealth.Remove(instanceId);
             processedEnemies.Remove(instanceId);

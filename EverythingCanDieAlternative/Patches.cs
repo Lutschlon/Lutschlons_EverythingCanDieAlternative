@@ -70,6 +70,15 @@ namespace EverythingCanDieAlternative
                 harmony.Patch(spawnExplosionMethod, new HarmonyMethod(spawnExplosionPrefix), new HarmonyMethod(spawnExplosionPostfix));
                 Plugin.Log.LogInfo("Landmine.SpawnExplosion patched successfully");
 
+                // Patch EnemyAI.KillEnemy so every client silences dead enemies locally.
+                // KillEnemy runs on all machines via KillEnemyClientRpc, whereas our own
+                // KillEnemy/mute path is host-only — which left the haunted player (often a
+                // client) still hearing the Ghost Girl after her death.
+                var killEnemyMethod = AccessTools.Method(typeof(EnemyAI), "KillEnemy");
+                var killEnemyPostfix = AccessTools.Method(typeof(Patches), nameof(KillEnemyPostfix));
+                harmony.Patch(killEnemyMethod, null, new HarmonyMethod(killEnemyPostfix));
+                Plugin.Log.LogInfo("EnemyAI.KillEnemy patched successfully");
+
                 Plugin.Log.LogInfo("All Harmony patches applied successfully");
             }
             catch (Exception ex)
@@ -200,6 +209,49 @@ namespace EverythingCanDieAlternative
                 Plugin.Log.LogError($"Error in EnemyAIStartPostfix: {ex.Message}");
             }
 
+        }
+
+        // Runs on every client when an enemy dies (KillEnemy is invoked via KillEnemyClientRpc).
+        // Handles muting locally so clients are not left with looping enemy audio.
+        public static void KillEnemyPostfix(EnemyAI __instance)
+        {
+            try
+            {
+                if (__instance == null || __instance.enemyType == null) return;
+
+                // Ghost Girl: reset the muffled mixer snapshot she applies while haunting.
+                // She only restores it inside her staring state (behaviour state 0); if she
+                // dies while chasing, nothing ever resets it and ALL game audio stays muffled
+                // for the rest of the round. This is global audio state, so it must be reset
+                // regardless of the MuteDeadEnemies setting.
+                if (__instance is DressGirlAI)
+                {
+                    try
+                    {
+                        if (SoundManager.Instance != null)
+                        {
+                            SoundManager.Instance.SetDiageticMixerSnapshot();
+                            Plugin.LogInfo("Reset diagetic mixer snapshot after Ghost Girl death");
+                        }
+                    }
+                    catch (Exception snapshotEx)
+                    {
+                        Plugin.Log.LogWarning($"Failed to reset mixer snapshot for Ghost Girl: {snapshotEx.Message}");
+                    }
+                }
+
+                if (!Plugin.MuteDeadEnemies.Value) return;
+
+                // Only handle enemies our mod manages
+                string sanitizedName = HealthManager.GetSanitizedName(__instance);
+                if (!Plugin.IsModEnabledForEnemy(sanitizedName)) return;
+
+                HealthManager.SilenceDeadEnemy(__instance);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError($"Error in KillEnemyPostfix: {ex.Message}");
+            }
         }
 
         private static bool isProcessingLandmineExplosion = false;
