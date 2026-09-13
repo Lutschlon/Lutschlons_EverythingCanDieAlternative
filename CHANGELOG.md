@@ -1,7 +1,9 @@
+## 1.1.83
+- Fixed the Ghost Girl's muffled audio effect staying active after she was killed <details><summary>Click for details</summary>Killing the Ghost Girl while she was chasing left all game audio muffled for the rest of the round. Her sounds are now silenced properly on death. <br> - Thanks to `Sterworld` for reporting it on Discord!</details>
+- Fixed enemy health bars not updating for clients under some circumstances
+
 ## 1.1.82
 - Added compatibility for [CodeRebirth](https://thunderstore.io/c/lethal-company/p/XuXiaolan/CodeRebirth/) by XuXiaolan <details><summary>Click for details</summary>The `Oxidizer` flamethrower primary fire now deals damage to enemies<br> - Thanks to `SpinoRavenger` for reporting it on Discord!</details>
-- `Known Issue: Health Bar doesnt work for clients, only for the host`
-- `Known Issue: Some Ghost Girl sounds remain after her death under certain circumstances`
 
 ## 1.1.81
 - Fixed an error during lobby start, that occured when an enemy name contained a special character, the error did not affect gameplay <details><summary>Click for details</summary>Error in StartOfRoundPostfix: Cannot use any of the following characters in section and key names: = \n \t \ " ' [ ]
